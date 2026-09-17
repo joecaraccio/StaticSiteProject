@@ -12,6 +12,32 @@ Record meaningful choices here, newest first.
 
 ---
 
+### 2026-09-17 · Mockup data is quarantined, not forbidden
+- **Decision:** Design work uses a seeded generator (`scripts/make_mockup_data.py`) that writes to `data/mockup/`, builds to `site/dist-mockup/`, and passes `--demo-notice` to `export`. Every page it produces carries a visible banner and is forced to `noindex` by the layout, whatever the gates decided. The generator refuses to run against the real data root.
+- **Why:** "Never invent data" is about what reaches a published page. A mockup needs numbers to have a shape worth judging, so the resolution is containment rather than abstinence: synthetic figures are allowed as long as they are unmistakable, unindexable, and cannot end up in a real build.
+- **Alternatives considered:** No mockup at all (leaves the templates unreviewable until real data exists, which is the wrong order); hand-drawn static mockups (they drift from the real templates immediately); fake data in the real export directory (exactly what the rule forbids).
+- **Revisit if:** real data lands, at which point the mockup is only needed for edge cases the real data does not contain.
+
+### 2026-09-17 · The mockup runs through the real pipeline
+- **Decision:** The generator emits rows in the BTS *source* column layout and pushes them through the actual normalize → build → export path, rather than writing page JSON directly.
+- **Why:** A mockup that bypasses the pipeline only tells you about the templates. This one exercises the schema, the metrics, the gates and the summary rules, so the screenshots are evidence the system works end to end — and it caught real bugs.
+- **Alternatives considered:** Fabricating page JSON (faster, proves nothing).
+- **Revisit if:** generation time becomes a problem; 24 months is about 48,000 rows and a few seconds.
+
+### 2026-09-17 · Summary rules are Python functions, not YAML (for now)
+- **Decision:** `pipeline/summaries/rules.py` declares each rule as a function over a `SummaryContext`, collected in an ordered tuple. PLAN.md M6 specifies YAML rules; this is a deliberate deviation.
+- **Why:** The rules need real conditional logic (band thresholds, "one in N" phrasing, suppressing a comparison when the gap is noise). Expressing that in YAML means inventing an expression language and an interpreter for it, which is more code and less testable than the functions themselves. The rules stay deterministic and unit-tested either way, which is what the hard rule actually requires.
+- **Alternatives considered:** YAML with a small expression evaluator (more machinery, harder to test); a template string per rule with no conditions (cannot express the bands).
+- **Revisit if:** a non-programmer needs to edit the copy, which is the case YAML would earn its keep for.
+
+### 2026-09-17 · A caveat is not a summary
+- **Decision:** The `small_sample` rule returns nothing when there is no rate to qualify, so a page with no measurable flights matches zero rules and the gate drops it.
+- **Why:** Without this, the only sentence on an empty page was a warning about its own emptiness, and the summary gate counted that as a match — letting a page through on the strength of its disclaimer.
+- **Alternatives considered:** Excluding caveat rules from the gate count (more machinery for the same result).
+- **Revisit if:** more caveat-shaped rules appear, which would make a rule "kind" worth modelling explicitly.
+
+---
+
 ### 2026-09-17 · Verification is enforced in code, not by discipline
 - **Decision:** `pipeline ingest` refuses to run unless a verification record exists at `data/verification/<source>.json`, matches the current schema fingerprint, and reports no missing required columns. `verify-source` writes that record by downloading a month and reading the real CSV header.
 - **Why:** "Verify before hardcoding" is a rule that quietly decays. Making it a precondition means an unverified guess cannot become a dependency, and editing the column mapping automatically invalidates the old record.

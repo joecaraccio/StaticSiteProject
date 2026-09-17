@@ -126,13 +126,25 @@ def test_gate_outcome_is_recorded_on_the_document(con):
     doc = read("pages/airlines/AA.json")
     assert doc["gate"]["outcome"] in ("publish", "noindex")
     assert isinstance(doc["gate"]["noindex"], bool)
-    # The M6 gates must be visible as skipped, not absent.
-    assert any("summary" in s for s in doc["gate"]["skipped_gates"])
+    # The summary gate is now live; only the similarity gate remains skipped.
+    assert not any(s.startswith("summary") for s in doc["gate"]["skipped_gates"])
+    assert any(s.startswith("similarity") for s in doc["gate"]["skipped_gates"])
 
 
-def test_summary_field_exists_as_null_until_m6(con):
+def test_pages_carry_rule_based_summary_sentences(con):
     export(con)
-    assert read("pages/airlines/AA.json")["summary"] is None
+    summary = read("pages/airlines/AA.json")["summary"]
+    assert summary["matched_rules"][0] == "headline"
+    assert summary["sentences"][0].startswith("AA is usually late")
+    # The text must come from the rule engine, never from a language model.
+    assert len(summary["sentences"]) == len(summary["matched_rules"])
+
+
+def test_flight_pages_compare_themselves_to_their_route(con):
+    export(con)
+    sentences = " ".join(read("pages/flights/AA/100/BOS-LGA.json")["summary"]["sentences"])
+    assert "the BOS to LGA route" in sentences
+    assert "DL 200 is the most reliable option" in sentences
 
 
 def test_gate_report_lists_every_candidate_with_reasons(con):
@@ -153,3 +165,76 @@ def test_manifest_totals_agree_with_the_report(con):
     manifest = json.loads(Path(result.manifest_path).read_text())
     assert manifest["totals"]["drop"] == result.dropped
     assert manifest["totals"]["publish"] + manifest["totals"]["noindex"] == result.written
+
+
+# --- comparison with alternatives (PLAN.md §7 required block) --------------
+
+
+def test_flight_pages_carry_the_other_flights_on_their_route(con):
+    export(con)
+    doc = read("pages/flights/AA/100/BOS-LGA.json")
+    alts = doc["alternatives"]
+    assert {a["carrier"] for a in alts} == {"AA", "DL"}
+    assert all(a["url"].endswith("BOS-LGA") for a in alts)
+
+
+def test_the_page_own_flight_is_included_and_marked(con):
+    export(con)
+    alts = read("pages/flights/AA/100/BOS-LGA.json")["alternatives"]
+    marked = [a for a in alts if a["is_this_page"]]
+    assert len(marked) == 1
+    assert marked[0]["carrier"] == "AA" and marked[0]["flight_number"] == "100"
+
+
+def test_alternatives_are_ordered_best_on_time_first(con):
+    export(con)
+    alts = read("pages/flights/AA/100/BOS-LGA.json")["alternatives"]
+    rates = [a["on_time_rate"] for a in alts if a["on_time_rate"] is not None]
+    assert rates == sorted(rates, reverse=True)
+    assert alts[0]["carrier"] == "DL"  # 100% on time beats AA's 37.5%
+
+
+def test_alternatives_carry_a_typical_departure_time(con):
+    export(con)
+    alts = read("pages/flights/AA/100/BOS-LGA.json")["alternatives"]
+    times = {a["carrier"]: a["typical_sched_dep"] for a in alts}
+    assert times["DL"] == "1730"
+    assert times["AA"] == "0800"  # the single 2400 row does not beat eight 0800s
+
+
+def test_airline_and_airport_pages_have_no_alternatives_block(con):
+    export(con)
+    for page in ("pages/airlines/AA.json", "pages/airports/BOS.json"):
+        assert read(page)["alternatives"] == []
+
+
+def test_a_route_with_no_flights_left_fails_the_required_block_gate(con):
+    """An empty alternatives list on a flight or route page is a missing block."""
+    doc = {
+        "page_type": "route",
+        "alternatives": [],
+        "headline_stats": {"on_time_rate": 0.8},
+        "monthly_series": [{}],
+        "delay_causes": {"total_minutes": 1},
+        "delay_distribution": {"shares": {"on_time": 1.0}},
+    }
+    assert "alternatives" in pages._missing_blocks(doc)
+    doc["page_type"] = "airline"
+    assert "alternatives" not in pages._missing_blocks(doc)
+
+
+# --- demo builds -----------------------------------------------------------
+
+
+def test_real_exports_carry_no_demo_notice(con):
+    export(con)
+    assert read("pages/airlines/AA.json")["demo_notice"] is None
+    assert json.loads((config.PATHS.export / "manifest.json").read_text())["demo_notice"] is None
+
+
+def test_demo_notice_stamps_every_page_and_the_manifest(con):
+    notice = "Mockup: synthetic figures."
+    pages.export_all(con=con, today=TODAY, demo_notice=notice)
+    assert read("pages/airlines/AA.json")["demo_notice"] == notice
+    assert read("pages/airports/BOS.json")["demo_notice"] == notice
+    assert json.loads((config.PATHS.export / "manifest.json").read_text())["demo_notice"] == notice

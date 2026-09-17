@@ -13,7 +13,8 @@ RUN := $(COMPOSE) run --rm
 .DEFAULT_GOAL := help
 .PHONY: help up down restart logs ps dash build-images pull \
         verify-source ingest normalize build export status query sql \
-        site site-build dev test lint fmt ci ci-list shell clean clean-data
+        site site-build dev test lint fmt ci ci-list shell clean clean-data \
+        mockup mockup-site screenshots
 
 help: ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -94,6 +95,24 @@ site-build: ## Build the Astro site from the exported JSON
 
 dev: ## Astro dev server with hot reload
 	$(COMPOSE) --profile dev up site-dev
+
+# --- mockup --------------------------------------------------------------
+#
+# A synthetic dataset for design review. It never touches data/ or site/dist:
+# generated data lives in data/mockup/ and the build in site/dist-mockup/, and
+# every page it produces is stamped as synthetic and forced to noindex.
+
+mockup: ## Generate synthetic data and build the mockup site
+	uv run python scripts/make_mockup_data.py
+	$(MAKE) mockup-site
+
+mockup-site: ## Rebuild the mockup site from existing synthetic data
+	cd site && PAGES_DIR=$(CURDIR)/data/mockup/export OUT_DIR=dist-mockup npm run build
+
+screenshots: ## Screenshot the mockup into docs/screenshots (needs playwright)
+	@node -e "require.resolve('playwright')" 2>/dev/null \
+	  || { echo "playwright not installed. Run: cd site && npm i -D playwright"; exit 2; }
+	node scripts/screenshot_site.mjs
 
 # --- checks --------------------------------------------------------------
 

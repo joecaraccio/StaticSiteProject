@@ -1,0 +1,87 @@
+---
+interface Props {
+  compact?: boolean;
+}
+const { compact = false } = Astro.props as Props;
+const nav = [
+  { href: "/routes", label: "Routes" },
+  { href: "/airports", label: "Airports" },
+  { href: "/airlines", label: "Airlines" },
+  { href: "/connections", label: "Connections" },
+];
+const path = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="/">
+      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+        <circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+        <path d="M10 5.2V10l3.1 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+      </svg>
+      <span>Usually&nbsp;Late</span>
+    </a>
+    {
+      !compact && (
+        <nav aria-label="Sections">
+          {nav.map((item) => (
+            <a href={item.href} aria-current={path.startsWith(item.href) ? "page" : undefined}>
+              {item.label}
+            </a>
+          ))}
+        </nav>
+      )
+    }
+  </div>
+</header>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-raised);
+  }
+  .inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 16px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .wordmark {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 650;
+    font-size: 15.5px;
+    letter-spacing: -0.015em;
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+  nav {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  nav a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 6px;
+  }
+  nav a:hover {
+    background: var(--surface);
+    color: var(--text-primary);
+  }
+  nav a[aria-current="page"] {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+  @media (max-width: 520px) {
+    .inner { height: auto; padding: 10px 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
+    nav a { padding: 4px 8px; }
+  }
+</style>

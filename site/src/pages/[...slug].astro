@@ -11,6 +11,8 @@ import MonthlyChart from "../components/MonthlyChart.astro";
 import DelayDistribution from "../components/DelayDistribution.astro";
 import DelayCauses from "../components/DelayCauses.astro";
 import SourceNote from "../components/SourceNote.astro";
+import SummaryBlock from "../components/SummaryBlock.astro";
+import AlternativesTable from "../components/AlternativesTable.astro";
 import {
   readManifest,
   readPage,
@@ -27,11 +29,11 @@ export async function getStaticPaths() {
   if (!manifest) return [];
   return manifest.pages.map((entry) => ({
     params: { slug: entry.url.replace(/^\//, "") },
-    props: { doc: readPage(entry) },
+    props: { doc: readPage(entry), demoNotice: manifest.demo_notice },
   }));
 }
 
-const { doc } = Astro.props as { doc: PageDocument };
+const { doc, demoNotice } = Astro.props as { doc: PageDocument; demoNotice: string | null };
 const stats = doc.headline_stats;
 const title = pageTitle(doc);
 
@@ -57,11 +59,20 @@ const description =
   `${formatCount(stats.ops_scheduled)} scheduled flights, ${formatPeriod(doc.data_period)}.`;
 ---
 
-<Base title={`${title} — Usually Late`} description={description} noindex={doc.gate.noindex}>
-  <nav class="crumbs"><a href="/">Usually Late</a> / {doc.page_type}</nav>
+<Base
+  title={`${title} — Usually Late`}
+  description={description}
+  noindex={doc.gate.noindex}
+  demoNotice={demoNotice}
+>
+  <nav class="crumbs">
+    <a href="/">Home</a> / <span>{doc.page_type}</span>
+  </nav>
 
   <h1>{title}</h1>
   <p class="period">Trailing 12 months of {formatPeriod(doc.data_period)}</p>
+
+  <SummaryBlock summary={doc.summary} />
 
   {
     doc.gate.noindex && (
@@ -114,6 +125,19 @@ const description =
     On time means arriving less than 15 minutes after the scheduled arrival, among flights that
     operated. Cancellation rate is measured against scheduled flights.
   </p>
+
+  {
+    doc.alternatives.length > 0 && (
+      <>
+        <h2>Should you book a different flight?</h2>
+        <AlternativesTable
+          alternatives={doc.alternatives}
+          origin={String(k.origin)}
+          dest={String(k.dest)}
+        />
+      </>
+    )
+  }
 
   <h2>On-time rate by month</h2>
   <MonthlyChart

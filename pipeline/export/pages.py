@@ -21,6 +21,8 @@ import duckdb
 from pipeline import config
 from pipeline.gates.rules import Decision, Outcome, PageCandidate, evaluate, report_rows, summarize
 from pipeline.metrics import build
+from pipeline.summaries.rules import SummaryContext
+from pipeline.summaries.rules import summarize as summarize_page
 
 SCHEMA_VERSION = 1
 
@@ -40,7 +42,17 @@ PAGE_TYPES: dict[str, tuple[str, tuple[str, ...], str]] = {
 
 #: Blocks docs/PLAN.md §7 requires on every page. A block that comes back without
 #: real data fails the gate rather than rendering empty.
-REQUIRED_BLOCKS = ("headline_stats", "monthly_series", "delay_causes", "delay_distribution")
+REQUIRED_BLOCKS = (
+    "headline_stats",
+    "monthly_series",
+    "delay_causes",
+    "delay_distribution",
+    "alternatives",
+)
+
+#: How many alternatives to carry on a page. Long enough to be useful, short
+#: enough that the page is not a database dump.
+MAX_ALTERNATIVES = 12
 
 
 @dataclass
@@ -72,6 +84,114 @@ def _monthly_series(con: duckdb.DuckDBPyConnection, view: str, keys: dict[str, A
     )
     columns = [d[0] for d in cursor.description]
     return [dict(zip(columns, r, strict=True)) for r in cursor.fetchall()]
+
+
+def _alternatives(
+    con: duckdb.DuckDBPyConnection,
+    page_type: str,
+    keys: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """The other flights a traveller could book instead, best on-time first.
+
+    This is the "comparison with alternatives" block PLAN.md section 7 requires.
+    Only flight and route pages have a meaningful set: an airport or airline page
+    has no single alternative to compare against.
+
+    The page's own flight is included and marked, so a reader can see where it
+    sits rather than having to hold it in their head.
+    """
+    if page_type not in ("flight", "route"):
+        return []
+
+    cursor = con.execute(
+        """
+        SELECT carrier, flight_number, typical_sched_dep, ops_scheduled,
+               on_time_rate, cancellation_rate, avg_arr_delay_when_late_min
+        FROM flight_metrics
+        WHERE origin = ? AND dest = ?
+        ORDER BY on_time_rate DESC NULLS LAST, ops_scheduled DESC
+        LIMIT ?
+        """,
+        [keys["origin"], keys["dest"], MAX_ALTERNATIVES],
+    )
+    columns = [d[0] for d in cursor.description]
+    rows = [dict(zip(columns, r, strict=True)) for r in cursor.fetchall()]
+
+    for row in rows:
+        row["is_this_page"] = (
+            page_type == "flight"
+            and row["carrier"] == keys.get("carrier")
+            and row["flight_number"] == keys.get("flight_number")
+        )
+        row["url"] = (
+            f"/flights/{row['carrier']}/{row['flight_number']}/{keys['origin']}-{keys['dest']}"
+        )
+    return rows
+
+
+#: How a page's subject is phrased in summary sentences.
+def _subject(page_type: str, keys: dict[str, Any]) -> str:
+    match page_type:
+        case "flight":
+            return f"{keys['carrier']} {keys['flight_number']}"
+        case "route":
+            return f"The {keys['origin']} to {keys['dest']} route"
+        case "airport":
+            return f"Departures from {keys['airport']}"
+        case "airline":
+            return f"{keys['carrier']}"
+    return page_type
+
+
+def _summary_context(
+    page_type: str,
+    row: dict[str, Any],
+    keys: dict[str, Any],
+    monthly: list[dict],
+    alternatives: list[dict[str, Any]],
+    peer_rate: float | None,
+) -> SummaryContext:
+    """Assemble what the summary rules are allowed to see.
+
+    The rules phrase numbers; they never compute them. Everything here comes from
+    the metrics layer or from the alternatives already gathered for the page.
+    """
+    best = None
+    if page_type == "flight" and alternatives:
+        top = alternatives[0]
+        if not top["is_this_page"] and top["on_time_rate"] is not None:
+            best = (f"{top['carrier']} {top['flight_number']}", top["on_time_rate"])
+
+    peer_label = None
+    if page_type == "flight":
+        peer_label = f"the {keys['origin']} to {keys['dest']} route"
+
+    return SummaryContext(
+        page_type=page_type,
+        subject=_subject(page_type, keys),
+        ops_scheduled=row["ops_scheduled"],
+        ops_measurable=row["ops_measurable"],
+        on_time_rate=row["on_time_rate"],
+        cancellation_rate=row["cancellation_rate"],
+        avg_arr_delay_when_late_min=row["avg_arr_delay_when_late_min"],
+        share_3h_plus=row["share_3h_plus"],
+        monthly=tuple(
+            (m["month"], m["on_time_rate"]) for m in monthly if m["on_time_rate"] is not None
+        ),
+        peer_rate=peer_rate if page_type == "flight" else None,
+        peer_label=peer_label,
+        best_alternative=best,
+    )
+
+
+def _route_rates(con: duckdb.DuckDBPyConnection) -> dict[tuple[str, str], float]:
+    """Route-level on-time rates, so a flight page can say how it compares."""
+    return {
+        (origin, dest): rate
+        for origin, dest, rate in con.execute(
+            "SELECT origin, dest, on_time_rate FROM route_metrics"
+        ).fetchall()
+    }
 
 
 def _delay_causes(row: dict[str, Any]) -> dict[str, Any]:
@@ -128,6 +248,10 @@ def _missing_blocks(document: dict[str, Any]) -> tuple[str, ...]:
         missing.append("delay_causes")
     if document["delay_distribution"]["shares"] is None:
         missing.append("delay_distribution")
+    # Only flight and route pages carry alternatives, so an empty list is only a
+    # failure where the block is supposed to exist.
+    if document["page_type"] in ("flight", "route") and not document["alternatives"]:
+        missing.append("alternatives")
     return tuple(missing)
 
 
@@ -137,6 +261,7 @@ def _build_document(
     keys: dict[str, Any],
     url: str,
     monthly: list[dict],
+    alternatives: list[dict[str, Any]],
     period: tuple[date, date],
 ) -> dict[str, Any]:
     return {
@@ -168,11 +293,13 @@ def _build_document(
             "months_covered": row.get("months_covered"),
         },
         "monthly_series": monthly,
+        "alternatives": alternatives,
         "delay_causes": _delay_causes(row),
         "delay_distribution": _delay_distribution(row),
-        # Filled in by the rule engine in M6. Present as null so the site's shape
-        # does not change when it arrives.
+        # Replaced by the rule engine's output in export_all.
         "summary": None,
+        # Non-null only for synthetic mockup builds; see scripts/make_mockup_data.py.
+        "demo_notice": None,
     }
 
 
@@ -188,11 +315,17 @@ def export_all(
     con: duckdb.DuckDBPyConnection | None = None,
     *,
     today: date | None = None,
+    demo_notice: str | None = None,
 ) -> ExportResult:
     """Export every candidate page, gate it, and write the report.
 
     `today` is injectable so an export is reproducible: the data-age gate is the
     one rule that depends on wall-clock time.
+
+    `demo_notice` stamps every document and the manifest with a warning that the
+    figures are synthetic. The site renders it as a persistent banner and forces
+    `noindex`, so a mockup build cannot be mistaken for, or published as, the real
+    thing. It is None for every real export.
     """
     config.PATHS.ensure()
     owns = con is None
@@ -201,6 +334,7 @@ def export_all(
         period = _data_period(con)
         if period[0] is None:
             raise build.NoDataError("No operations in the database; run ingest first.")
+        route_rates = _route_rates(con)
 
         decisions: dict[str, Decision] = {}
         by_type: dict[str, dict[str, int]] = {}
@@ -218,7 +352,25 @@ def export_all(
                 keys = {k: row[k] for k in key_columns}
                 url = url_pattern.format(**{k: str(v) for k, v in keys.items()})
                 monthly = _monthly_series(con, MONTHLY_VIEW[page_type], keys)
-                document = _build_document(page_type, row, keys, url, monthly, period)
+                alternatives = _alternatives(con, page_type, keys)
+                document = _build_document(page_type, row, keys, url, monthly, alternatives, period)
+                if demo_notice:
+                    document["demo_notice"] = demo_notice
+
+                summary = summarize_page(
+                    _summary_context(
+                        page_type,
+                        row,
+                        keys,
+                        monthly,
+                        alternatives,
+                        route_rates.get((keys.get("origin"), keys.get("dest"))),
+                    )
+                )
+                document["summary"] = {
+                    "sentences": summary.sentences,
+                    "matched_rules": summary.matched_rules,
+                }
 
                 candidate = PageCandidate(
                     page_type=page_type,
@@ -227,6 +379,7 @@ def export_all(
                     last_seen=row.get("last_seen"),
                     data_period_end=period[1],
                     missing_blocks=_missing_blocks(document),
+                    summary_rules_matched=len(summary),
                     is_reporting_carrier=page_type == "airline",
                 )
                 decision = evaluate(candidate, today=today)
@@ -256,7 +409,9 @@ def export_all(
                 written += 1
 
         report_path = _write_report(decisions)
-        manifest_path = _write_manifest(manifest, period, summarize(decisions), by_type)
+        manifest_path = _write_manifest(
+            manifest, period, summarize(decisions), by_type, demo_notice
+        )
         return ExportResult(
             written=written,
             dropped=summarize(decisions)["drop"],
@@ -295,6 +450,7 @@ def _write_manifest(
     period: tuple[date, date],
     totals: dict[str, int],
     by_type: dict[str, dict[str, int]],
+    demo_notice: str | None = None,
 ) -> str:
     path = config.PATHS.export / "manifest.json"
     path.write_text(
@@ -304,6 +460,7 @@ def _write_manifest(
                 "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
                 "data_period": {"start": period[0].isoformat(), "end": period[1].isoformat()},
                 "source": {"attribution": ATTRIBUTION},
+                "demo_notice": demo_notice,
                 "totals": totals,
                 "by_page_type": by_type,
                 "pages": manifest,

@@ -1,0 +1,35 @@
+---
+import Base from "../../layouts/Base.astro";
+import IndexList from "../../components/IndexList.astro";
+import { readManifest, readPage, pageTitle, formatPeriod } from "../../lib/pages";
+
+const manifest = readManifest();
+const rows = (manifest?.pages ?? [])
+  .filter((p) => p.page_type === "route")
+  .map((p) => {
+    const doc = readPage(p);
+    return {
+      url: p.url,
+      title: pageTitle(doc),
+      onTime: doc.headline_stats.on_time_rate,
+      cancelled: doc.headline_stats.cancellation_rate,
+      ops: doc.headline_stats.ops_scheduled,
+    };
+  })
+  .sort((a, b) => (b.onTime ?? 0) - (a.onTime ?? 0));
+---
+
+<Base
+  title="Routes — Usually Late"
+  description="Every route in the data, best on-time record first."
+  demoNotice={manifest?.demo_notice ?? null}
+>
+  <nav class="crumbs"><a href="/">Home</a> / <span>routes</span></nav>
+  <h1>Routes</h1>
+  <p class="period">
+    {rows.length.toLocaleString("en-US")} routes{manifest && `, ${formatPeriod(manifest.data_period)}`}
+  </p>
+  <p class="muted">Every route in the data, best on-time record first.</p>
+
+  {rows.length > 0 ? <IndexList rows={rows} unit="Route" /> : <p class="notice">Nothing exported yet.</p>}
+</Base>

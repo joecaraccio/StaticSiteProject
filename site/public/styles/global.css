@@ -26,6 +26,12 @@
   --sev-none: #9b9a94; /* cancelled or diverted */
 
   --grid: #e8e7e3;
+
+  /* Mockup banner. Deliberately unlike anything else on the page. */
+  --demo-bg: #fdf2dc;
+  --demo-text: #6b3f00;
+  --demo-border: #e8c98a;
+
   --radius: 8px;
   --measure: 68ch;
 }
@@ -52,6 +58,10 @@
     --sev-none: #6e6d67;
 
     --grid: #2e2e2b;
+
+    --demo-bg: #3a2c10;
+    --demo-text: #f6d79b;
+    --demo-border: #5c4718;
   }
 }
 
@@ -65,7 +75,7 @@ body {
   -webkit-text-size-adjust: 100%;
 }
 
-.wrap { max-width: 880px; margin: 0 auto; padding: 24px 16px 72px; }
+.wrap { max-width: 880px; margin: 0 auto; padding: 24px 16px 40px; }
 
 a { color: var(--link); }
 a:hover { text-decoration-thickness: 2px; }
@@ -105,12 +115,14 @@ details { margin-top: 10px; }
 summary { cursor: pointer; color: var(--text-secondary); font-size: 13.5px; }
 
 ul.links { list-style: none; padding: 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-ul.links a { display: block; background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; text-decoration: none; }
+ul.links a { display: block; background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 11px 13px; text-decoration: none; }
 ul.links a:hover { border-color: var(--link); }
-ul.links .t { color: var(--text-primary); font-weight: 500; }
-ul.links .s { color: var(--text-muted); font-size: 12.5px; }
+/* Both spans are block-level: a subtitle running inline with the title reads as
+   one run-on sentence ("DEN to ATL flights 78% on time"). */
+ul.links .t { display: block; color: var(--text-primary); font-weight: 500; line-height: 1.35; }
+ul.links .s { display: block; color: var(--text-muted); font-size: 12.5px; margin-top: 3px; }
 
 .notice { background: var(--surface-raised); border: 1px solid var(--border); border-left: 3px solid var(--sev-none); border-radius: var(--radius); padding: 12px 14px; font-size: 14px; color: var(--text-secondary); }
 
-footer.source { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; }
+footer.source { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; }
 footer.source p { max-width: var(--measure); margin: 0 0 6px; }

@@ -173,10 +173,11 @@ Title matching search phrasing, data period, source credit, rule-based summary, 
 
 Check tasks off here as they're completed.
 
-> Status note (2026-09-17): M0 and M3 are complete; M4 is complete apart from the
-> similarity gate, which needs M6. M1's code is written and tested but the source
-> is **not verified** — see docs/DATA_NOTES.md. M5's templates render and build
-> but are a first pass. Boxes below are ticked only for work that is done.
+> Status note (2026-09-17): M0, M3 and M4 are complete, and M6's rule engine is
+> done (the similarity check is not). M1's code is written and tested but the
+> source is **not verified** — see docs/DATA_NOTES.md. M5 renders every page type;
+> screenshots of all of them are in docs/screenshots/, captured from a synthetic
+> mockup build. Boxes below are ticked only for work that is done.
 
 ### M0 · Repo foundation
 - [x] Initialize repo, `uv` project, `ruff`, `pytest`, `.gitignore` (including `data/`, `.env`)
@@ -220,8 +221,8 @@ Check tasks off here as they're completed.
 - **Done when:** local build renders all published pages and passes a Lighthouse check.
 
 ### M6 · Summaries and similarity gate
-- [ ] Rule engine in `pipeline/summaries/` with YAML rules
-- [ ] Tests covering each rule
+- [x] Rule engine in `pipeline/summaries/` (Python rules, not YAML — see DECISIONS.md)
+- [x] Tests covering each rule
 - [ ] Similarity check against sibling pages feeding the gate runner (the gate is wired and reports itself as skipped until this lands)
 - **Done when:** a random sample of 50 pages reads naturally and varies meaningfully.
 

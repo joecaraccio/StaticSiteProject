@@ -82,6 +82,14 @@ cd site && npm install && npm run dev
 PAGES_DIR=../data/export npm run build
 ```
 
+Design work (synthetic data, never mixed with real data):
+
+```
+make mockup          # generate data/mockup/ and build site/dist-mockup/
+make mockup-site     # rebuild the mockup site from existing synthetic data
+make screenshots     # capture docs/screenshots/ from the mockup build
+```
+
 ## Working agreement
 
 - Work milestone by milestone from `docs/PLAN.md`. Pick the next unchecked task, finish it, and check it off.
@@ -99,7 +107,8 @@ PAGES_DIR=../data/export npm run build
 - **Be polite to sources.** Throttle downloads, cache everything, and never re-download a file whose checksum hasn't changed.
 - **Raw data is immutable.** Store downloads as received, with a checksum and fetch timestamp. All transformations happen downstream.
 - **Quality gates are not optional.** Every generated page must pass through the gate runner, which returns `publish`, `noindex`, or `drop`. A gate whose input does not exist yet must report itself as *skipped* in the report, never pass silently.
-- **Summary text is rule-based.** Page summaries come from deterministic, tested rules in `pipeline/summaries/`, not from a language model at build time.
+- **Summary text is rule-based.** Page summaries come from deterministic, tested rules in `pipeline/summaries/`, not from a language model at build time. Templates phrase nothing: a verdict word like "usually late" is summary text and belongs in a rule.
+- **Mockup data is quarantined.** Synthetic data for design work lives in `data/mockup/`, builds to `site/dist-mockup/`, and every page it produces carries a visible banner and is forced to `noindex`. Never point a real build at it.
 - **Credit the source.** Every page states that data comes from the U.S. Department of Transportation, Bureau of Transportation Statistics, and shows the data period.
 - **No secrets in the repo.** Use environment variables and `.env` (gitignored).
 

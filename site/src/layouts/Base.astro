@@ -1,18 +1,34 @@
 ---
 /**
- * Page shell: title, meta, canonical, and the robots rule for gated pages.
+ * Page shell: header, footer, meta, canonical, and the robots rule.
  *
  * A page the gates marked `noindex` gets the meta tag here rather than relying on
- * robots.txt, so the decision travels with the page.
+ * robots.txt, so the decision travels with the page. A mockup build is always
+ * noindexed regardless of what the gates decided.
  */
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import DemoBanner from "../components/DemoBanner.astro";
+
 interface Props {
   title: string;
   description?: string;
   noindex?: boolean;
+  demoNotice?: string | null;
+  compactHeader?: boolean;
 }
 
-const { title, description, noindex = false } = Astro.props as Props;
+const {
+  title,
+  description,
+  noindex = false,
+  demoNotice = null,
+  compactHeader = false,
+} = Astro.props as Props;
+
 const canonical = new URL(Astro.url.pathname, Astro.site ?? "http://localhost:8081");
+// Synthetic pages must never be indexed, whatever the gates said.
+const blockIndexing = noindex || Boolean(demoNotice);
 ---
 
 <!doctype html>
@@ -23,12 +39,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "http://localhost:80
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
     <link rel="canonical" href={canonical.href} />
-    {noindex && <meta name="robots" content="noindex, follow" />}
+    {blockIndexing && <meta name="robots" content="noindex, follow" />}
     <link rel="stylesheet" href="/styles/global.css" />
   </head>
   <body>
-    <div class="wrap">
+    {demoNotice && <DemoBanner notice={demoNotice} />}
+    <SiteHeader compact={compactHeader} />
+    <main class="wrap">
       <slot />
-    </div>
+    </main>
+    <SiteFooter />
   </body>
 </html>

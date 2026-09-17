@@ -21,6 +21,18 @@ export interface MonthPoint {
   cancellation_rate: number | null;
 }
 
+export interface Alternative {
+  carrier: string;
+  flight_number: string;
+  typical_sched_dep: string | null;
+  ops_scheduled: number;
+  on_time_rate: number | null;
+  cancellation_rate: number | null;
+  avg_arr_delay_when_late_min: number | null;
+  is_this_page: boolean;
+  url: string;
+}
+
 export interface PageDocument {
   schema_version: number;
   page_type: PageType;
@@ -53,7 +65,9 @@ export interface PageDocument {
     counts: Record<string, number>;
     shares: Record<string, number> | null;
   };
-  summary: string[] | null;
+  alternatives: Alternative[];
+  summary: { sentences: string[]; matched_rules: string[] } | null;
+  demo_notice: string | null;
   gate: {
     outcome: "publish" | "noindex";
     noindex: boolean;
@@ -75,6 +89,7 @@ export interface Manifest {
   generated_at: string;
   data_period: { start: string; end: string };
   source: { attribution: string };
+  demo_notice: string | null;
   totals: Record<string, number>;
   by_page_type: Record<string, Record<string, number>>;
   pages: ManifestEntry[];

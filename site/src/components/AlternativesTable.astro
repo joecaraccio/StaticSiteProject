@@ -1,0 +1,132 @@
+---
+/**
+ * "Comparison with alternatives" — the block PLAN.md section 7 requires, and the
+ * one that answers the question the whole site exists for: should I book a
+ * different flight?
+ *
+ * The bar is a magnitude comparison within one column, so it uses the sequential
+ * hue rather than a colour per row. The current page's row is marked with a label
+ * and a surface change, never by colour alone.
+ */
+interface Alternative {
+  carrier: string;
+  flight_number: string;
+  typical_sched_dep: string | null;
+  ops_scheduled: number;
+  on_time_rate: number | null;
+  cancellation_rate: number | null;
+  avg_arr_delay_when_late_min: number | null;
+  is_this_page: boolean;
+  url: string;
+}
+
+interface Props {
+  alternatives: Alternative[];
+  origin: string;
+  dest: string;
+}
+
+const { alternatives, origin, dest } = Astro.props as Props;
+
+const time = (hhmm: string | null) => {
+  if (!hhmm || hhmm.length < 3) return "—";
+  const padded = hhmm.padStart(4, "0");
+  const hour = Number(padded.slice(0, 2)) % 24;
+  const suffix = hour < 12 ? "am" : "pm";
+  const twelve = hour % 12 === 0 ? 12 : hour % 12;
+  return `${twelve}:${padded.slice(2)}${suffix}`;
+};
+const pct = (v: number | null) => (v === null ? "—" : `${(v * 100).toFixed(0)}%`);
+const best = Math.max(...alternatives.map((a) => a.on_time_rate ?? 0), 0.0001);
+---
+
+<figure>
+  <table class="alternatives">
+    <thead>
+      <tr>
+        <th>Flight</th>
+        <th>Departs</th>
+        <th>On time</th>
+        <th class="num">Cancelled</th>
+        <th class="num">Flights</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        alternatives.map((a) => (
+          <tr class={a.is_this_page ? "current" : undefined}>
+            <td>
+              {a.is_this_page ? (
+                <span>
+                  <strong>
+                    {a.carrier} {a.flight_number}
+                  </strong>
+                  <span class="badge">this page</span>
+                </span>
+              ) : (
+                <a href={a.url}>
+                  {a.carrier} {a.flight_number}
+                </a>
+              )}
+            </td>
+            <td class="time">{time(a.typical_sched_dep)}</td>
+            <td>
+              <span class="rate">
+                <svg
+                  viewBox="0 0 100 10"
+                  preserveAspectRatio="none"
+                  role="img"
+                  aria-label={`${pct(a.on_time_rate)} on time`}
+                  style="width:84px;height:10px"
+                >
+                  <rect x="0" y="0" width="100" height="10" rx="4" fill="var(--grid)" />
+                  <rect
+                    x="0"
+                    y="0"
+                    width={Math.max(2, ((a.on_time_rate ?? 0) / best) * 100)}
+                    height="10"
+                    rx="4"
+                    fill="var(--series-1)"
+                  />
+                </svg>
+                <strong>{pct(a.on_time_rate)}</strong>
+              </span>
+            </td>
+            <td class="num">{pct(a.cancellation_rate)}</td>
+            <td class="num">{a.ops_scheduled.toLocaleString("en-US")}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+  <figcaption>
+    Every {origin}–{dest} flight in the data, best on-time record first. Bars are relative to the
+    most reliable flight on the route.
+  </figcaption>
+</figure>
+
+<style>
+  .alternatives td,
+  .alternatives th { vertical-align: middle; }
+  .alternatives tr.current { background: var(--surface-raised); }
+  .badge {
+    display: inline-block;
+    margin-left: 7px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 1px 7px;
+    vertical-align: 1px;
+  }
+  .time { color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .rate { display: flex; align-items: center; gap: 9px; }
+  .rate strong { font-variant-numeric: tabular-nums; min-width: 34px; }
+  @media (max-width: 560px) {
+    .alternatives th:nth-child(4), .alternatives td:nth-child(4) { display: none; }
+    .rate svg { width: 48px !important; }
+  }
+</style>

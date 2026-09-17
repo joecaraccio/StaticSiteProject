@@ -25,6 +25,7 @@ build/
 # Node / Astro
 node_modules/
 site/dist/
+site/dist-mockup/
 site/.astro/
 .npm/
 

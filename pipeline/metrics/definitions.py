@@ -101,6 +101,9 @@ METRIC_EXPRESSIONS: tuple[tuple[str, str], ...] = (
     ("security_delay_min", "sum(security_delay)"),
     ("late_aircraft_delay_min", "sum(late_aircraft_delay)"),
     ("attributed_delay_min", "sum(attributed_delay_min)"),
+    # The scheduled departure a traveller would recognise. Flights are sometimes
+    # retimed mid-year, so this is the most common value, not the only one.
+    ("typical_sched_dep", "mode(sched_dep)"),
     # Coverage / freshness
     ("first_seen", "min(flight_date)"),
     ("last_seen", "max(flight_date)"),

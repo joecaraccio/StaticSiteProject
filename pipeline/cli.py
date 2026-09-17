@@ -127,7 +127,7 @@ def cmd_export(args: argparse.Namespace) -> int:
         print("No database yet. Run `pipeline build` first.", file=sys.stderr)
         return 2
     try:
-        result = pages.export_all(today=args.today)
+        result = pages.export_all(today=args.today, demo_notice=args.demo_notice)
     except build.NoDataError as exc:
         print(str(exc), file=sys.stderr)
         return 2
@@ -241,6 +241,11 @@ def build_parser() -> argparse.ArgumentParser:
         type=date.fromisoformat,
         metavar="YYYY-MM-DD",
         help="treat this as today's date when checking data age (for reproducible runs)",
+    )
+    p.add_argument(
+        "--demo-notice",
+        metavar="TEXT",
+        help="stamp every page as synthetic (mockup builds only; forces noindex on the site)",
     )
     p.set_defaults(func=cmd_export)
 

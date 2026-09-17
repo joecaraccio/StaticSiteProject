@@ -2,6 +2,60 @@
 
 Update at the end of each working session.
 
+## 2026-09-17 (later) — mockup and screenshots
+
+**Done**
+
+- **Site mockup, screenshotted.** `docs/screenshots/` has all seven page types in
+  light, dark and at phone width. Everything in them is synthetic and every page
+  says so — see the quarantine note below.
+- **`scripts/make_mockup_data.py`** generates a seeded 24-month dataset (about
+  48,000 operations across 5 carriers, 6 airports, 18 routes) in the BTS *source*
+  column layout and pushes it through the real normalize → build → export path.
+  The screenshots are therefore evidence the pipeline works end to end, not a
+  drawing of what it might look like. It produced 101 pages with 0 drops.
+- **M6 rule engine (`pipeline/summaries/rules.py`).** Eight deterministic rules
+  producing the page summary: headline band, comparison against the route average,
+  a better option if one exists, worst month, cancellations, how late when late,
+  severe delays, and a small-sample caveat. 23 tests.
+  This also **switches on the summary gate**, which had been reporting itself as
+  skipped. Only the similarity gate remains unenforced.
+- **"Comparison with alternatives"** — the PLAN.md §7 required block that was
+  missing. Flight and route pages now carry every flight on the route, best
+  on-time first, with the current page marked. It is a required block, so an empty
+  one fails the gate.
+- **Site design.** Header and nav, footer, home page with a client-side search
+  (progressive enhancement: the full list renders without JavaScript), section
+  indexes for routes/airports/airlines, and a connection-checker page.
+- 132 tests passing.
+
+**How the mockup avoids inventing data**
+
+CLAUDE.md forbids placeholder statistics in pages. The resolution is containment:
+synthetic data lives in `data/mockup/`, builds to `site/dist-mockup/`, and every
+page carries a banner and is forced to `noindex` regardless of gate outcome. The
+generator refuses to run against the real data root. Airport and carrier codes are
+real because they are public facts; every number is invented and labelled.
+
+**Next**
+
+1. Still the same #1: **`make verify-source MONTH=2025-01`** from a machine that
+   can reach BTS. Everything built so far is waiting on it.
+2. M7 connection checker. The page exists but says "not computed yet" rather than
+   showing an invented made-it rate. Needs MCT defaults per hub logged in
+   DECISIONS.md.
+3. M6's similarity check, the last unenforced gate.
+4. M2: multi-year load, BTS lookup tables, and reproducing a published BTS figure.
+
+**Open questions**
+
+- Playwright is needed for `make screenshots` but is not in the declared stack, so
+  it has not been added. Worth adding as a site devDependency?
+- The flight page is long. Worth considering whether the delay-cause table earns
+  its place above the fold on mobile.
+- Airport pages compute an arrival/departure role split but the template only
+  shows departures.
+
 ## 2026-09-17
 
 **Done**

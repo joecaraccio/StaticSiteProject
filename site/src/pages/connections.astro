@@ -1,0 +1,171 @@
+---
+/**
+ * Connection checker — interface mockup.
+ *
+ * The method is specified in docs/PLAN.md section 8 and the precomputation is
+ * M7, which has not been built. This page therefore shows the interface and
+ * states plainly that no results exist yet, rather than inventing connection
+ * outcomes: a made/missed rate is exactly the kind of number that must come from
+ * data, not from a designer.
+ *
+ * The airport and flight options are real entries from the exported pages, so the
+ * shape of the control is honest even though the answer is not computed.
+ */
+import Base from "../layouts/Base.astro";
+import { readManifest, readPage } from "../lib/pages";
+
+const manifest = readManifest();
+
+// Hubs are airports that appear as both an origin and a destination often enough
+// to connect through. Derived from the exported routes, not hardcoded.
+const routes = (manifest?.pages ?? []).filter((p) => p.page_type === "route");
+const inbound = new Map<string, number>();
+const outbound = new Map<string, number>();
+for (const route of routes) {
+  const doc = readPage(route);
+  const origin = String(doc.key.origin);
+  const dest = String(doc.key.dest);
+  outbound.set(origin, (outbound.get(origin) ?? 0) + doc.headline_stats.ops_scheduled);
+  inbound.set(dest, (inbound.get(dest) ?? 0) + doc.headline_stats.ops_scheduled);
+}
+const hubs = [...outbound.keys()]
+  .filter((code) => inbound.has(code))
+  .map((code) => ({ code, volume: (inbound.get(code) ?? 0) + (outbound.get(code) ?? 0) }))
+  .sort((a, b) => b.volume - a.volume)
+  .slice(0, 6);
+---
+
+<Base
+  title="Will I make my connection? — Usually Late"
+  description="Check how often a specific connection has actually worked, using Department of Transportation arrival and departure times."
+  demoNotice={manifest?.demo_notice ?? null}
+>
+  <nav class="crumbs"><a href="/">Home</a> / <span>connections</span></nav>
+
+  <h1>Will I make my connection?</h1>
+  <p class="lede">
+    Pick the flight you arrive on and the flight you leave on. We look at every day both were
+    scheduled and count how often the arrival actually landed early enough to make the departure.
+  </p>
+
+  <form class="checker" onsubmit="return false">
+    <div class="field">
+      <label for="hub">Connecting at</label>
+      <select id="hub">
+        {hubs.map((h) => <option value={h.code}>{h.code}</option>)}
+      </select>
+    </div>
+    <div class="field">
+      <label for="inbound">Arriving on</label>
+      <select id="inbound">
+        <option>Choose a flight…</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="outbound">Leaving on</label>
+      <select id="outbound">
+        <option>Choose a flight…</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="mct">Minimum connection time</label>
+      <select id="mct">
+        <option>45 minutes (domestic default)</option>
+        <option>60 minutes</option>
+        <option>90 minutes</option>
+      </select>
+    </div>
+    <button type="submit" disabled>Check</button>
+  </form>
+
+  <div class="notice pending">
+    <p style="margin-top:0">
+      <strong>Not computed yet.</strong> The connection results are precomputed by the pipeline, and
+      that step (milestone M7) has not been built. Rather than show an invented made-it rate, this
+      page shows the interface only.
+    </p>
+    <p style="margin-bottom:0">
+      When it lands, each pair will report a made rate, the number of days both flights were
+      scheduled, and the assumed minimum connection time.
+    </p>
+  </div>
+
+  <h2>How a connection is judged</h2>
+  <ol class="method">
+    <li>
+      <strong>Both flights had to be scheduled on the same day.</strong> Only those days count, and
+      the page shows how many there were.
+    </li>
+    <li>
+      <strong>The connection is made</strong> if the inbound flight's actual arrival, plus the
+      minimum connection time, is at or before the outbound flight's actual departure — and the
+      outbound flight operated.
+    </li>
+    <li>
+      <strong>A cancelled or diverted inbound flight is a miss.</strong> You did not make the
+      connection, whatever the reason.
+    </li>
+    <li>
+      <strong>A cancelled outbound flight is recorded separately.</strong> You would have been
+      rebooked regardless, so counting it as a miss would blame the wrong flight.
+    </li>
+    <li>
+      <strong>Minimum connection time is an assumption, and is labelled as one.</strong> There is no
+      public source for official minimum connection times, so the figure above is a default you can
+      change, not an airline's published number.
+    </li>
+    <li>
+      <strong>Pairs with fewer than 30 co-scheduled days are not shown.</strong> Below that the
+      answer is noise.
+    </li>
+  </ol>
+
+  <footer class="source">
+    <p>
+      <strong>Source:</strong> U.S. Department of Transportation, Bureau of Transportation
+      Statistics. Arrival and departure times are as reported by the operating carrier.
+    </p>
+  </footer>
+</Base>
+
+<style>
+  .lede { font-size: 16.5px; color: var(--text-secondary); max-width: 62ch; }
+  .checker {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    align-items: end;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin: 22px 0 16px;
+  }
+  .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  label { font-size: 12.5px; color: var(--text-secondary); font-weight: 600; }
+  select {
+    font: inherit;
+    font-size: 14px;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--surface);
+    color: var(--text-primary);
+    width: 100%;
+  }
+  button {
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+  }
+  button[disabled] { cursor: not-allowed; }
+  .pending { border-left-color: var(--demo-border); }
+  .method { max-width: 68ch; padding-left: 20px; color: var(--text-secondary); font-size: 14.5px; }
+  .method li { margin-bottom: 9px; }
+  .method strong { color: var(--text-primary); }
+</style>
