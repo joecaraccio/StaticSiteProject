@@ -1,4 +1,6 @@
 ---
+import { pageExists } from "../lib/pages";
+
 /**
  * "Comparison with alternatives" — the block PLAN.md section 7 requires, and the
  * one that answers the question the whole site exists for: should I book a
@@ -28,6 +30,11 @@ interface Props {
 
 const { alternatives, origin, dest } = Astro.props as Props;
 
+// A flight can appear here without having a page of its own: the comparison is
+// worth showing even for a flight the gates dropped for thin data. Those rows
+// render as plain text rather than as links to a 404.
+const rows = alternatives.map((a) => ({ ...a, hasPage: pageExists(a.url) }));
+
 const time = (hhmm: string | null) => {
   if (!hhmm || hhmm.length < 3) return "—";
   const padded = hhmm.padStart(4, "0");
@@ -53,7 +60,7 @@ const best = Math.max(...alternatives.map((a) => a.on_time_rate ?? 0), 0.0001);
     </thead>
     <tbody>
       {
-        alternatives.map((a) => (
+        rows.map((a) => (
           <tr class={a.is_this_page ? "current" : undefined}>
             <td>
               {a.is_this_page ? (
@@ -63,10 +70,15 @@ const best = Math.max(...alternatives.map((a) => a.on_time_rate ?? 0), 0.0001);
                   </strong>
                   <span class="badge">this page</span>
                 </span>
-              ) : (
+              ) : a.hasPage ? (
                 <a href={a.url}>
                   {a.carrier} {a.flight_number}
                 </a>
+              ) : (
+                <span class="unlinked">
+                  {a.carrier} {a.flight_number}
+                  <span class="badge">no page</span>
+                </span>
               )}
             </td>
             <td class="time">{time(a.typical_sched_dep)}</td>
@@ -122,6 +134,7 @@ const best = Math.max(...alternatives.map((a) => a.on_time_rate ?? 0), 0.0001);
     padding: 1px 7px;
     vertical-align: 1px;
   }
+  .unlinked { color: var(--text-secondary); }
   .time { color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .rate { display: flex; align-items: center; gap: 9px; }
   .rate strong { font-variant-numeric: tabular-nums; min-width: 34px; }

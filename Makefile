@@ -13,8 +13,8 @@ RUN := $(COMPOSE) run --rm
 .DEFAULT_GOAL := help
 .PHONY: help up down restart logs ps dash build-images pull \
         verify-source ingest normalize build export status query sql \
-        site site-build dev test lint fmt ci ci-list shell clean clean-data \
-        mockup mockup-site screenshots
+        site site-build dev test lint fmt check-site ci ci-list shell clean clean-data \
+        mockup mockup-site screenshots check-links
 
 help: ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -109,10 +109,11 @@ mockup: ## Generate synthetic data and build the mockup site
 mockup-site: ## Rebuild the mockup site from existing synthetic data
 	cd site && PAGES_DIR=$(CURDIR)/data/mockup/export OUT_DIR=dist-mockup npm run build
 
-screenshots: ## Screenshot the mockup into docs/screenshots (needs playwright)
-	@node -e "require.resolve('playwright')" 2>/dev/null \
-	  || { echo "playwright not installed. Run: cd site && npm i -D playwright"; exit 2; }
+screenshots: ## Screenshot the mockup into docs/screenshots
 	node scripts/screenshot_site.mjs
+
+check-links: ## Verify every internal link in the mockup build resolves
+	node scripts/check_links.mjs site/dist-mockup
 
 # --- checks --------------------------------------------------------------
 
@@ -121,6 +122,9 @@ test: ## Run pytest in the pipeline image
 
 lint: ## ruff check + format check
 	$(RUN) --entrypoint sh pipeline -lc "ruff check . && ruff format --check ."
+
+check-site: ## Type-check the Astro site
+	cd site && npm run check
 
 fmt: ## Apply ruff formatting
 	$(RUN) --entrypoint sh pipeline -lc "ruff check --fix . && ruff format ."

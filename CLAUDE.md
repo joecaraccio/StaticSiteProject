@@ -23,7 +23,12 @@ The full plan, milestones, and acceptance criteria are in `docs/PLAN.md`. Data-s
 - Astro for the site, with charts rendered as inline SVG at build time
 - Docker System to run the pipelines. Use docker compose for local development. 
 
-Ask before adding any dependency not listed here.
+Dev dependencies (test, lint, type-check, tooling) can be added as needed. Ask
+before adding a **runtime** dependency not listed above — anything that ships in
+the pipeline or the built site.
+
+Current dev-only additions: `playwright` and `@astrojs/check` + `typescript` in
+`site/`, for screenshots and site type-checking.
 
 ## Repository layout
 
@@ -63,6 +68,13 @@ uv run python -m pipeline export                     # page JSON + quality gates
 uv run python -m pipeline query "SELECT ..."         # read-only SQL
 ```
 
+Site checks:
+
+```
+cd site && npm run check                             # astro check (types)
+make check-site                                      # the same thing
+```
+
 Through Docker (see `docker/README.md`); `make` sets HOST_REPO_PATH for you:
 
 ```
@@ -89,6 +101,8 @@ make mockup          # generate data/mockup/ and build site/dist-mockup/
 make mockup-site     # rebuild the mockup site from existing synthetic data
 make screenshots     # capture docs/screenshots/ from the mockup build
 ```
+
+Screenshots need Chromium once: `cd site && npx playwright install chromium`.
 
 ## Working agreement
 

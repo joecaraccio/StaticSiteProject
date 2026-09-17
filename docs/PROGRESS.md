@@ -2,7 +2,38 @@
 
 Update at the end of each working session.
 
-## 2026-09-17 (later) — mockup and screenshots
+## 2026-09-17 (latest) — dev dependencies, type checking, broken links
+
+**Done**
+
+- Owner approved adding dev dependencies freely; runtime dependencies still need
+  asking. Recorded in CLAUDE.md.
+- **Playwright** is now a `site/` devDependency, so `make screenshots` works from
+  a clean checkout. The script resolves it out of `site/node_modules` and no
+  longer hardcodes a container-specific browser path — it prefers whatever
+  Playwright installed, falls back to `PLAYWRIGHT_BROWSERS_PATH`, and honours
+  `CHROMIUM_PATH`.
+- **`astro check`** (`@astrojs/check` + `typescript`) added and wired into CI and
+  `make check-site`. Currently 0 errors.
+- **`scripts/check_links.mjs`** — verifies every internal link in a build resolves,
+  with no dependencies. It found a real bug immediately: templates linked to
+  "the return route", "all flights on this route" and other flights in the
+  comparison table without checking whether the gates had dropped those pages.
+  In the mockup nothing drops so it was invisible; against a gated build it
+  produced two 404s, and with real data most routes fall below the 60-operation
+  threshold, so this would have been widespread.
+- **Fixed** by routing pattern-built links through a new `pageExists()` helper.
+  A dropped alternative still appears in the comparison table — the data is
+  useful — but as plain text rather than a link.
+- **New CI job** generates six months of synthetic data, runs the full
+  ingest → metrics → gates → export → site chain and checks the links. It is the
+  only coverage of the seams between stages, and it needs no BTS access.
+
+**Next**
+
+Unchanged: `make verify-source MONTH=2025-01` from a machine that can reach BTS.
+
+## 2026-09-17 (earlier) — mockup and screenshots
 
 **Done**
 
@@ -49,8 +80,6 @@ real because they are public facts; every number is invented and labelled.
 
 **Open questions**
 
-- Playwright is needed for `make screenshots` but is not in the declared stack, so
-  it has not been added. Worth adding as a site devDependency?
 - The flight page is long. Worth considering whether the delay-cause table earns
   its place above the fold on mobile.
 - Airport pages compute an arrival/departure role split but the template only

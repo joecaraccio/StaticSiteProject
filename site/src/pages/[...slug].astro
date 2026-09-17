@@ -21,6 +21,7 @@ import {
   formatMinutes,
   formatCount,
   formatPeriod,
+  pageExists,
   type PageDocument,
 } from "../lib/pages";
 
@@ -38,21 +39,31 @@ const stats = doc.headline_stats;
 const title = pageTitle(doc);
 
 // Internal links: flight <-> route <-> airport <-> airline (docs/PLAN.md §9).
-const related: { href: string; label: string }[] = [];
+// Candidates are built from URL patterns, so each one is checked against what
+// this build actually serves before it is rendered — the target may have been
+// dropped by the gates.
+const candidates: { href: string; label: string }[] = [];
 const k = doc.key;
 if (doc.page_type === "flight") {
-  related.push({ href: `/routes/${k.origin}-${k.dest}`, label: `All ${k.origin}–${k.dest} flights` });
-  related.push({ href: `/airlines/${k.carrier}`, label: `${k.carrier} overall` });
-  related.push({ href: `/airports/${k.origin}`, label: `${k.origin} airport` });
+  candidates.push({
+    href: `/routes/${k.origin}-${k.dest}`,
+    label: `All ${k.origin}–${k.dest} flights`,
+  });
+  candidates.push({ href: `/airlines/${k.carrier}`, label: `${k.carrier} overall` });
+  candidates.push({ href: `/airports/${k.origin}`, label: `${k.origin} airport` });
+  candidates.push({ href: `/airports/${k.dest}`, label: `${k.dest} airport` });
 } else if (doc.page_type === "route") {
-  related.push({ href: `/airports/${k.origin}`, label: `${k.origin} airport` });
-  related.push({ href: `/airports/${k.dest}`, label: `${k.dest} airport` });
-  related.push({ href: `/routes/${k.dest}-${k.origin}`, label: `Return: ${k.dest}–${k.origin}` });
-} else if (doc.page_type === "airline") {
-  related.push({ href: "/", label: "All airlines" });
-} else if (doc.page_type === "airport") {
-  related.push({ href: "/", label: "All airports" });
+  candidates.push({ href: `/airports/${k.origin}`, label: `${k.origin} airport` });
+  candidates.push({ href: `/airports/${k.dest}`, label: `${k.dest} airport` });
+  candidates.push({ href: `/routes/${k.dest}-${k.origin}`, label: `Return: ${k.dest}–${k.origin}` });
 }
+
+const related = candidates.filter((r) => pageExists(r.href));
+// Section indexes are ordinary pages that always exist, so they are appended
+// after the filter rather than passing through it.
+if (doc.page_type === "airline") related.push({ href: "/airlines", label: "All airlines" });
+if (doc.page_type === "airport") related.push({ href: "/airports", label: "All airports" });
+if (doc.page_type === "route") related.push({ href: "/routes", label: "All routes" });
 
 const description =
   `${title}: ${formatPercent(stats.on_time_rate)} of flights arrived on time across ` +

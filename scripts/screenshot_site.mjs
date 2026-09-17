@@ -8,12 +8,52 @@
  * Usage:
  *   node scripts/screenshot_site.mjs [distDir] [outDir]
  */
-import { chromium } from "playwright";
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
+import { createRequire } from "node:module";
 
 const repo = path.resolve(import.meta.dirname, "..");
+
+// Playwright is a devDependency of site/, not of the repo root, so resolve it
+// from there rather than relying on Node walking up from this file.
+const siteRequire = createRequire(path.join(repo, "site", "package.json"));
+let chromium;
+try {
+  ({ chromium } = siteRequire("playwright"));
+} catch {
+  console.error(
+    "playwright is not installed. Run:\n  cd site && npm install\n" +
+      "and, the first time, download the browser:\n  cd site && npx playwright install chromium",
+  );
+  process.exit(1);
+}
+
+/**
+ * Launch Chromium, preferring whatever Playwright installed for itself.
+ *
+ * The fallback exists for environments that ship a browser outside Playwright's
+ * versioned layout (a CI image with PLAYWRIGHT_BROWSERS_PATH pointing at a
+ * different revision, for instance). CHROMIUM_PATH overrides both.
+ */
+async function launchChromium() {
+  if (process.env.CHROMIUM_PATH) {
+    return chromium.launch({ executablePath: process.env.CHROMIUM_PATH });
+  }
+  try {
+    return await chromium.launch();
+  } catch (error) {
+    const shipped = path.join(process.env.PLAYWRIGHT_BROWSERS_PATH ?? "", "chromium");
+    if (process.env.PLAYWRIGHT_BROWSERS_PATH && fs.existsSync(shipped)) {
+      return chromium.launch({ executablePath: shipped });
+    }
+    console.error(
+      "Could not launch Chromium. The first run needs:\n" +
+        "  cd site && npx playwright install chromium\n",
+    );
+    throw error;
+  }
+}
 const dist = path.resolve(repo, process.argv[2] ?? "site/dist-mockup");
 const outDir = path.resolve(repo, process.argv[3] ?? "docs/screenshots");
 
@@ -70,7 +110,7 @@ const targets = [
   { name: "07-connections", url: "/connections", label: "Connection checker" },
 ].filter((t) => t.url);
 
-const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+const browser = await launchChromium();
 const written = [];
 
 // 1x rather than retina: these are committed to the repo for design review, and

@@ -115,6 +115,25 @@ export function readPage(entry: ManifestEntry): PageDocument {
   return JSON.parse(fs.readFileSync(path.join(PAGES_DIR, entry.file), "utf8"));
 }
 
+/**
+ * The set of URLs this build actually serves.
+ *
+ * The gates drop pages, so a template that links to "the return route" or "the
+ * other flights on this route" cannot assume those pages exist. Anything built
+ * from a URL pattern rather than from a manifest entry must be checked through
+ * here first. `scripts/check_links.mjs` verifies the result.
+ *
+ * Memoized: the manifest is read once per build, not once per page.
+ */
+let published: Set<string> | null = null;
+
+export function pageExists(url: string): boolean {
+  if (published === null) {
+    published = new Set((readManifest()?.pages ?? []).map((p) => p.url));
+  }
+  return published.has(url);
+}
+
 /** Human title for a page, matching how someone would search for it. */
 export function pageTitle(doc: PageDocument): string {
   const k = doc.key;

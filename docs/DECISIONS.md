@@ -12,6 +12,20 @@ Record meaningful choices here, newest first.
 
 ---
 
+### 2026-09-17 · Templates check that a link's target exists
+- **Decision:** Any internal link built from a URL pattern rather than from a manifest entry goes through `pageExists()` first. Related links to dropped pages are omitted; an alternative flight with no page of its own still appears in the comparison table, as plain text rather than a link.
+- **Why:** The gates drop pages, so "the return route" or "the other flights on this route" may not exist. A link checker over a build with real gate decisions found two broken links immediately, and with real data most routes fall below the 60-operation threshold — this would have produced 404s at scale rather than occasionally.
+- **Alternatives considered:** Emitting the related links from the export (the site stays dumber, but export would need a second pass to know the full surviving set); linking anyway and adding a nice 404 page (still a broken link).
+- **Revisit if:** export grows a two-pass structure for another reason, at which point moving this server-side is cheap.
+
+### 2026-09-17 · A CI job runs the whole chain on synthetic data
+- **Decision:** `.github/workflows/ci.yml` has a job that generates six months of synthetic data, runs ingest → metrics → gates → export, builds the site and checks every internal link.
+- **Why:** The unit tests cover each stage; nothing covered the seams between them. This job needs no network access to BTS and catches the class of bug the link checker just found.
+- **Alternatives considered:** Checking links only locally (it would not have been run); a real ingest in CI (depends on BTS being reachable and is rude to the source).
+- **Revisit if:** the job gets slow enough to be annoying; six months is about 12,000 rows.
+
+---
+
 ### 2026-09-17 · Mockup data is quarantined, not forbidden
 - **Decision:** Design work uses a seeded generator (`scripts/make_mockup_data.py`) that writes to `data/mockup/`, builds to `site/dist-mockup/`, and passes `--demo-notice` to `export`. Every page it produces carries a visible banner and is forced to `noindex` by the layout, whatever the gates decided. The generator refuses to run against the real data root.
 - **Why:** "Never invent data" is about what reaches a published page. A mockup needs numbers to have a shape worth judging, so the resolution is containment rather than abstinence: synthetic figures are allowed as long as they are unmistakable, unindexable, and cannot end up in a real build.
