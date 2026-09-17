@@ -16,6 +16,40 @@ Status legend: **Verified** (checked against the live source, with date) · **To
 - **Rights:** U.S. federal government data. Confirm the data.gov or BTS terms page and record the result here.
 - **Attribution text for pages:** "Source: U.S. Department of Transportation, Bureau of Transportation Statistics."
 
+### Verification status
+
+**The BTS source is NOT yet verified.** No code depends on an unverified fact: the
+pipeline's `verify-source` command must run and write
+`data/verification/bts_ontime_reporting_carrier.json` before `ingest` will do
+anything (see `pipeline/sources/verify.py`). Until then `pipeline status` reports
+`NOT VERIFIED` and ingest exits with an error.
+
+Verification could not be completed in the session that wrote the adapter: the
+development environment's network policy denies `transtats.bts.gov`
+(`CONNECT` returned 403), and `extensions.duckdb.org` is likewise blocked. Run
+this from a machine that can reach BTS:
+
+```
+make verify-source MONTH=2025-01        # or: uv run python -m pipeline verify-source --month 2025-01
+```
+
+It probes the candidate URLs, downloads one month, reads the real CSV header out
+of the zip, diffs it against the candidate mapping below, and prints a markdown
+block to paste into this file. If a candidate URL 404s, it says so and tells you
+where to find the current link.
+
+### Candidate download URLs (unverified)
+
+Tried in order by `verify-source`; see `URL_CANDIDATES` in
+`pipeline/sources/bts_ontime.py`.
+
+1. `https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_{year}_{month}.zip`
+2. `https://transtats.bts.gov/PREZIP/On_Time_On_Time_Performance_{year}_{month}.zip`
+
+These come from prior familiarity with the dataset, not from checking the live
+site. Treat them as a starting guess that the verifier either confirms or
+replaces.
+
 ### Verification checklist (M1)
 
 - [ ] Current bulk download method (prezipped monthly files vs field-selection download). Community tools commonly reference a prezipped monthly file pattern on transtats.bts.gov; **confirm the exact URL on the live site before coding against it.**
@@ -30,7 +64,56 @@ Status legend: **Verified** (checked against the live source, with date) · **To
 - [ ] A published monthly on-time figure to reproduce for validation (M2)
 - [ ] Rate or usage guidance for automated downloads
 
-### Field mapping (fill in during M1)
+### Candidate field mapping (unverified)
+
+This is the hypothesis `verify-source` tests, mirroring
+`pipeline/models/schema.py`. A required column that turns out not to exist fails
+verification and blocks ingest; an optional one becomes a typed NULL. The
+canonical schema is fingerprinted, so editing this mapping invalidates an old
+verification record and forces a re-check.
+
+| Canonical field | Candidate source column | Type | Required | Notes |
+|---|---|---|---|---|
+| `flight_date` | `FlightDate` | DATE | yes | Local date of scheduled departure |
+| `carrier` | `Reporting_Airline` | VARCHAR | yes | Reporting (operating) carrier |
+| `carrier_id` | `DOT_ID_Reporting_Airline` | INTEGER | yes | BTS unique ID; stable across code reuse |
+| `flight_number` | `Flight_Number_Reporting_Airline` | VARCHAR | yes | |
+| `origin` | `Origin` | VARCHAR | yes | |
+| `origin_airport_id` | `OriginAirportID` | INTEGER | yes | |
+| `dest` | `Dest` | VARCHAR | yes | |
+| `dest_airport_id` | `DestAirportID` | INTEGER | yes | |
+| `sched_dep` | `CRSDepTime` | VARCHAR | yes | Stored as reported; hhmm, `2400` possible |
+| `actual_dep` | `DepTime` | VARCHAR | no | Null when cancelled |
+| `sched_arr` | `CRSArrTime` | VARCHAR | yes | Stored as reported |
+| `actual_arr` | `ArrTime` | VARCHAR | no | Null when cancelled or diverted |
+| `dep_delay_min` | `DepDelayMinutes` | DOUBLE | no | Early counts as 0, not negative |
+| `arr_delay_min` | `ArrDelayMinutes` | DOUBLE | no | |
+| `arr_del15` | `ArrDel15` | DOUBLE | no | 1.0 when 15+ min late |
+| `cancelled` | `Cancelled` | DOUBLE | yes | |
+| `cancellation_code` | `CancellationCode` | VARCHAR | no | |
+| `diverted` | `Diverted` | DOUBLE | yes | |
+| `carrier_delay` | `CarrierDelay` | DOUBLE | no | Only for qualifying delays |
+| `weather_delay` | `WeatherDelay` | DOUBLE | no | |
+| `nas_delay` | `NASDelay` | DOUBLE | no | |
+| `security_delay` | `SecurityDelay` | DOUBLE | no | |
+| `late_aircraft_delay` | `LateAircraftDelay` | DOUBLE | no | |
+| `distance` | `Distance` | DOUBLE | no | Miles |
+
+Plus two lineage columns the normalizer adds: `source_file`, `ingested_at`.
+
+### Assumptions currently baked into the metrics layer
+
+These are transformations, not source facts. Each needs confirming against the
+BTS documentation, and each is isolated in `pipeline/metrics/definitions.py` so
+it can be changed in one place.
+
+| Assumption | Where | Status |
+|---|---|---|
+| `sched_dep` is local hhmm; departure hour is `(hhmm // 100) % 24`, so `2400` becomes hour 0 | `BASE_VIEW` | **To verify** |
+| On-time rate counts only operated flights with a non-null `arr_del15`; that denominator is published as `ops_measurable` | `METRIC_EXPRESSIONS` | Assumption, by design |
+| Delay-cause shares are of *attributed* minutes, not all delay minutes | `_delay_causes` in `pipeline/export/pages.py` | Follows BTS behaviour; **to verify** |
+
+### Original field mapping template
 
 | Canonical field | Source column | Type | Notes |
 |---|---|---|---|

@@ -1,0 +1,97 @@
+---
+/**
+ * Delay causes as a small ordered bar list.
+ *
+ * Five categories of attributed minutes. This is magnitude, low to high, so the
+ * colour job is sequential: one hue, more-is-darker, assigned by rank within the
+ * ramp rather than by identity. Values are direct-labelled, so no legend.
+ *
+ * The basis matters and the page says it: BTS populates cause columns only for
+ * qualifying delays, so these are shares of *attributed* minutes, not of all
+ * delay minutes.
+ */
+interface Props {
+  minutes: Record<string, number>;
+  shares: Record<string, number> | null;
+  totalMinutes: number;
+}
+
+const { minutes, shares, totalMinutes } = Astro.props as Props;
+
+const LABELS: Record<string, string> = {
+  carrier: "Airline (crew, maintenance, fuelling)",
+  late_aircraft: "Late arriving aircraft",
+  nas: "National airspace system (traffic, weather routing)",
+  weather: "Extreme weather",
+  security: "Security",
+};
+
+const RAMP = ["var(--sev-5)", "var(--sev-4)", "var(--sev-3)", "var(--sev-2)", "var(--sev-1)"];
+
+const rows = Object.entries(LABELS)
+  .map(([key, label]) => ({
+    key,
+    label,
+    minutes: minutes[key] ?? 0,
+    share: shares?.[key] ?? 0,
+  }))
+  .sort((a, b) => b.minutes - a.minutes);
+
+const peak = Math.max(...rows.map((r) => r.share), 0.0001);
+const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
+---
+
+<figure>
+  {
+    totalMinutes === 0 || shares === null ? (
+      <p class="notice">
+        No delay minutes were attributed to a cause in this period — every flight here arrived
+        without a reportable delay.
+      </p>
+    ) : (
+      <table>
+        <thead>
+          <tr>
+            <th>Cause</th>
+            <th>Share of attributed minutes</th>
+            <th class="num">Minutes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr>
+              <td>{r.label}</td>
+              <td>
+                {/* A bar per row: magnitude, sequential ramp by rank. */}
+                <svg
+                  class="chart"
+                  viewBox="0 0 200 14"
+                  preserveAspectRatio="none"
+                  role="img"
+                  aria-label={`${pct(r.share)} of attributed delay minutes`}
+                  style="height:14px;max-width:200px"
+                >
+                  <rect
+                    x="0"
+                    y="2"
+                    width={Math.max(1, (r.share / peak) * 200)}
+                    height="10"
+                    rx="4"
+                    fill={RAMP[i] ?? "var(--sev-1)"}
+                  />
+                </svg>
+                <strong style="font-variant-numeric:tabular-nums">{pct(r.share)}</strong>
+              </td>
+              <td class="num">{Math.round(r.minutes).toLocaleString("en-US")}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )
+  }
+  <figcaption>
+    Shares are of the {Math.round(totalMinutes).toLocaleString("en-US")} delay minutes BTS
+    attributed to a cause. BTS reports causes only for qualifying delays, so this is not a
+    breakdown of every late minute.
+  </figcaption>
+</figure>

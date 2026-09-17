@@ -173,19 +173,25 @@ Title matching search phrasing, data period, source credit, rule-based summary, 
 
 Check tasks off here as they're completed.
 
+> Status note (2026-09-17): M0 and M3 are complete; M4 is complete apart from the
+> similarity gate, which needs M6. M1's code is written and tested but the source
+> is **not verified** — see docs/DATA_NOTES.md. M5's templates render and build
+> but are a first pass. Boxes below are ticked only for work that is done.
+
 ### M0 · Repo foundation
-- [ ] Initialize repo, `uv` project, `ruff`, `pytest`, `.gitignore` (including `data/`, `.env`)
-- [ ] GitHub Actions: lint + tests on push
-- [ ] Create `docs/DECISIONS.md` and `docs/PROGRESS.md`
+- [x] Initialize repo, `uv` project, `ruff`, `pytest`, `.gitignore` (including `data/`, `.env`)
+- [x] GitHub Actions: lint + tests on push
+- [x] Create `docs/DECISIONS.md` and `docs/PROGRESS.md`
 - **Done when:** CI passes on an empty test suite and the layout matches CLAUDE.md.
 
 ### M1 · Source discovery and single-month ingest
 - [ ] Find and document the current BTS download method for on-time data (see DATA_NOTES.md checklist)
 - [ ] Resolve the reporting vs marketing carrier question and log the decision
-- [ ] Source adapter: download one month, save raw with checksum and timestamp, skip unchanged files
-- [ ] Parse to Parquet with explicit column types
+- [x] Source adapter: download one month, save raw with checksum and timestamp, skip unchanged files
+- [x] Parse to Parquet with explicit column types
 - [ ] Record the verified schema in DATA_NOTES.md
 - **Done when:** one month loads reproducibly and row count matches the source.
+- *Blocked:* verification needs network access to transtats.bts.gov. The adapter, the verifier and the ingest gate are written and tested; run `make verify-source MONTH=YYYY-MM` to finish this milestone.
 
 ### M2 · Multi-year load and validation
 - [ ] Load 36+ months
@@ -195,28 +201,28 @@ Check tasks off here as they're completed.
 - **Done when:** validation report is clean and the BTS comparison matches.
 
 ### M3 · Metrics layer
-- [ ] Implement metrics from section 6 as DuckDB views or functions
-- [ ] Hand-computed fixture tests for each metric, including edge cases (all cancelled, no delays, small samples)
+- [x] Implement metrics from section 6 as DuckDB views or functions
+- [x] Hand-computed fixture tests for each metric, including edge cases (all cancelled, no delays, small samples)
 - **Done when:** metrics tests pass and a sample route's numbers are spot-checked by hand.
 
 ### M4 · Page export and gates
-- [ ] Versioned JSON schema for each page type
-- [ ] Export page JSON for all candidate pages
-- [ ] Gate runner producing `publish` / `noindex` / `drop` plus a CSV report with reasons
+- [x] Versioned JSON schema for each page type
+- [x] Export page JSON for all candidate pages
+- [x] Gate runner producing `publish` / `noindex` / `drop` plus a CSV report with reasons
 - **Done when:** gate report shows counts per page type and reasons, and exported JSON validates against the schema.
 
 ### M5 · Site v1
-- [ ] Astro project reading page JSON
-- [ ] Templates: flight, route, airport, airline
-- [ ] Build-time SVG charts; responsive, light/dark theme, accessible
-- [ ] Sitemaps, canonical tags, robots rules for `noindex` pages
-- [ ] Source credit and data period on every page
+- [x] Astro project reading page JSON
+- [x] Templates: flight, route, airport, airline
+- [x] Build-time SVG charts; responsive, light/dark theme, accessible
+- [x] Sitemaps, canonical tags, robots rules for `noindex` pages
+- [x] Source credit and data period on every page
 - **Done when:** local build renders all published pages and passes a Lighthouse check.
 
 ### M6 · Summaries and similarity gate
 - [ ] Rule engine in `pipeline/summaries/` with YAML rules
 - [ ] Tests covering each rule
-- [ ] Similarity check against sibling pages feeding the gate runner
+- [ ] Similarity check against sibling pages feeding the gate runner (the gate is wired and reports itself as skipped until this lands)
 - **Done when:** a random sample of 50 pages reads naturally and varies meaningfully.
 
 ### M7 · Connection checker
@@ -229,7 +235,7 @@ Check tasks off here as they're completed.
 - [ ] Choose domain and brand; check trademark conflicts
 - [ ] Deploy to static host; confirm file limits
 - [ ] Search Console and analytics set up; submit sitemaps
-- [ ] Scheduled monthly refresh job in CI with failure alerts
+- [ ] Scheduled monthly refresh job in CI with failure alerts (runs locally today via the Dagu `refresh` DAG; needs a hosted equivalent)
 - **Done when:** first wave is live and the monthly job has run once end to end.
 
 ### M9+ · Later

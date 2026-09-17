@@ -1,0 +1,116 @@
+/* Tokens. The chart colours are the validated palette from the dataviz skill:
+   a single categorical slot for the trend line, and a five-step single-hue
+   ordinal ramp for delay severity (monotone lightness, visible step gaps,
+   light end clearing the surface). Dark mode is a selected set of steps from
+   the same ramps, not an automatic flip. */
+:root {
+  color-scheme: light dark;
+
+  --surface: #fcfcfb;
+  --surface-raised: #ffffff;
+  --border: #e2e1dd;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #77756f;
+  --link: #1c5cab;
+
+  --series-1: #2a78d6;
+
+  /* Delay severity, light → dark. On time is a status, not a severity step. */
+  --sev-0: #0ca30c;  /* on time (status: good) */
+  --sev-1: #86b6ef;  /* 15–30 min  */
+  --sev-2: #5598e7;  /* 30–60      */
+  --sev-3: #2a78d6;  /* 60–120     */
+  --sev-4: #1c5cab;  /* 120–180    */
+  --sev-5: #104281;  /* 180+       */
+  --sev-none: #9b9a94; /* cancelled or diverted */
+
+  --grid: #e8e7e3;
+  --radius: 8px;
+  --measure: 68ch;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #1a1a19;
+    --surface-raised: #232322;
+    --border: #38383400;
+    --border: #383835;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #9a998f;
+    --link: #86b6ef;
+
+    --series-1: #3987e5;
+
+    --sev-0: #0ca30c;
+    --sev-1: #cde2fb;
+    --sev-2: #9ec5f4;
+    --sev-3: #6da7ec;
+    --sev-4: #3987e5;
+    --sev-5: #256abf;
+    --sev-none: #6e6d67;
+
+    --grid: #2e2e2b;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--text-primary);
+  font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+.wrap { max-width: 880px; margin: 0 auto; padding: 24px 16px 72px; }
+
+a { color: var(--link); }
+a:hover { text-decoration-thickness: 2px; }
+
+h1 { font-size: clamp(22px, 4vw, 30px); line-height: 1.25; margin: 0 0 6px; letter-spacing: -0.015em; }
+h2 { font-size: 18px; margin: 40px 0 12px; letter-spacing: -0.01em; }
+h3 { font-size: 15px; margin: 24px 0 8px; }
+p { max-width: var(--measure); }
+
+.period { color: var(--text-secondary); margin: 0 0 4px; font-size: 15px; }
+.muted { color: var(--text-muted); font-size: 13.5px; }
+
+nav.crumbs { font-size: 14px; color: var(--text-muted); margin-bottom: 14px; }
+nav.crumbs a { color: var(--text-secondary); }
+
+/* KPI row of stat tiles: a handful of headline numbers is a KPI row, not a chart. */
+.kpis { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin: 18px 0 8px; }
+.kpi { background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+.kpi dt { color: var(--text-secondary); font-size: 12.5px; margin: 0 0 4px; }
+.kpi dd { margin: 0; font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.kpi .sub { display: block; font-size: 12px; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+
+figure { margin: 0 0 8px; }
+figcaption { color: var(--text-secondary); font-size: 13.5px; margin-top: 8px; }
+svg.chart { display: block; width: 100%; height: auto; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--text-secondary); }
+.legend li { display: flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 2px; flex: 0 0 auto; }
+
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); }
+th { color: var(--text-secondary); font-weight: 600; font-size: 12.5px; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+details { margin-top: 10px; }
+summary { cursor: pointer; color: var(--text-secondary); font-size: 13.5px; }
+
+ul.links { list-style: none; padding: 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+ul.links a { display: block; background: var(--surface-raised); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; text-decoration: none; }
+ul.links a:hover { border-color: var(--link); }
+ul.links .t { color: var(--text-primary); font-weight: 500; }
+ul.links .s { color: var(--text-muted); font-size: 12.5px; }
+
+.notice { background: var(--surface-raised); border: 1px solid var(--border); border-left: 3px solid var(--sev-none); border-radius: var(--radius); padding: 12px 14px; font-size: 14px; color: var(--text-secondary); }
+
+footer.source { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; }
+footer.source p { max-width: var(--measure); margin: 0 0 6px; }

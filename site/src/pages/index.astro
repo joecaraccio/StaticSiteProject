@@ -1,0 +1,95 @@
+---
+/**
+ * Index. Lists what the last export produced, grouped by page type.
+ *
+ * With no export on disk this renders an explanatory empty state rather than
+ * failing the build, so `make site` works on a fresh checkout.
+ */
+import Base from "../layouts/Base.astro";
+import { readManifest, readPage, pageTitle, formatPercent, formatPeriod } from "../lib/pages";
+
+const manifest = readManifest();
+const grouped = new Map<string, { url: string; title: string; sub: string }[]>();
+
+if (manifest) {
+  for (const entry of manifest.pages) {
+    const doc = readPage(entry);
+    const list = grouped.get(entry.page_type) ?? [];
+    list.push({
+      url: entry.url,
+      title: pageTitle(doc),
+      sub: `${formatPercent(doc.headline_stats.on_time_rate)} on time · ${doc.headline_stats.ops_scheduled.toLocaleString("en-US")} flights`,
+    });
+    grouped.set(entry.page_type, list);
+  }
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  flight: "Flights",
+  route: "Routes",
+  airport: "Airports",
+  airline: "Airlines",
+};
+---
+
+<Base
+  title="Usually Late — U.S. flight reliability from DOT data"
+  description="How reliable each U.S. flight, route, airport and airline has been, from Department of Transportation on-time performance data."
+>
+  <h1>Usually Late</h1>
+  <p class="period">
+    How reliable a flight has actually been, from public U.S. Department of Transportation records.
+  </p>
+
+  {
+    !manifest ? (
+      <div class="notice">
+        <p style="margin-top:0">
+          <strong>No pages exported yet.</strong> The site builds from
+          <code>data/export/</code>, which the pipeline writes.
+        </p>
+        <p style="margin-bottom:0">
+          Run <code>make verify-source MONTH=2025-01</code>, then
+          <code>make ingest MONTHS=2024-01..2024-12</code>, then <code>make site</code>.
+        </p>
+      </div>
+    ) : (
+      <>
+        <p class="muted">
+          {manifest.pages.length.toLocaleString("en-US")} pages covering{" "}
+          {formatPeriod(manifest.data_period)}.
+        </p>
+        {Object.keys(TYPE_LABELS).map((type) =>
+          grouped.has(type) ? (
+            <section>
+              <h2>
+                {TYPE_LABELS[type]}{" "}
+                <span class="muted">({grouped.get(type)!.length.toLocaleString("en-US")})</span>
+              </h2>
+              <ul class="links">
+                {grouped
+                  .get(type)!
+                  .slice(0, 60)
+                  .map((p) => (
+                    <li>
+                      <a href={p.url}>
+                        <span class="t">{p.title}</span>
+                        <span class="s">{p.sub}</span>
+                      </a>
+                    </li>
+                  ))}
+              </ul>
+            </section>
+          ) : null,
+        )}
+      </>
+    )
+  }
+
+  <footer class="source">
+    <p>
+      <strong>Source:</strong> U.S. Department of Transportation, Bureau of Transportation
+      Statistics.
+    </p>
+  </footer>
+</Base>

@@ -1,0 +1,34 @@
+---
+/**
+ * Page shell: title, meta, canonical, and the robots rule for gated pages.
+ *
+ * A page the gates marked `noindex` gets the meta tag here rather than relying on
+ * robots.txt, so the decision travels with the page.
+ */
+interface Props {
+  title: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const { title, description, noindex = false } = Astro.props as Props;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? "http://localhost:8081");
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonical.href} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    <link rel="stylesheet" href="/styles/global.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <slot />
+    </div>
+  </body>
+</html>

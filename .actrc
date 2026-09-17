@@ -1,0 +1,5 @@
+# Defaults for `act` (used by `make ci` and the docker `ci` service).
+# The medium image carries Node, Python and the common tooling; the tiny one does
+# not have enough to run setup-python, and the large one is a ~20GB download.
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+--container-architecture linux/amd64

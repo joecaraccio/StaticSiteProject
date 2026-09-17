@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usually Late · Local Stack</title>
+<script src="/ports.js"></script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --border: #dfe3e8;
+    --text: #16191d;
+    --muted: #5d656f;
+    --accent: #1f5fd0;
+    --ok: #17703c;
+    --ok-bg: #e6f4ea;
+    --warn: #8a5300;
+    --warn-bg: #fdf2dc;
+    --bad: #a3231f;
+    --bad-bg: #fbeae9;
+    --radius: 10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171a;
+      --surface: #1c2024;
+      --border: #2e343a;
+      --text: #e8eaed;
+      --muted: #9aa3ad;
+      --accent: #78a9ff;
+      --ok: #7ddba1;
+      --ok-bg: #16301f;
+      --warn: #f0c274;
+      --warn-bg: #33270f;
+      --bad: #f2a099;
+      --bad-bg: #331a18;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 32px 16px 64px; }
+  header { margin-bottom: 8px; }
+  h1 { font-size: 24px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); margin: 0 0 28px; }
+  h2 {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--muted); margin: 32px 0 12px; font-weight: 600;
+  }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px; text-decoration: none; color: inherit;
+    display: flex; flex-direction: column; gap: 6px; transition: border-color .12s, transform .12s;
+  }
+  a.card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .card h3 { margin: 0; font-size: 15px; font-weight: 600; }
+  .card p { margin: 0; color: var(--muted); font-size: 13px; }
+  .port { color: var(--muted); font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .pill {
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+    background: var(--border); color: var(--muted); white-space: nowrap;
+  }
+  .pill.ok { background: var(--ok-bg); color: var(--ok); }
+  .pill.bad { background: var(--bad-bg); color: var(--bad); }
+  .pill.warn { background: var(--warn-bg); color: var(--warn); }
+  table { width: 100%; border-collapse: collapse; background: var(--surface);
+          border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 14px; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+  tr:last-child td { border-bottom: none; }
+  td.v { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px;
+  }
+  .cmds { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px 0; }
+  .cmd { display: flex; gap: 14px; padding: 9px 16px; border-bottom: 1px solid var(--border); align-items: baseline; }
+  .cmd:last-child { border-bottom: none; }
+  .cmd code { flex: 0 0 auto; min-width: 190px; }
+  .cmd span { color: var(--muted); font-size: 13px; }
+  footer { margin-top: 40px; color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--border); padding-top: 16px; }
+  @media (max-width: 560px) { .cmd { flex-direction: column; gap: 4px; } .cmd code { min-width: 0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Usually Late · local stack</h1>
+    <p class="sub">Flight reliability from U.S. DOT / BTS on-time data. Everything below runs on this machine.</p>
+  </header>
+
+  <h2>Services</h2>
+  <div class="grid" id="services"></div>
+
+  <h2>Pipeline state</h2>
+  <table>
+    <thead><tr><th>What</th><th>Value</th></tr></thead>
+    <tbody id="state">
+      <tr><td>Loading…</td><td class="v">—</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Common commands</h2>
+  <div class="cmds">
+    <div class="cmd"><code>make up</code><span>Start the long-running services (this page, Dagu, DuckDB UI, site)</span></div>
+    <div class="cmd"><code>make verify-source MONTH=2025-01</code><span>Confirm the live BTS source — required before any ingest</span></div>
+    <div class="cmd"><code>make ingest MONTHS=2024-01..2024-12</code><span>Download and normalize a range of months</span></div>
+    <div class="cmd"><code>make build</code><span>Rebuild the DuckDB metric views</span></div>
+    <div class="cmd"><code>make site</code><span>Export page JSON and rebuild the static site</span></div>
+    <div class="cmd"><code>make ci</code><span>Run .github/workflows locally with act</span></div>
+    <div class="cmd"><code>make test</code><span>ruff + pytest in the pipeline image</span></div>
+    <div class="cmd"><code>make logs</code><span>Tail every service</span></div>
+  </div>
+
+  <h2>Docs</h2>
+  <div class="grid">
+    <a class="card" href="/docs/PLAN.md"><div class="card-top"><h3>PLAN.md</h3></div><p>Milestones, page types, gate thresholds</p></a>
+    <a class="card" href="/docs/DATA_NOTES.md"><div class="card-top"><h3>DATA_NOTES.md</h3></div><p>Source facts and what is still unverified</p></a>
+    <a class="card" href="/docs/DECISIONS.md"><div class="card-top"><h3>DECISIONS.md</h3></div><p>Why things are the way they are</p></a>
+    <a class="card" href="/docs/PROGRESS.md"><div class="card-top"><h3>PROGRESS.md</h3></div><p>Session log and what is next</p></a>
+  </div>
+
+  <footer>
+    Data source: U.S. Department of Transportation, Bureau of Transportation Statistics.
+    This stack binds to localhost and mounts the Docker socket into Dagu — do not expose it to a network.
+  </footer>
+</div>
+
+<script>
+const P = window.PORTS || { dagu: 8080, duckdb: 4213, web: 8081, siteDev: 4321 };
+const host = location.hostname || "localhost";
+const url = (port, path = "/") => `${location.protocol}//${host}:${port}${path}`;
+
+const SERVICES = [
+  { name: "Dagu",            port: P.dagu,    desc: "CI/CD server: schedules, run history, logs" },
+  { name: "DuckDB UI",       port: P.duckdb,  desc: "SQL editor and schema browser over the Parquet" },
+  { name: "Site",            port: P.web,     desc: "The built static site, served like production" },
+  { name: "Site dev server", port: P.siteDev, desc: "Astro dev server (make dev)", optional: true },
+];
+
+const services = document.getElementById("services");
+services.innerHTML = SERVICES.map((s, i) => `
+  <a class="card" href="${url(s.port)}" target="_blank" rel="noopener">
+    <div class="card-top">
+      <h3>${s.name}</h3>
+      <span class="pill" id="health-${i}">checking…</span>
+    </div>
+    <p>${s.desc}</p>
+    <span class="port">:${s.port}</span>
+  </a>`).join("");
+
+// An opaque (no-cors) response only tells us the port answered, which is all we
+// need. A connection failure rejects, so down is distinguishable from up.
+SERVICES.forEach(async (s, i) => {
+  const pill = document.getElementById(`health-${i}`);
+  const done = (cls, text) => { pill.className = `pill ${cls}`; pill.textContent = text; };
+  try {
+    await fetch(url(s.port), { mode: "no-cors", cache: "no-store", signal: AbortSignal.timeout(4000) });
+    done("ok", "up");
+  } catch {
+    done(s.optional ? "warn" : "bad", s.optional ? "not running" : "down");
+  }
+});
+
+// --- Pipeline state, read from the mounted data/ directory -----------------
+const rows = [];
+const add = (what, value) => rows.push([what, value]);
+
+async function json(path) {
+  const r = await fetch(path, { cache: "no-store" });
+  if (!r.ok) throw new Error(String(r.status));
+  return r.json();
+}
+
+(async () => {
+  try {
+    const v = await json("/data/verification/bts_ontime_reporting_carrier.json");
+    add("BTS source", `verified ${v.verified_at.slice(0, 10)}`);
+    add("URL template", v.url_template);
+    add("Columns", `${v.header.length} in source, ${v.matched_columns.length} mapped`);
+    if (v.missing_required?.length) add("Missing required", v.missing_required.join(", "));
+  } catch {
+    add("BTS source", "not verified — run make verify-source MONTH=YYYY-MM");
+  }
+
+  try {
+    const files = await json("/data/clean/operations/");
+    const months = files
+      .filter(f => f.name.endsWith(".parquet"))
+      .map(f => f.name.replace("operations_", "").replace(".parquet", ""))
+      .sort();
+    add("Months normalized", months.length ? `${months.length} (${months[0]} … ${months.at(-1)})` : "none");
+  } catch {
+    add("Months normalized", "none");
+  }
+
+  try {
+    const files = await json("/data/export/");
+    add("Exported page JSON", `${files.filter(f => f.name.endsWith(".json")).length} files`);
+  } catch {
+    add("Exported page JSON", "none yet");
+  }
+
+  document.getElementById("state").innerHTML = rows
+    .map(([k, v]) => `<tr><td>${k}</td><td class="v">${v}</td></tr>`)
+    .join("");
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+# The local CI/CD + data-viewer stack.
+#
+#   make up          start the long-running services
+#   make dash        open the dashboard, which links to everything else
+#
+# Paths are relative to this file, so the build contexts point at the repo root
+# with `..`. HOST_REPO_PATH must be the repo's path *on the host*: the Dagu
+# service asks the host Docker daemon to start sibling containers, and those
+# containers' bind mounts are resolved by the host, not by Dagu. The Makefile
+# sets it automatically; set it in .env if you run `docker compose` directly.
+
+name: usually-late
+
+x-pipeline-image: &pipeline-image
+  build:
+    context: ..
+    dockerfile: docker/pipeline.Dockerfile
+  image: usually-late/pipeline:dev
+
+services:
+  # --- Data pipeline -------------------------------------------------------
+  # A one-shot container: `docker compose run --rm pipeline status`.
+  pipeline:
+    <<: *pipeline-image
+    profiles: ["tools"]
+    environment:
+      DATA_ROOT: /data
+      DOWNLOAD_DELAY_SECONDS: "${DOWNLOAD_DELAY_SECONDS:-2.0}"
+    volumes:
+      - ../data:/data
+      # Mounted so edits to the pipeline take effect without a rebuild; the
+      # project is installed in editable mode inside the image.
+      - ../pipeline:/app/pipeline:ro
+      - ../tests:/app/tests:ro
+
+  # --- CI/CD server --------------------------------------------------------
+  # Dagu owns the schedule, the run history and the logs. Its steps start
+  # sibling containers on the host daemon via `action: docker.run`.
+  dagu:
+    image: ghcr.io/dagucloud/dagu:latest
+    command: ["dagu", "start-all", "--dags", "/etc/dagu/dags"]
+    # Root is needed to talk to the mounted Docker socket on most hosts. If your
+    # daemon socket is group-readable you can drop this and use group_add.
+    user: root
+    ports:
+      - "${DAGU_PORT:-8080}:8080"
+    environment:
+      DAGU_HOST: 0.0.0.0
+      DAGU_PORT: "8080"
+      DAGU_TZ: "${TZ:-UTC}"
+      # Used inside the DAG files: sibling containers get host paths.
+      HOST_REPO_PATH: "${HOST_REPO_PATH:?set HOST_REPO_PATH to this repo's path on the host}"
+      PIPELINE_IMAGE: usually-late/pipeline:dev
+      SITE_IMAGE: node:22-alpine
+    volumes:
+      - ./dagu/dags:/etc/dagu/dags:ro
+      - ./dagu/data:/var/lib/dagu
+      # Granting workflow control of the host daemon. That is the point of a
+      # local CI server, but it is also why this stack is for localhost only.
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+  # --- Data viewer ---------------------------------------------------------
+  # DuckDB's own web UI. It opens a *separate* viewer database whose views point
+  # at the same Parquet files, so browsing never takes a write lock that would
+  # block a pipeline run.
+  duckdb-ui:
+    build:
+      context: ..
+      dockerfile: docker/duckdb-ui/Dockerfile
+    image: usually-late/duckdb-ui:dev
+    ports:
+      - "${DUCKDB_UI_PORT:-4213}:4213"
+    environment:
+      DATA_ROOT: /data
+      # DuckDB extensions are cached in a volume, so only the first start needs
+      # to reach extensions.duckdb.org.
+      DUCKDB_EXTENSION_DIRECTORY: /duckdb-extensions
+    volumes:
+      - ../data:/data
+      - ../pipeline:/app/pipeline:ro
+      - duckdb-extensions:/duckdb-extensions
+    restart: unless-stopped
+
+  # --- Site ----------------------------------------------------------------
+  # One-shot production build: pipeline JSON in, static files out.
+  site-build:
+    image: node:22-alpine
+    profiles: ["tools"]
+    working_dir: /site
+    command: ["sh", "-lc", "npm ci --no-audit --no-fund && npm run build"]
+    environment:
+      PAGES_DIR: /data/export
+    volumes:
+      - ../site:/site
+      - ../data:/data:ro
+      - site-node-modules:/site/node_modules
+
+  # Astro's dev server, for working on templates.
+  site-dev:
+    image: node:22-alpine
+    profiles: ["dev"]
+    working_dir: /site
+    command: ["sh", "-lc", "npm install --no-audit --no-fund && npm run dev -- --host 0.0.0.0"]
+    environment:
+      PAGES_DIR: /data/export
+    ports:
+      - "${SITE_DEV_PORT:-4321}:4321"
+    volumes:
+      - ../site:/site
+      - ../data:/data:ro
+      - site-node-modules:/site/node_modules
+
+  # Serves whatever site-build last produced.
+  web:
+    image: nginx:alpine
+    ports:
+      - "${WEB_PORT:-8081}:80"
+    volumes:
+      - ../site/dist:/usr/share/nginx/html:ro
+      - ./nginx/site.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+
+  # --- Dashboard -----------------------------------------------------------
+  # The one page to open first: links to every service, with live health checks.
+  dashboard:
+    image: nginx:alpine
+    ports:
+      - "${DASHBOARD_PORT:-8000}:80"
+    environment:
+      DAGU_PORT: "${DAGU_PORT:-8080}"
+      DUCKDB_UI_PORT: "${DUCKDB_UI_PORT:-4213}"
+      WEB_PORT: "${WEB_PORT:-8081}"
+      SITE_DEV_PORT: "${SITE_DEV_PORT:-4321}"
+    volumes:
+      - ./dashboard:/usr/share/nginx/html:ro
+      - ./nginx/dashboard.conf:/etc/nginx/templates/default.conf.template:ro
+      - ../data:/srv/data:ro
+      - ../docs:/srv/docs:ro
+    restart: unless-stopped
+
+  # --- GitHub Actions, locally --------------------------------------------
+  # Runs .github/workflows for real, so local and GitHub CI cannot drift.
+  # `docker compose run --rm ci` or `make ci`.
+  ci:
+    build:
+      context: ..
+      dockerfile: docker/ci.Dockerfile
+      args:
+        ACT_VERSION: "${ACT_VERSION:-}"
+    image: usually-late/act:dev
+    profiles: ["tools"]
+    working_dir: "${HOST_REPO_PATH:-/repo}"
+    environment:
+      HOST_REPO_PATH: "${HOST_REPO_PATH:?set HOST_REPO_PATH to this repo's path on the host}"
+    volumes:
+      # Mounted at its host path so the containers act starts see the same paths.
+      - "${HOST_REPO_PATH:-..}:${HOST_REPO_PATH:-/repo}"
+      - /var/run/docker.sock:/var/run/docker.sock
+      - act-cache:/root/.cache/act
+
+volumes:
+  site-node-modules:
+  duckdb-extensions:
+  act-cache:

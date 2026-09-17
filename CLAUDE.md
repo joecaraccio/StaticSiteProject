@@ -48,13 +48,38 @@ docker/              Any docker needs
 
 Keep this section current as commands are added.
 
+Python, directly:
+
 ```
-uv sync                         # install Python deps
-uv run pytest                   # run tests
+uv sync                                              # install Python deps
+uv run pytest                                        # run tests
 uv run ruff check . && uv run ruff format --check .
-uv run python -m pipeline ingest --months 2026-01   # (planned) ingest one month
-uv run python -m pipeline build                     # (planned) metrics + export
-cd site && npm install && npm run dev               # (planned) local site
+uv run python -m pipeline status                     # what is on disk
+uv run python -m pipeline verify-source --month 2025-01   # REQUIRED before ingest
+uv run python -m pipeline ingest --months 2026-01    # download + normalize
+uv run python -m pipeline ingest --months 2024-01..2024-12   # a range
+uv run python -m pipeline build                      # DuckDB metric views
+uv run python -m pipeline export                     # page JSON + quality gates
+uv run python -m pipeline query "SELECT ..."         # read-only SQL
+```
+
+Through Docker (see `docker/README.md`); `make` sets HOST_REPO_PATH for you:
+
+```
+make up                          # dashboard :8000, Dagu :8080, DuckDB UI :4213, site :8081
+make verify-source MONTH=2025-01
+make ingest MONTHS=2024-01..2024-12
+make site                        # export pages + build the Astro site
+make test / make lint            # in the pipeline image
+make ci                          # run .github/workflows locally via act
+make help                        # everything else
+```
+
+Site, directly:
+
+```
+cd site && npm install && npm run dev
+PAGES_DIR=../data/export npm run build
 ```
 
 ## Working agreement
@@ -69,11 +94,11 @@ cd site && npm install && npm run dev               # (planned) local site
 ## Hard rules
 
 - **Never invent data.** No placeholder statistics in pages, fixtures that pretend to be real, or guessed field meanings. If a field's meaning is unclear, check the BTS documentation and record what you found in `docs/DATA_NOTES.md`.
-- **Verify before hardcoding.** Download URLs, file formats, and column names must be confirmed against the live source before code depends on them.
+- **Verify before hardcoding.** Download URLs, file formats, and column names must be confirmed against the live source before code depends on them. This is enforced: `pipeline ingest` refuses to run without a verification record from `pipeline verify-source`, and changing the column mapping invalidates an old record.
 - **Public data only.** Use only the sources listed in `docs/DATA_NOTES.md`. Do not scrape FlightAware, Flightradar24, Google Flights, airline sites, or any site whose terms prohibit it.
 - **Be polite to sources.** Throttle downloads, cache everything, and never re-download a file whose checksum hasn't changed.
 - **Raw data is immutable.** Store downloads as received, with a checksum and fetch timestamp. All transformations happen downstream.
-- **Quality gates are not optional.** Every generated page must pass through the gate runner, which returns `publish`, `noindex`, or `drop`.
+- **Quality gates are not optional.** Every generated page must pass through the gate runner, which returns `publish`, `noindex`, or `drop`. A gate whose input does not exist yet must report itself as *skipped* in the report, never pass silently.
 - **Summary text is rule-based.** Page summaries come from deterministic, tested rules in `pipeline/summaries/`, not from a language model at build time.
 - **Credit the source.** Every page states that data comes from the U.S. Department of Transportation, Bureau of Transportation Statistics, and shows the data period.
 - **No secrets in the repo.** Use environment variables and `.env` (gitignored).

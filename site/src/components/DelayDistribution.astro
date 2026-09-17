@@ -1,0 +1,121 @@
+---
+/**
+ * Delay distribution as a single horizontal stacked bar (part-to-whole).
+ *
+ * The buckets are *ordered* severity, not distinct identities, so the colour job
+ * is an ordinal ramp - one hue, light to dark - rather than a categorical set.
+ * Two exceptions, both semantic: "on time" is a status (good), and
+ * "cancelled or diverted" is not a delay at all, so it takes a neutral.
+ *
+ * A 2px surface gap separates segments, and every segment is named in the legend
+ * as well as coloured, so identity never rests on colour alone.
+ */
+interface Props {
+  counts: Record<string, number>;
+  shares: Record<string, number> | null;
+}
+
+const { counts, shares } = Astro.props as Props;
+
+const BUCKETS = [
+  { key: "on_time", label: "On time (under 15 min late)", color: "var(--sev-0)" },
+  { key: "d15_30", label: "15–30 min late", color: "var(--sev-1)" },
+  { key: "d30_60", label: "30–60 min", color: "var(--sev-2)" },
+  { key: "d60_120", label: "1–2 hours", color: "var(--sev-3)" },
+  { key: "d120_180", label: "2–3 hours", color: "var(--sev-4)" },
+  { key: "d180_plus", label: "3+ hours", color: "var(--sev-5)" },
+  { key: "cancelled_or_diverted", label: "Cancelled or diverted", color: "var(--sev-none)" },
+] as const;
+
+const W = 720;
+const H = 42;
+const GAP = 2;
+
+const total = Object.values(counts).reduce((a, b) => a + b, 0);
+const segments: { label: string; color: string; count: number; share: number; x: number; w: number }[] = [];
+
+let cursor = 0;
+for (const bucket of BUCKETS) {
+  const count = counts[bucket.key] ?? 0;
+  if (count === 0) continue;
+  const share = shares?.[bucket.key] ?? (total ? count / total : 0);
+  const width = share * W;
+  segments.push({ label: bucket.label, color: bucket.color, count, share, x: cursor, w: width });
+  cursor += width;
+}
+
+const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
+---
+
+<figure>
+  {
+    total === 0 ? (
+      <p class="notice">No operations to break down for this page.</p>
+    ) : (
+      <>
+        <svg
+          class="chart"
+          viewBox={`0 0 ${W} ${H}`}
+          role="img"
+          aria-label={`Delay distribution across ${total.toLocaleString("en-US")} scheduled flights.`}
+          preserveAspectRatio="none"
+          style={`height:${H}px`}
+        >
+          {/* Only the outer ends of the bar are rounded; interior segments stay
+              square so the stack reads as one bar rather than a row of pills.
+              A clipPath does the rounding, since SVG rx applies to all corners. */}
+          <defs>
+            <clipPath id="bar-ends">
+              <rect x="0" y="0" width={W} height={H} rx="4" />
+            </clipPath>
+          </defs>
+          {segments.map((s, i) => (
+            <rect
+              clip-path="url(#bar-ends)"
+              x={s.x + (i === 0 ? 0 : GAP / 2)}
+              y="0"
+              width={Math.max(0, s.w - (i === 0 || i === segments.length - 1 ? GAP / 2 : GAP))}
+              height={H}
+              fill={s.color}
+            >
+              <title>{`${s.label}: ${pct(s.share)} (${s.count.toLocaleString("en-US")} flights)`}</title>
+            </rect>
+          ))}
+        </svg>
+
+        <ul class="legend">
+          {segments.map((s) => (
+            <li>
+              <i style={`background:${s.color}`} aria-hidden="true"></i>
+              <span>
+                {s.label} — <strong>{pct(s.share)}</strong>
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        <details>
+          <summary>Show these numbers as a table</summary>
+          <table>
+            <thead>
+              <tr>
+                <th>Arrival</th>
+                <th class="num">Share</th>
+                <th class="num">Flights</th>
+              </tr>
+            </thead>
+            <tbody>
+              {segments.map((s) => (
+                <tr>
+                  <td>{s.label}</td>
+                  <td class="num">{pct(s.share)}</td>
+                  <td class="num">{s.count.toLocaleString("en-US")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </details>
+      </>
+    )
+  }
+</figure>

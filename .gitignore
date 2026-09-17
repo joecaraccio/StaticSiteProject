@@ -37,3 +37,6 @@ docker/dagu/logs/
 .idea/
 .vscode/
 *.swp
+
+# Astro build artefacts inside site/
+site/node_modules/

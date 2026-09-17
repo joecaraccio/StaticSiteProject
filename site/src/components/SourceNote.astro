@@ -1,0 +1,31 @@
+---
+/**
+ * Source credit and data period. CLAUDE.md requires both on every page.
+ */
+import { formatPeriod } from "../lib/pages";
+
+interface Props {
+  attribution: string;
+  period: { start: string; end: string };
+  generatedAt: string;
+  table?: string;
+}
+
+const { attribution, period, generatedAt, table } = Astro.props as Props;
+const updated = new Date(generatedAt).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<footer class="source">
+  <p>
+    <strong>Source:</strong> {attribution}{table ? `, ${table}` : ""}.
+  </p>
+  <p>Data period: {formatPeriod(period)}. Page last updated {updated}.</p>
+  <p>
+    Historical on-time performance describes how a flight has behaved, not a prediction. Always
+    check the sample size shown alongside each figure.
+  </p>
+</footer>

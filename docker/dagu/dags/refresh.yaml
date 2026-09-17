@@ -1,0 +1,97 @@
+# The monthly refresh: new BTS data in, rebuilt site out.
+#
+# Every step runs in a container on the host daemon, so this file is the whole
+# CI/CD definition — there is no build script hiding elsewhere. Volume paths are
+# host paths, because the host daemon resolves them; HOST_REPO_PATH comes from
+# the Dagu service's environment.
+#
+# BTS publishes a month a few weeks after it closes, so this runs on the 8th and
+# asks for the month two months back, which is reliably available by then.
+
+name: refresh
+description: Ingest the newest BTS month, rebuild metrics, regenerate the site
+
+schedule:
+  - "0 4 8 * *"          # 04:00 on the 8th of each month
+overlap_policy: skip     # a long ingest must never overlap the next run
+catchup_window: "48h"    # pick up a missed run if the machine was off
+timeout_sec: 10800       # 3 hours
+
+params:
+  - name: month
+    type: string
+    description: "Month to ingest as YYYY-MM. Empty means two months before today."
+    default: ""
+
+env:
+  - PIPELINE_IMAGE: usually-late/pipeline:dev
+  - SITE_IMAGE: node:22-alpine
+
+steps:
+  # Resolve the target month once so every later step logs the same value.
+  - id: resolve-month
+    run: |
+      if [ -n "${params.month}" ]; then
+        echo "${params.month}"
+      else
+        date -u -d "$(date -u +%Y-%m-01) -2 month" +%Y-%m 2>/dev/null \
+          || date -u -v-2m +%Y-%m
+      fi
+    output: MONTH
+
+  # Refuses unless the source has been verified; see pipeline/sources/verify.py.
+  - id: ingest
+    action: docker.run
+    depends: resolve-month
+    with:
+      image: ${PIPELINE_IMAGE}
+      auto_remove: true
+      working_dir: /app
+      volumes:
+        - ${HOST_REPO_PATH}/data:/data
+      command: ingest --months ${MONTH}
+    retry_policy:
+      limit: 2
+      interval_sec: 300       # a transient BTS hiccup, not a tight retry loop
+
+  - id: build-metrics
+    action: docker.run
+    depends: ingest
+    with:
+      image: ${PIPELINE_IMAGE}
+      auto_remove: true
+      volumes:
+        - ${HOST_REPO_PATH}/data:/data
+      command: build --verbose
+
+  - id: export-pages
+    action: docker.run
+    depends: build-metrics
+    with:
+      image: ${PIPELINE_IMAGE}
+      auto_remove: true
+      volumes:
+        - ${HOST_REPO_PATH}/data:/data
+      command: export
+
+  - id: build-site
+    action: docker.run
+    depends: export-pages
+    with:
+      image: ${SITE_IMAGE}
+      auto_remove: true
+      working_dir: /site
+      volumes:
+        - ${HOST_REPO_PATH}/site:/site
+        - ${HOST_REPO_PATH}/data:/data:ro
+      command: sh -lc "npm ci --no-audit --no-fund && npm run build"
+
+  # The `web` service serves site/dist directly, so a finished build is live as
+  # soon as the files land. Nothing to deploy locally.
+  - id: report
+    depends: build-site
+    run: echo "refresh complete for ${MONTH}; site/dist updated"
+
+handler_on:
+  failure:
+    run: echo "refresh FAILED for ${MONTH} - see the run log in the Dagu UI"

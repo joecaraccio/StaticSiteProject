@@ -1,0 +1,167 @@
+---
+/**
+ * One template for every page type.
+ *
+ * getStaticPaths reads the manifest at build time, so the set of pages is exactly
+ * what the gates allowed through: a dropped page has no JSON, so it cannot be
+ * rendered by accident.
+ */
+import Base from "../layouts/Base.astro";
+import MonthlyChart from "../components/MonthlyChart.astro";
+import DelayDistribution from "../components/DelayDistribution.astro";
+import DelayCauses from "../components/DelayCauses.astro";
+import SourceNote from "../components/SourceNote.astro";
+import {
+  readManifest,
+  readPage,
+  pageTitle,
+  formatPercent,
+  formatMinutes,
+  formatCount,
+  formatPeriod,
+  type PageDocument,
+} from "../lib/pages";
+
+export async function getStaticPaths() {
+  const manifest = readManifest();
+  if (!manifest) return [];
+  return manifest.pages.map((entry) => ({
+    params: { slug: entry.url.replace(/^\//, "") },
+    props: { doc: readPage(entry) },
+  }));
+}
+
+const { doc } = Astro.props as { doc: PageDocument };
+const stats = doc.headline_stats;
+const title = pageTitle(doc);
+
+// Internal links: flight <-> route <-> airport <-> airline (docs/PLAN.md §9).
+const related: { href: string; label: string }[] = [];
+const k = doc.key;
+if (doc.page_type === "flight") {
+  related.push({ href: `/routes/${k.origin}-${k.dest}`, label: `All ${k.origin}–${k.dest} flights` });
+  related.push({ href: `/airlines/${k.carrier}`, label: `${k.carrier} overall` });
+  related.push({ href: `/airports/${k.origin}`, label: `${k.origin} airport` });
+} else if (doc.page_type === "route") {
+  related.push({ href: `/airports/${k.origin}`, label: `${k.origin} airport` });
+  related.push({ href: `/airports/${k.dest}`, label: `${k.dest} airport` });
+  related.push({ href: `/routes/${k.dest}-${k.origin}`, label: `Return: ${k.dest}–${k.origin}` });
+} else if (doc.page_type === "airline") {
+  related.push({ href: "/", label: "All airlines" });
+} else if (doc.page_type === "airport") {
+  related.push({ href: "/", label: "All airports" });
+}
+
+const description =
+  `${title}: ${formatPercent(stats.on_time_rate)} of flights arrived on time across ` +
+  `${formatCount(stats.ops_scheduled)} scheduled flights, ${formatPeriod(doc.data_period)}.`;
+---
+
+<Base title={`${title} — Usually Late`} description={description} noindex={doc.gate.noindex}>
+  <nav class="crumbs"><a href="/">Usually Late</a> / {doc.page_type}</nav>
+
+  <h1>{title}</h1>
+  <p class="period">Trailing 12 months of {formatPeriod(doc.data_period)}</p>
+
+  {
+    doc.gate.noindex && (
+      <div class="notice">
+        This page is based on a small or dated sample, so treat the figures as indicative.
+        {doc.gate.redirect_hint === "route" && doc.page_type === "flight" && (
+          <>
+            {" "}This flight number has not operated recently — the{" "}
+            <a href={`/routes/${k.origin}-${k.dest}`}>{k.origin}–{k.dest} route page</a> is a better
+            guide.
+          </>
+        )}
+      </div>
+    )
+  }
+
+  {/* A handful of headline numbers is a KPI row, not a chart. */}
+  <dl class="kpis">
+    <div class="kpi">
+      <dt>On time</dt>
+      <dd>
+        {formatPercent(stats.on_time_rate)}
+        <span class="sub">of {formatCount(stats.ops_measurable)} measured flights</span>
+      </dd>
+    </div>
+    <div class="kpi">
+      <dt>Cancelled</dt>
+      <dd>
+        {formatPercent(stats.cancellation_rate)}
+        <span class="sub">of {formatCount(stats.ops_scheduled)} scheduled</span>
+      </dd>
+    </div>
+    <div class="kpi">
+      <dt>When late, by</dt>
+      <dd>
+        {formatMinutes(stats.avg_arr_delay_when_late_min)}
+        <span class="sub">median {formatMinutes(stats.median_arr_delay_when_late_min)}</span>
+      </dd>
+    </div>
+    <div class="kpi">
+      <dt>3+ hours late</dt>
+      <dd>
+        {formatPercent(stats.share_3h_plus)}
+        <span class="sub">of flights that operated</span>
+      </dd>
+    </div>
+  </dl>
+
+  <p class="muted">
+    On time means arriving less than 15 minutes after the scheduled arrival, among flights that
+    operated. Cancellation rate is measured against scheduled flights.
+  </p>
+
+  <h2>On-time rate by month</h2>
+  <MonthlyChart
+    series={doc.monthly_series}
+    field="on_time_rate"
+    title="On-time rate"
+    caption="Each point is one month of scheduled service. Hover a point for the sample size."
+  />
+
+  <h2>Cancellations by month</h2>
+  <MonthlyChart
+    series={doc.monthly_series}
+    field="cancellation_rate"
+    title="Cancellation rate"
+    caption="Shown as its own chart: cancellation rates are far smaller than on-time rates, and squeezing both onto one axis would hide the shape of this one."
+  />
+
+  <h2>How late, when late</h2>
+  <DelayDistribution counts={doc.delay_distribution.counts} shares={doc.delay_distribution.shares} />
+
+  <h2>What caused the delays</h2>
+  <DelayCauses
+    minutes={doc.delay_causes.minutes}
+    shares={doc.delay_causes.shares}
+    totalMinutes={doc.delay_causes.total_minutes}
+  />
+
+  {
+    related.length > 0 && (
+      <>
+        <h2>Related</h2>
+        <ul class="links">
+          {related.map((r) => (
+            <li>
+              <a href={r.href}>
+                <span class="t">{r.label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </>
+    )
+  }
+
+  <SourceNote
+    attribution={doc.source.attribution}
+    table={doc.source.table}
+    period={doc.data_period}
+    generatedAt={doc.generated_at}
+  />
+</Base>

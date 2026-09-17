@@ -6,6 +6,7 @@ Commands mirror the stages in the architecture diagram in docs/PLAN.md:
     ingest          download raw months, then normalize them to Parquet
     normalize       re-derive Parquet from raw already on disk
     build           (re)create the DuckDB metric views
+    export          write one JSON document per page and run the quality gates
     status          what is on disk, and whether the source is verified
     query           run read-only SQL against the built database
 """
@@ -19,6 +20,7 @@ from collections.abc import Sequence
 from datetime import date
 
 from pipeline import config, normalize
+from pipeline.export import pages
 from pipeline.metrics import build
 from pipeline.sources import bts_ontime, verify
 
@@ -120,6 +122,25 @@ def cmd_build(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_export(args: argparse.Namespace) -> int:
+    if not config.PATHS.duckdb_file.exists():
+        print("No database yet. Run `pipeline build` first.", file=sys.stderr)
+        return 2
+    try:
+        result = pages.export_all(today=args.today)
+    except build.NoDataError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+
+    print(f"Wrote {result.written:,} page documents, dropped {result.dropped:,}")
+    for page_type, counts in sorted(result.by_type.items()):
+        detail = "  ".join(f"{k}={v:,}" for k, v in counts.items())
+        print(f"  {page_type:<9} {detail}")
+    print(f"  gate report: {result.report_path}")
+    print(f"  manifest:    {result.manifest_path}")
+    return 0
+
+
 def cmd_status(args: argparse.Namespace) -> int:
     paths = config.PATHS
     print(f"data root: {paths.root}")
@@ -213,6 +234,15 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("build", help="(re)create the DuckDB metric views")
     p.add_argument("-v", "--verbose", action="store_true", help="list the views created")
     p.set_defaults(func=cmd_build)
+
+    p = sub.add_parser("export", help="write page JSON and run the quality gates")
+    p.add_argument(
+        "--today",
+        type=date.fromisoformat,
+        metavar="YYYY-MM-DD",
+        help="treat this as today's date when checking data age (for reproducible runs)",
+    )
+    p.set_defaults(func=cmd_export)
 
     p = sub.add_parser("status", help="what is on disk")
     p.add_argument("--json", action="store_true")

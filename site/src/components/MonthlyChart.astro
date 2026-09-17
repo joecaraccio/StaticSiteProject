@@ -1,0 +1,168 @@
+---
+/**
+ * Month-by-month trend as inline SVG, rendered at build time (no client JS).
+ *
+ * One series per chart, deliberately. On-time rate and cancellation rate live on
+ * very different scales, and a second y-axis is never the answer: show them as
+ * two charts (small multiples) instead. One series also means no legend is
+ * needed - the title names it.
+ *
+ * The hover layer is native <title> elements, which browsers surface as tooltips
+ * and assistive tech reads out. A <details> table below gives the same numbers in
+ * text, so nothing depends on seeing the shape.
+ */
+import type { MonthPoint } from "../lib/pages";
+
+interface Props {
+  series: MonthPoint[];
+  field: "on_time_rate" | "cancellation_rate";
+  title: string;
+  caption?: string;
+}
+
+const { series, field, title, caption } = Astro.props as Props;
+
+const points = series.filter((p) => p[field] !== null && p[field] !== undefined);
+
+// Geometry. A viewBox plus width:100% keeps it responsive without media queries.
+const W = 720;
+const H = 240;
+const PAD = { top: 16, right: 52, bottom: 30, left: 44 };
+const plotW = W - PAD.left - PAD.right;
+const plotH = H - PAD.top - PAD.bottom;
+
+// Scale to the data rather than always 0-100%: a cancellation series of 0-3% is
+// unreadable on a 0-100% axis. The step comes from a fixed set of round numbers
+// so tick labels read 0/10/20/30%, never 13%/38%.
+const NICE_STEPS = [0.002, 0.005, 0.01, 0.02, 0.025, 0.05, 0.1, 0.2, 0.25, 0.5];
+const maxValue = Math.max(...points.map((p) => p[field] as number), 0.0001);
+const tickStep = NICE_STEPS.find((s) => s * 4 >= maxValue) ?? 0.25;
+const ceiling = Math.min(1, Math.ceil(maxValue / tickStep) * tickStep);
+const ticks = Array.from({ length: Math.round(ceiling / tickStep) + 1 }, (_, i) => i * tickStep);
+// Enough decimals for the step in use, and no more.
+const tickDigits = tickStep >= 0.01 ? 0 : tickStep >= 0.005 ? 1 : 2;
+
+const x = (i: number) =>
+  PAD.left + (points.length <= 1 ? plotW / 2 : (i / (points.length - 1)) * plotW);
+const y = (v: number) => PAD.top + plotH - (v / ceiling) * plotH;
+
+const linePath = points
+  .map((p, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)} ${y(p[field] as number).toFixed(1)}`)
+  .join(" ");
+
+const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
+const monthLabel = (m: string) =>
+  new Date(`${m}-01T00:00:00Z`).toLocaleDateString("en-US", {
+    month: "short",
+    year: "2-digit",
+    timeZone: "UTC",
+  });
+
+// Label every nth month so the axis never collides with itself.
+const step = Math.max(1, Math.ceil(points.length / 8));
+const last = points.at(-1);
+---
+
+<figure>
+  {
+    points.length === 0 ? (
+      <p class="notice">No month-by-month data for this page yet.</p>
+    ) : (
+      <svg
+        class="chart"
+        viewBox={`0 0 ${W} ${H}`}
+        role="img"
+        aria-label={`${title}. ${points.length} months, ${monthLabel(points[0].month)} to ${monthLabel(last!.month)}.`}
+        preserveAspectRatio="xMidYMid meet"
+      >
+        {ticks.map((t) => (
+          <g>
+            <line
+              x1={PAD.left}
+              x2={W - PAD.right}
+              y1={y(t)}
+              y2={y(t)}
+              stroke="var(--grid)"
+              stroke-width="1"
+            />
+            <text x={PAD.left - 8} y={y(t) + 4} text-anchor="end" font-size="11" fill="var(--text-muted)">
+              {(t * 100).toFixed(tickDigits)}%
+            </text>
+          </g>
+        ))}
+
+        {points.map((p, i) =>
+          i % step === 0 || i === points.length - 1 ? (
+            <text x={x(i)} y={H - 10} text-anchor="middle" font-size="11" fill="var(--text-muted)">
+              {monthLabel(p.month)}
+            </text>
+          ) : null,
+        )}
+
+        <path
+          d={linePath}
+          fill="none"
+          stroke="var(--series-1)"
+          stroke-width="2"
+          stroke-linejoin="round"
+          stroke-linecap="round"
+        />
+
+        {points.map((p, i) => (
+          <circle
+            cx={x(i)}
+            cy={y(p[field] as number)}
+            r="4"
+            fill="var(--series-1)"
+            stroke="var(--surface)"
+            stroke-width="2"
+          >
+            <title>
+              {`${monthLabel(p.month)}: ${pct(p[field] as number)} (${p.ops_scheduled.toLocaleString("en-US")} scheduled)`}
+            </title>
+          </circle>
+        ))}
+
+        <text
+          x={x(points.length - 1) + 9}
+          y={y(last![field] as number) + 4}
+          font-size="12"
+          font-weight="600"
+          fill="var(--text-primary)"
+        >
+          {pct(last![field] as number)}
+        </text>
+      </svg>
+    )
+  }
+
+  {caption && <figcaption>{caption}</figcaption>}
+
+  {
+    points.length > 0 && (
+      <details>
+        <summary>Show these numbers as a table</summary>
+        <table>
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th class="num">{title}</th>
+              <th class="num">Scheduled</th>
+              <th class="num">Operated</th>
+            </tr>
+          </thead>
+          <tbody>
+            {points.map((p) => (
+              <tr>
+                <td>{monthLabel(p.month)}</td>
+                <td class="num">{pct(p[field] as number)}</td>
+                <td class="num">{p.ops_scheduled.toLocaleString("en-US")}</td>
+                <td class="num">{p.ops_operated.toLocaleString("en-US")}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </details>
+    )
+  }
+</figure>
