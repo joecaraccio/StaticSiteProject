@@ -1,0 +1,39 @@
+# Data (never committed — see CLAUDE.md "Raw data is immutable")
+data/
+!data/.gitkeep
+
+# Secrets
+.env
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# DuckDB
+*.duckdb
+*.duckdb.wal
+*.db
+
+# Node / Astro
+node_modules/
+site/dist/
+site/.astro/
+.npm/
+
+# Docker / local runtime state
+docker/dagu/data/
+docker/dagu/logs/
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
