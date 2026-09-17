@@ -12,6 +12,20 @@ Record meaningful choices here, newest first.
 
 ---
 
+### 2026-09-17 · The synthetic export is committed; the derived binaries are not
+- **Decision:** `data/mockup/export/` (103 JSON files, ~1.2 MB) is in git. `data/mockup/clean/` (Parquet, DuckDB) and `data/mockup/raw/` (the zip) are not.
+- **Why:** The export is diffable text, so a template or schema change shows up in a PR as a content diff — it doubles as a snapshot test of the whole chain. It also means someone with only Node can build the full site without installing Python or running the pipeline. The Parquet and DuckDB files are binary, rewritten wholesale on every regeneration, and rebuilt in seconds; the raw zip embeds timestamps so it churns even when its contents do not.
+- **Alternatives considered:** Committing all of `data/mockup/` (binary churn for no benefit); committing none of it (a frontend contributor must install Python and DuckDB to see a page).
+- **Revisit if:** the export grows past a few MB, at which point a trimmed subset would serve the same purpose.
+
+### 2026-09-17 · Exports must be byte-identical for identical input
+- **Decision:** Every metrics view read during export carries an explicit `ORDER BY` on its key columns, the manifest's page list is sorted by URL, and `generated_at` can be pinned with `export --generated-at`.
+- **Why:** DuckDB's `GROUP BY` gives no ordering guarantee, so two exports of the same data emitted pages in different orders. That made the committed mockup churn, and it would have made any future diff of a real export useless for spotting real changes. `scripts/smoke.sh` now fails if a regeneration alters the committed export.
+- **Alternatives considered:** Sorting only the manifest (leaves page-generation order unstable, which any order-sensitive logic added later would inherit); not committing the export (gives up the snapshot-test property).
+- **Revisit if:** export becomes slow enough that the sorts matter, which seems unlikely at this scale.
+
+---
+
 ### 2026-09-17 · Templates check that a link's target exists
 - **Decision:** Any internal link built from a URL pattern rather than from a manifest entry goes through `pageExists()` first. Related links to dropped pages are omitted; an alternative flight with no page of its own still appears in the comparison table, as plain text rather than a link.
 - **Why:** The gates drop pages, so "the return route" or "the other flights on this route" may not exist. A link checker over a build with real gate decisions found two broken links immediately, and with real data most routes fall below the 60-operation threshold — this would have produced 404s at scale rather than occasionally.

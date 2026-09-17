@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "page_type": "flight",
+  "url": "/flights/B6/2095/SFO-ORD",
+  "key": {
+    "carrier": "B6",
+    "flight_number": "2095",
+    "origin": "SFO",
+    "dest": "ORD"
+  },
+  "data_period": {
+    "start": "2024-08-01",
+    "end": "2026-07-31"
+  },
+  "source": {
+    "attribution": "U.S. Department of Transportation, Bureau of Transportation Statistics",
+    "table": "Airline On-Time Performance (reporting carrier)"
+  },
+  "generated_at": "2026-09-17T00:00:00+00:00",
+  "headline_stats": {
+    "ops_scheduled": 365,
+    "ops_operated": 357,
+    "ops_measurable": 357,
+    "on_time_rate": 0.7759103641456583,
+    "cancellation_rate": 0.021917808219178082,
+    "diversion_rate": 0.0,
+    "avg_arr_delay_min": 16.65266106442577,
+    "avg_arr_delay_when_late_min": 64.0125,
+    "median_arr_delay_when_late_min": 49.0,
+    "share_3h_plus": 0.008403361344537815
+  },
+  "coverage": {
+    "first_seen": "2025-08-01",
+    "last_seen": "2026-07-31",
+    "months_covered": 12
+  },
+  "monthly_series": [
+    {
+      "month": "2024-08",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.7096774193548387,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-09",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.8,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-10",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.8709677419354839,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-11",
+      "ops_scheduled": 30,
+      "ops_operated": 28,
+      "on_time_rate": 0.9285714285714286,
+      "cancellation_rate": 0.06666666666666667
+    },
+    {
+      "month": "2024-12",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.7666666666666667,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2025-01",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.7096774193548387,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-02",
+      "ops_scheduled": 28,
+      "ops_operated": 27,
+      "on_time_rate": 0.7777777777777778,
+      "cancellation_rate": 0.03571428571428571
+    },
+    {
+      "month": "2025-03",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.8666666666666667,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2025-04",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.9,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-05",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.8709677419354839,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-06",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.7333333333333333,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-07",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.6666666666666666,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2025-08",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.7741935483870968,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-09",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.9,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-10",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.8709677419354839,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-11",
+      "ops_scheduled": 30,
+      "ops_operated": 29,
+      "on_time_rate": 0.8275862068965517,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2025-12",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.5483870967741935,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-01",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.7,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2026-02",
+      "ops_scheduled": 28,
+      "ops_operated": 28,
+      "on_time_rate": 0.8214285714285714,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-03",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.7666666666666667,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2026-04",
+      "ops_scheduled": 30,
+      "ops_operated": 29,
+      "on_time_rate": 0.8620689655172413,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2026-05",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.7419354838709677,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-06",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.7333333333333333,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-07",
+      "ops_scheduled": 31,
+      "ops_operated": 27,
+      "on_time_rate": 0.7777777777777778,
+      "cancellation_rate": 0.12903225806451613
+    }
+  ],
+  "alternatives": [
+    {
+      "carrier": "DL",
+      "flight_number": "2701",
+      "typical_sched_dep": "0630",
+      "ops_scheduled": 261,
+      "on_time_rate": 0.84251968503937,
+      "cancellation_rate": 0.02681992337164751,
+      "avg_arr_delay_when_late_min": 64.55,
+      "is_this_page": false,
+      "url": "/flights/DL/2701/SFO-ORD"
+    },
+    {
+      "carrier": "UA",
+      "flight_number": "807",
+      "typical_sched_dep": "1000",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.8217270194986073,
+      "cancellation_rate": 0.0136986301369863,
+      "avg_arr_delay_when_late_min": 57.75,
+      "is_this_page": false,
+      "url": "/flights/UA/807/SFO-ORD"
+    },
+    {
+      "carrier": "B6",
+      "flight_number": "2095",
+      "typical_sched_dep": "0830",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.7759103641456583,
+      "cancellation_rate": 0.021917808219178082,
+      "avg_arr_delay_when_late_min": 64.0125,
+      "is_this_page": true,
+      "url": "/flights/B6/2095/SFO-ORD"
+    },
+    {
+      "carrier": "DL",
+      "flight_number": "1337",
+      "typical_sched_dep": "1715",
+      "ops_scheduled": 261,
+      "on_time_rate": 0.5923076923076923,
+      "cancellation_rate": 0.0038314176245210726,
+      "avg_arr_delay_when_late_min": 64.34905660377359,
+      "is_this_page": false,
+      "url": "/flights/DL/1337/SFO-ORD"
+    }
+  ],
+  "delay_causes": {
+    "basis": "attributed_delay_minutes",
+    "total_minutes": 5121.0,
+    "minutes": {
+      "carrier": 1290.0,
+      "weather": 1131.0,
+      "nas": 1212.0,
+      "security": 16.0,
+      "late_aircraft": 1472.0
+    },
+    "shares": {
+      "carrier": 0.2519039250146456,
+      "weather": 0.22085530169888692,
+      "nas": 0.23667252489748097,
+      "security": 0.003124389767623511,
+      "late_aircraft": 0.287443858621363
+    }
+  },
+  "delay_distribution": {
+    "counts": {
+      "on_time": 277,
+      "d15_30": 12,
+      "d30_60": 38,
+      "d60_120": 24,
+      "d120_180": 3,
+      "d180_plus": 3,
+      "cancelled_or_diverted": 8
+    },
+    "shares": {
+      "on_time": 0.7589041095890411,
+      "d15_30": 0.03287671232876712,
+      "d30_60": 0.10410958904109589,
+      "d60_120": 0.06575342465753424,
+      "d120_180": 0.00821917808219178,
+      "d180_plus": 0.00821917808219178,
+      "cancelled_or_diverted": 0.021917808219178082
+    }
+  },
+  "summary": {
+    "sentences": [
+      "B6 2095 is on time more often than not: 78% of flights arrived within 15 minutes of schedule, across 357 flights that operated.",
+      "That is about average for the SFO to ORD route (76%).",
+      "DL 2701 is the most reliable option on this route at 84%, 7 points better.",
+      "The worst month in the period was December 2025, at 55% on time.",
+      "2.2% of scheduled flights were cancelled \u2014 roughly one in 46.",
+      "When it does arrive late, it is 64 minutes behind schedule on average."
+    ],
+    "matched_rules": [
+      "headline",
+      "versus_peers",
+      "better_option",
+      "worst_month",
+      "cancellations",
+      "how_late"
+    ]
+  },
+  "demo_notice": "Mockup: every figure on this page is synthetic, generated for design review. It is not U.S. DOT data and must not be read as a description of any real flight.",
+  "gate": {
+    "outcome": "publish",
+    "noindex": false,
+    "reasons": [
+      "passed all gates"
+    ],
+    "skipped_gates": [
+      "similarity (not computed; arrives in M6)"
+    ],
+    "redirect_hint": null
+  }
+}

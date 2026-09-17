@@ -17,7 +17,7 @@ import argparse
 import json
 import sys
 from collections.abc import Sequence
-from datetime import date
+from datetime import date, datetime
 
 from pipeline import config, normalize
 from pipeline.export import pages
@@ -127,7 +127,11 @@ def cmd_export(args: argparse.Namespace) -> int:
         print("No database yet. Run `pipeline build` first.", file=sys.stderr)
         return 2
     try:
-        result = pages.export_all(today=args.today, demo_notice=args.demo_notice)
+        result = pages.export_all(
+            today=args.today,
+            demo_notice=args.demo_notice,
+            generated_at=args.generated_at,
+        )
     except build.NoDataError as exc:
         print(str(exc), file=sys.stderr)
         return 2
@@ -246,6 +250,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--demo-notice",
         metavar="TEXT",
         help="stamp every page as synthetic (mockup builds only; forces noindex on the site)",
+    )
+    p.add_argument(
+        "--generated-at",
+        type=datetime.fromisoformat,
+        metavar="ISO8601",
+        help="pin the generated-at timestamp, so re-exporting unchanged data produces "
+        "an identical result (used by the mockup, which is committed)",
     )
     p.set_defaults(func=cmd_export)
 

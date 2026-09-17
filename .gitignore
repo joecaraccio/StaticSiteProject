@@ -1,6 +1,18 @@
 # Data (never committed — see CLAUDE.md "Raw data is immutable")
-data/
+# `data/*` rather than `data/`: git does not descend into an ignored directory,
+# so the re-includes below would never be reached.
+data/*
 !data/.gitkeep
+
+# ...except the synthetic mockup export, which IS committed: it is diffable JSON,
+# it lets anyone build the site with Node alone, and because its timestamp is
+# pinned it doubles as a snapshot of the pipeline's output. The derived Parquet
+# and DuckDB files are not committed — they are binary, they churn, and
+# `make mockup` rebuilds them in seconds. The raw zip is not committed either:
+# zip timestamps make it churn on every regeneration.
+!data/mockup/
+data/mockup/*
+!data/mockup/export/
 
 # Secrets
 .env

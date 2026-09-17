@@ -69,8 +69,18 @@ def _data_period(con: duckdb.DuckDBPyConnection) -> tuple[date, date]:
     return start, end
 
 
-def _rows(con: duckdb.DuckDBPyConnection, view: str) -> list[dict[str, Any]]:
-    cursor = con.execute(f"SELECT * FROM {view}")  # view names are from PAGE_TYPES
+def _rows(
+    con: duckdb.DuckDBPyConnection, view: str, key_columns: tuple[str, ...]
+) -> list[dict[str, Any]]:
+    """Every row of a metrics view, in a stable order.
+
+    The ORDER BY is not cosmetic. DuckDB's GROUP BY gives no ordering guarantee,
+    so without it two exports of identical data emit pages in different orders and
+    the manifest churns. An export should be reproducible.
+    """
+    order = ", ".join(key_columns)
+    # View and column names come from PAGE_TYPES, not from user input.
+    cursor = con.execute(f"SELECT * FROM {view} ORDER BY {order}")
     columns = [d[0] for d in cursor.description]
     return [dict(zip(columns, r, strict=True)) for r in cursor.fetchall()]
 
@@ -263,6 +273,7 @@ def _build_document(
     monthly: list[dict],
     alternatives: list[dict[str, Any]],
     period: tuple[date, date],
+    generated_at: datetime,
 ) -> dict[str, Any]:
     return {
         "schema_version": SCHEMA_VERSION,
@@ -274,7 +285,7 @@ def _build_document(
             "attribution": ATTRIBUTION,
             "table": "Airline On-Time Performance (reporting carrier)",
         },
-        "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "generated_at": generated_at.isoformat(timespec="seconds"),
         "headline_stats": {
             "ops_scheduled": row["ops_scheduled"],
             "ops_operated": row["ops_operated"],
@@ -316,11 +327,17 @@ def export_all(
     *,
     today: date | None = None,
     demo_notice: str | None = None,
+    generated_at: datetime | None = None,
 ) -> ExportResult:
     """Export every candidate page, gate it, and write the report.
 
     `today` is injectable so an export is reproducible: the data-age gate is the
     one rule that depends on wall-clock time.
+
+    `generated_at` pins the timestamp written into every document. Left as None it
+    is the wall clock, which is what a real run wants. The mockup pins it so that
+    regenerating the committed synthetic export produces no diff unless the
+    pipeline's actual output changed.
 
     `demo_notice` stamps every document and the manifest with a warning that the
     figures are synthetic. The site renders it as a persistent banner and forces
@@ -335,6 +352,7 @@ def export_all(
         if period[0] is None:
             raise build.NoDataError("No operations in the database; run ingest first.")
         route_rates = _route_rates(con)
+        stamp = generated_at or datetime.now().astimezone()
 
         decisions: dict[str, Decision] = {}
         by_type: dict[str, dict[str, int]] = {}
@@ -344,7 +362,7 @@ def export_all(
         for page_type, (view, key_columns, url_pattern) in PAGE_TYPES.items():
             # Airport pages are keyed on the airport; the arrival/departure split
             # is a section within one page, so only departures drive the URL.
-            rows = _rows(con, view)
+            rows = _rows(con, view, key_columns)
             if page_type == "airport":
                 rows = [r for r in rows if r["role"] == "departure"]
 
@@ -353,7 +371,9 @@ def export_all(
                 url = url_pattern.format(**{k: str(v) for k, v in keys.items()})
                 monthly = _monthly_series(con, MONTHLY_VIEW[page_type], keys)
                 alternatives = _alternatives(con, page_type, keys)
-                document = _build_document(page_type, row, keys, url, monthly, alternatives, period)
+                document = _build_document(
+                    page_type, row, keys, url, monthly, alternatives, period, stamp
+                )
                 if demo_notice:
                     document["demo_notice"] = demo_notice
 
@@ -410,7 +430,7 @@ def export_all(
 
         report_path = _write_report(decisions)
         manifest_path = _write_manifest(
-            manifest, period, summarize(decisions), by_type, demo_notice
+            manifest, period, summarize(decisions), by_type, demo_notice, stamp
         )
         return ExportResult(
             written=written,
@@ -451,19 +471,20 @@ def _write_manifest(
     totals: dict[str, int],
     by_type: dict[str, dict[str, int]],
     demo_notice: str | None = None,
+    generated_at: datetime | None = None,
 ) -> str:
     path = config.PATHS.export / "manifest.json"
     path.write_text(
         json.dumps(
             {
                 "schema_version": SCHEMA_VERSION,
-                "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+                "generated_at": generated_at.isoformat(timespec="seconds"),
                 "data_period": {"start": period[0].isoformat(), "end": period[1].isoformat()},
                 "source": {"attribution": ATTRIBUTION},
                 "demo_notice": demo_notice,
                 "totals": totals,
                 "by_page_type": by_type,
-                "pages": manifest,
+                "pages": sorted(manifest, key=lambda entry: entry["url"]),
             },
             indent=2,
         )

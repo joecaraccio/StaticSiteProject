@@ -1,0 +1,323 @@
+{
+  "schema_version": 1,
+  "page_type": "flight",
+  "url": "/flights/WN/2024/LGA-ATL",
+  "key": {
+    "carrier": "WN",
+    "flight_number": "2024",
+    "origin": "LGA",
+    "dest": "ATL"
+  },
+  "data_period": {
+    "start": "2024-08-01",
+    "end": "2026-07-31"
+  },
+  "source": {
+    "attribution": "U.S. Department of Transportation, Bureau of Transportation Statistics",
+    "table": "Airline On-Time Performance (reporting carrier)"
+  },
+  "generated_at": "2026-09-17T00:00:00+00:00",
+  "headline_stats": {
+    "ops_scheduled": 365,
+    "ops_operated": 360,
+    "ops_measurable": 360,
+    "on_time_rate": 0.4777777777777778,
+    "cancellation_rate": 0.010958904109589041,
+    "diversion_rate": 0.0027397260273972603,
+    "avg_arr_delay_min": 32.080555555555556,
+    "avg_arr_delay_when_late_min": 58.797872340425535,
+    "median_arr_delay_when_late_min": 48.0,
+    "share_3h_plus": 0.011111111111111112
+  },
+  "coverage": {
+    "first_seen": "2025-08-01",
+    "last_seen": "2026-07-31",
+    "months_covered": 12
+  },
+  "monthly_series": [
+    {
+      "month": "2024-08",
+      "ops_scheduled": 31,
+      "ops_operated": 29,
+      "on_time_rate": 0.41379310344827586,
+      "cancellation_rate": 0.06451612903225806
+    },
+    {
+      "month": "2024-09",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.5333333333333333,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-10",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.6451612903225806,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-11",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.43333333333333335,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-12",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.1935483870967742,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-01",
+      "ops_scheduled": 31,
+      "ops_operated": 29,
+      "on_time_rate": 0.27586206896551724,
+      "cancellation_rate": 0.06451612903225806
+    },
+    {
+      "month": "2025-02",
+      "ops_scheduled": 28,
+      "ops_operated": 28,
+      "on_time_rate": 0.4642857142857143,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-03",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.7096774193548387,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-04",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.6333333333333333,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-05",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.6129032258064516,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-06",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.23333333333333334,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-07",
+      "ops_scheduled": 31,
+      "ops_operated": 29,
+      "on_time_rate": 0.4482758620689655,
+      "cancellation_rate": 0.06451612903225806
+    },
+    {
+      "month": "2025-08",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.3,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2025-09",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.5333333333333333,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-10",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.6451612903225806,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-11",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.6,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-12",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.41935483870967744,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-01",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.1935483870967742,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-02",
+      "ops_scheduled": 28,
+      "ops_operated": 27,
+      "on_time_rate": 0.5555555555555556,
+      "cancellation_rate": 0.03571428571428571
+    },
+    {
+      "month": "2026-03",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.4,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2026-04",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.4666666666666667,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-05",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.6129032258064516,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-06",
+      "ops_scheduled": 30,
+      "ops_operated": 28,
+      "on_time_rate": 0.5,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2026-07",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.5161290322580645,
+      "cancellation_rate": 0.0
+    }
+  ],
+  "alternatives": [
+    {
+      "carrier": "WN",
+      "flight_number": "1211",
+      "typical_sched_dep": "0645",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.9019607843137255,
+      "cancellation_rate": 0.021917808219178082,
+      "avg_arr_delay_when_late_min": 57.457142857142856,
+      "is_this_page": false,
+      "url": "/flights/WN/1211/LGA-ATL"
+    },
+    {
+      "carrier": "B6",
+      "flight_number": "760",
+      "typical_sched_dep": "1945",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.6483516483516484,
+      "cancellation_rate": 0.0027397260273972603,
+      "avg_arr_delay_when_late_min": 58.2109375,
+      "is_this_page": false,
+      "url": "/flights/B6/760/LGA-ATL"
+    },
+    {
+      "carrier": "UA",
+      "flight_number": "1727",
+      "typical_sched_dep": "1730",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.6428571428571429,
+      "cancellation_rate": 0.0027397260273972603,
+      "avg_arr_delay_when_late_min": 58.323076923076925,
+      "is_this_page": false,
+      "url": "/flights/UA/1727/LGA-ATL"
+    },
+    {
+      "carrier": "WN",
+      "flight_number": "2024",
+      "typical_sched_dep": "2115",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.4777777777777778,
+      "cancellation_rate": 0.010958904109589041,
+      "avg_arr_delay_when_late_min": 58.797872340425535,
+      "is_this_page": true,
+      "url": "/flights/WN/2024/LGA-ATL"
+    }
+  ],
+  "delay_causes": {
+    "basis": "attributed_delay_minutes",
+    "total_minutes": 11054.0,
+    "minutes": {
+      "carrier": 2588.0,
+      "weather": 2570.0,
+      "nas": 2525.0,
+      "security": 31.0,
+      "late_aircraft": 3340.0
+    },
+    "shares": {
+      "carrier": 0.23412339424642664,
+      "weather": 0.23249502442554731,
+      "nas": 0.22842409987334902,
+      "security": 0.002804414691514384,
+      "late_aircraft": 0.30215306676316267
+    }
+  },
+  "delay_distribution": {
+    "counts": {
+      "on_time": 172,
+      "d15_30": 31,
+      "d30_60": 93,
+      "d60_120": 56,
+      "d120_180": 4,
+      "d180_plus": 4,
+      "cancelled_or_diverted": 5
+    },
+    "shares": {
+      "on_time": 0.4712328767123288,
+      "d15_30": 0.08493150684931507,
+      "d30_60": 0.2547945205479452,
+      "d60_120": 0.15342465753424658,
+      "d120_180": 0.010958904109589041,
+      "d180_plus": 0.010958904109589041,
+      "cancelled_or_diverted": 0.0136986301369863
+    }
+  },
+  "summary": {
+    "sentences": [
+      "WN 2024 is usually late: 48% of flights arrived within 15 minutes of schedule, across 360 flights that operated.",
+      "That is 19 points worse than the LGA to ATL route, which averages 67%.",
+      "WN 1211 is the most reliable option on this route at 90%, 42 points better.",
+      "The worst month in the period was December 2024, at 19% on time.",
+      "1.1% of scheduled flights were cancelled \u2014 roughly one in 91.",
+      "When it does arrive late, it is 59 minutes behind schedule on average.",
+      "1.1% of flights arrived three or more hours late."
+    ],
+    "matched_rules": [
+      "headline",
+      "versus_peers",
+      "better_option",
+      "worst_month",
+      "cancellations",
+      "how_late",
+      "severe_delays"
+    ]
+  },
+  "demo_notice": "Mockup: every figure on this page is synthetic, generated for design review. It is not U.S. DOT data and must not be read as a description of any real flight.",
+  "gate": {
+    "outcome": "publish",
+    "noindex": false,
+    "reasons": [
+      "passed all gates"
+    ],
+    "skipped_gates": [
+      "similarity (not computed; arrives in M6)"
+    ],
+    "redirect_hint": null
+  }
+}

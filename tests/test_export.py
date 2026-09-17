@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 from pipeline import config
@@ -238,3 +238,39 @@ def test_demo_notice_stamps_every_page_and_the_manifest(con):
     assert read("pages/airlines/AA.json")["demo_notice"] == notice
     assert read("pages/airports/BOS.json")["demo_notice"] == notice
     assert json.loads((config.PATHS.export / "manifest.json").read_text())["demo_notice"] == notice
+
+
+# --- reproducibility -------------------------------------------------------
+
+
+def test_exporting_the_same_data_twice_is_byte_identical(con, tmp_path):
+    """An export must be reproducible: DuckDB's GROUP BY has no ordering
+    guarantee, so without an explicit sort the manifest churns between runs."""
+    first = {}
+    pages.export_all(con=con, today=TODAY, generated_at=datetime(2026, 1, 1, tzinfo=UTC))
+    for path in sorted((config.PATHS.export).rglob("*")):
+        if path.is_file():
+            first[str(path.relative_to(config.PATHS.export))] = path.read_bytes()
+
+    pages.export_all(con=con, today=TODAY, generated_at=datetime(2026, 1, 1, tzinfo=UTC))
+    second = {}
+    for path in sorted((config.PATHS.export).rglob("*")):
+        if path.is_file():
+            second[str(path.relative_to(config.PATHS.export))] = path.read_bytes()
+
+    assert first.keys() == second.keys()
+    differing = [name for name in first if first[name] != second[name]]
+    assert differing == []
+
+
+def test_manifest_pages_are_sorted_by_url(con):
+    export(con)
+    urls = [
+        e["url"] for e in json.loads((config.PATHS.export / "manifest.json").read_text())["pages"]
+    ]
+    assert urls == sorted(urls)
+
+
+def test_generated_at_can_be_pinned(con):
+    pages.export_all(con=con, today=TODAY, generated_at=datetime(2030, 6, 1, 12, tzinfo=UTC))
+    assert read("pages/airlines/AA.json")["generated_at"].startswith("2030-06-01T12:00:00")

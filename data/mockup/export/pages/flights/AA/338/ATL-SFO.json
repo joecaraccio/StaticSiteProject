@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "page_type": "flight",
+  "url": "/flights/AA/338/ATL-SFO",
+  "key": {
+    "carrier": "AA",
+    "flight_number": "338",
+    "origin": "ATL",
+    "dest": "SFO"
+  },
+  "data_period": {
+    "start": "2024-08-01",
+    "end": "2026-07-31"
+  },
+  "source": {
+    "attribution": "U.S. Department of Transportation, Bureau of Transportation Statistics",
+    "table": "Airline On-Time Performance (reporting carrier)"
+  },
+  "generated_at": "2026-09-17T00:00:00+00:00",
+  "headline_stats": {
+    "ops_scheduled": 365,
+    "ops_operated": 358,
+    "ops_measurable": 358,
+    "on_time_rate": 0.7681564245810056,
+    "cancellation_rate": 0.019178082191780823,
+    "diversion_rate": 0.0,
+    "avg_arr_delay_min": 16.011173184357542,
+    "avg_arr_delay_when_late_min": 59.2289156626506,
+    "median_arr_delay_when_late_min": 44.0,
+    "share_3h_plus": 0.00558659217877095
+  },
+  "coverage": {
+    "first_seen": "2025-08-01",
+    "last_seen": "2026-07-31",
+    "months_covered": 12
+  },
+  "monthly_series": [
+    {
+      "month": "2024-08",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.8064516129032258,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-09",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.8333333333333334,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-10",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.9032258064516129,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-11",
+      "ops_scheduled": 30,
+      "ops_operated": 28,
+      "on_time_rate": 0.6785714285714286,
+      "cancellation_rate": 0.06666666666666667
+    },
+    {
+      "month": "2024-12",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.7666666666666667,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2025-01",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.6451612903225806,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-02",
+      "ops_scheduled": 28,
+      "ops_operated": 25,
+      "on_time_rate": 0.76,
+      "cancellation_rate": 0.10714285714285714
+    },
+    {
+      "month": "2025-03",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.8,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2025-04",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.7333333333333333,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-05",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.7741935483870968,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-06",
+      "ops_scheduled": 30,
+      "ops_operated": 29,
+      "on_time_rate": 0.7586206896551724,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2025-07",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.7096774193548387,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-08",
+      "ops_scheduled": 31,
+      "ops_operated": 29,
+      "on_time_rate": 0.5862068965517241,
+      "cancellation_rate": 0.06451612903225806
+    },
+    {
+      "month": "2025-09",
+      "ops_scheduled": 30,
+      "ops_operated": 29,
+      "on_time_rate": 0.7931034482758621,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2025-10",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.7666666666666667,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2025-11",
+      "ops_scheduled": 30,
+      "ops_operated": 29,
+      "on_time_rate": 0.9310344827586207,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2025-12",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.6774193548387096,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-01",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.7419354838709677,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-02",
+      "ops_scheduled": 28,
+      "ops_operated": 28,
+      "on_time_rate": 0.7142857142857143,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-03",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.8709677419354839,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-04",
+      "ops_scheduled": 30,
+      "ops_operated": 29,
+      "on_time_rate": 0.7931034482758621,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2026-05",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.8,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2026-06",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.7666666666666667,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-07",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.7741935483870968,
+      "cancellation_rate": 0.0
+    }
+  ],
+  "alternatives": [
+    {
+      "carrier": "DL",
+      "flight_number": "2607",
+      "typical_sched_dep": "0600",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.9355742296918768,
+      "cancellation_rate": 0.021917808219178082,
+      "avg_arr_delay_when_late_min": 69.8695652173913,
+      "is_this_page": false,
+      "url": "/flights/DL/2607/ATL-SFO"
+    },
+    {
+      "carrier": "AA",
+      "flight_number": "338",
+      "typical_sched_dep": "1020",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.7681564245810056,
+      "cancellation_rate": 0.019178082191780823,
+      "avg_arr_delay_when_late_min": 59.2289156626506,
+      "is_this_page": true,
+      "url": "/flights/AA/338/ATL-SFO"
+    },
+    {
+      "carrier": "DL",
+      "flight_number": "763",
+      "typical_sched_dep": "1445",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.6855524079320113,
+      "cancellation_rate": 0.03287671232876712,
+      "avg_arr_delay_when_late_min": 59.86486486486486,
+      "is_this_page": false,
+      "url": "/flights/DL/763/ATL-SFO"
+    },
+    {
+      "carrier": "AA",
+      "flight_number": "2476",
+      "typical_sched_dep": "1705",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.6138888888888889,
+      "cancellation_rate": 0.010958904109589041,
+      "avg_arr_delay_when_late_min": 54.719424460431654,
+      "is_this_page": false,
+      "url": "/flights/AA/2476/ATL-SFO"
+    }
+  ],
+  "delay_causes": {
+    "basis": "attributed_delay_minutes",
+    "total_minutes": 4916.0,
+    "minutes": {
+      "carrier": 1158.0,
+      "weather": 1117.0,
+      "nas": 1148.0,
+      "security": 18.0,
+      "late_aircraft": 1475.0
+    },
+    "shares": {
+      "carrier": 0.23555736371033362,
+      "weather": 0.2272172497965826,
+      "nas": 0.2335231895850285,
+      "security": 0.003661513425549227,
+      "late_aircraft": 0.3000406834825061
+    }
+  },
+  "delay_distribution": {
+    "counts": {
+      "on_time": 275,
+      "d15_30": 18,
+      "d30_60": 38,
+      "d60_120": 19,
+      "d120_180": 6,
+      "d180_plus": 2,
+      "cancelled_or_diverted": 7
+    },
+    "shares": {
+      "on_time": 0.7534246575342466,
+      "d15_30": 0.049315068493150684,
+      "d30_60": 0.10410958904109589,
+      "d60_120": 0.052054794520547946,
+      "d120_180": 0.01643835616438356,
+      "d180_plus": 0.005479452054794521,
+      "cancelled_or_diverted": 0.019178082191780823
+    }
+  },
+  "summary": {
+    "sentences": [
+      "AA 338 is on time more often than not: 77% of flights arrived within 15 minutes of schedule, across 358 flights that operated.",
+      "That is about average for the ATL to SFO route (75%).",
+      "DL 2607 is the most reliable option on this route at 94%, 17 points better.",
+      "The worst month in the period was August 2025, at 59% on time.",
+      "1.9% of scheduled flights were cancelled \u2014 roughly one in 52.",
+      "When it does arrive late, it is 59 minutes behind schedule on average."
+    ],
+    "matched_rules": [
+      "headline",
+      "versus_peers",
+      "better_option",
+      "worst_month",
+      "cancellations",
+      "how_late"
+    ]
+  },
+  "demo_notice": "Mockup: every figure on this page is synthetic, generated for design review. It is not U.S. DOT data and must not be read as a description of any real flight.",
+  "gate": {
+    "outcome": "publish",
+    "noindex": false,
+    "reasons": [
+      "passed all gates"
+    ],
+    "skipped_gates": [
+      "similarity (not computed; arrives in M6)"
+    ],
+    "redirect_hint": null
+  }
+}

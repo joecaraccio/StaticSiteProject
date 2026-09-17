@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "page_type": "flight",
+  "url": "/flights/WN/176/ORD-DEN",
+  "key": {
+    "carrier": "WN",
+    "flight_number": "176",
+    "origin": "ORD",
+    "dest": "DEN"
+  },
+  "data_period": {
+    "start": "2024-08-01",
+    "end": "2026-07-31"
+  },
+  "source": {
+    "attribution": "U.S. Department of Transportation, Bureau of Transportation Statistics",
+    "table": "Airline On-Time Performance (reporting carrier)"
+  },
+  "generated_at": "2026-09-17T00:00:00+00:00",
+  "headline_stats": {
+    "ops_scheduled": 260,
+    "ops_operated": 260,
+    "ops_measurable": 260,
+    "on_time_rate": 0.7461538461538462,
+    "cancellation_rate": 0.0,
+    "diversion_rate": 0.0,
+    "avg_arr_delay_min": 18.103846153846153,
+    "avg_arr_delay_when_late_min": 62.96969696969697,
+    "median_arr_delay_when_late_min": 51.5,
+    "share_3h_plus": 0.007692307692307693
+  },
+  "coverage": {
+    "first_seen": "2025-08-03",
+    "last_seen": "2026-07-30",
+    "months_covered": 12
+  },
+  "monthly_series": [
+    {
+      "month": "2024-08",
+      "ops_scheduled": 21,
+      "ops_operated": 21,
+      "on_time_rate": 0.7619047619047619,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-09",
+      "ops_scheduled": 22,
+      "ops_operated": 22,
+      "on_time_rate": 0.7272727272727273,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-10",
+      "ops_scheduled": 23,
+      "ops_operated": 23,
+      "on_time_rate": 0.7391304347826086,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-11",
+      "ops_scheduled": 20,
+      "ops_operated": 19,
+      "on_time_rate": 0.5789473684210527,
+      "cancellation_rate": 0.05
+    },
+    {
+      "month": "2024-12",
+      "ops_scheduled": 23,
+      "ops_operated": 23,
+      "on_time_rate": 0.7391304347826086,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-01",
+      "ops_scheduled": 22,
+      "ops_operated": 21,
+      "on_time_rate": 0.7142857142857143,
+      "cancellation_rate": 0.045454545454545456
+    },
+    {
+      "month": "2025-02",
+      "ops_scheduled": 20,
+      "ops_operated": 20,
+      "on_time_rate": 0.55,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-03",
+      "ops_scheduled": 22,
+      "ops_operated": 22,
+      "on_time_rate": 0.7272727272727273,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-04",
+      "ops_scheduled": 22,
+      "ops_operated": 22,
+      "on_time_rate": 0.7727272727272727,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-05",
+      "ops_scheduled": 21,
+      "ops_operated": 21,
+      "on_time_rate": 0.6190476190476191,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-06",
+      "ops_scheduled": 22,
+      "ops_operated": 22,
+      "on_time_rate": 0.5909090909090909,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-07",
+      "ops_scheduled": 23,
+      "ops_operated": 23,
+      "on_time_rate": 0.6521739130434783,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-08",
+      "ops_scheduled": 21,
+      "ops_operated": 21,
+      "on_time_rate": 0.8095238095238095,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-09",
+      "ops_scheduled": 22,
+      "ops_operated": 22,
+      "on_time_rate": 0.7272727272727273,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-10",
+      "ops_scheduled": 22,
+      "ops_operated": 22,
+      "on_time_rate": 0.6818181818181818,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-11",
+      "ops_scheduled": 21,
+      "ops_operated": 21,
+      "on_time_rate": 0.7619047619047619,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-12",
+      "ops_scheduled": 23,
+      "ops_operated": 23,
+      "on_time_rate": 0.6956521739130435,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-01",
+      "ops_scheduled": 21,
+      "ops_operated": 21,
+      "on_time_rate": 0.7142857142857143,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-02",
+      "ops_scheduled": 20,
+      "ops_operated": 20,
+      "on_time_rate": 0.75,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-03",
+      "ops_scheduled": 23,
+      "ops_operated": 23,
+      "on_time_rate": 0.9130434782608695,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-04",
+      "ops_scheduled": 22,
+      "ops_operated": 22,
+      "on_time_rate": 0.7272727272727273,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-05",
+      "ops_scheduled": 21,
+      "ops_operated": 21,
+      "on_time_rate": 0.8095238095238095,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-06",
+      "ops_scheduled": 22,
+      "ops_operated": 22,
+      "on_time_rate": 0.6818181818181818,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-07",
+      "ops_scheduled": 22,
+      "ops_operated": 22,
+      "on_time_rate": 0.6818181818181818,
+      "cancellation_rate": 0.0
+    }
+  ],
+  "alternatives": [
+    {
+      "carrier": "WN",
+      "flight_number": "1884",
+      "typical_sched_dep": "0640",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.9217877094972067,
+      "cancellation_rate": 0.01643835616438356,
+      "avg_arr_delay_when_late_min": 47.785714285714285,
+      "is_this_page": false,
+      "url": "/flights/WN/1884/ORD-DEN"
+    },
+    {
+      "carrier": "B6",
+      "flight_number": "1611",
+      "typical_sched_dep": "0720",
+      "ops_scheduled": 261,
+      "on_time_rate": 0.8565891472868217,
+      "cancellation_rate": 0.007662835249042145,
+      "avg_arr_delay_when_late_min": 50.5945945945946,
+      "is_this_page": false,
+      "url": "/flights/B6/1611/ORD-DEN"
+    },
+    {
+      "carrier": "WN",
+      "flight_number": "176",
+      "typical_sched_dep": "1400",
+      "ops_scheduled": 260,
+      "on_time_rate": 0.7461538461538462,
+      "cancellation_rate": 0.0,
+      "avg_arr_delay_when_late_min": 62.96969696969697,
+      "is_this_page": true,
+      "url": "/flights/WN/176/ORD-DEN"
+    },
+    {
+      "carrier": "B6",
+      "flight_number": "731",
+      "typical_sched_dep": "1950",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.5446927374301676,
+      "cancellation_rate": 0.01643835616438356,
+      "avg_arr_delay_when_late_min": 58.39877300613497,
+      "is_this_page": false,
+      "url": "/flights/B6/731/ORD-DEN"
+    }
+  ],
+  "delay_causes": {
+    "basis": "attributed_delay_minutes",
+    "total_minutes": 4156.0,
+    "minutes": {
+      "carrier": 989.0,
+      "weather": 924.0,
+      "nas": 1004.0,
+      "security": 11.0,
+      "late_aircraft": 1228.0
+    },
+    "shares": {
+      "carrier": 0.23796920115495668,
+      "weather": 0.22232916265640038,
+      "nas": 0.24157844080846969,
+      "security": 0.0026467757459095282,
+      "late_aircraft": 0.29547641963426374
+    }
+  },
+  "delay_distribution": {
+    "counts": {
+      "on_time": 194,
+      "d15_30": 10,
+      "d30_60": 29,
+      "d60_120": 23,
+      "d120_180": 2,
+      "d180_plus": 2,
+      "cancelled_or_diverted": 0
+    },
+    "shares": {
+      "on_time": 0.7461538461538462,
+      "d15_30": 0.038461538461538464,
+      "d30_60": 0.11153846153846154,
+      "d60_120": 0.08846153846153847,
+      "d120_180": 0.007692307692307693,
+      "d180_plus": 0.007692307692307693,
+      "cancelled_or_diverted": 0.0
+    }
+  },
+  "summary": {
+    "sentences": [
+      "WN 176 runs late often enough to plan around: 75% of flights arrived within 15 minutes of schedule, across 260 flights that operated.",
+      "That is about average for the ORD to DEN route (76%).",
+      "WN 1884 is the most reliable option on this route at 92%, 18 points better.",
+      "The worst month in the period was February 2025, at 55% on time.",
+      "No flights were cancelled in this period.",
+      "When it does arrive late, it is 63 minutes behind schedule on average."
+    ],
+    "matched_rules": [
+      "headline",
+      "versus_peers",
+      "better_option",
+      "worst_month",
+      "cancellations",
+      "how_late"
+    ]
+  },
+  "demo_notice": "Mockup: every figure on this page is synthetic, generated for design review. It is not U.S. DOT data and must not be read as a description of any real flight.",
+  "gate": {
+    "outcome": "publish",
+    "noindex": false,
+    "reasons": [
+      "passed all gates"
+    ],
+    "skipped_gates": [
+      "similarity (not computed; arrives in M6)"
+    ],
+    "redirect_hint": null
+  }
+}

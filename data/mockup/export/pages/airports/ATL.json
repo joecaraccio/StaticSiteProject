@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "page_type": "airport",
+  "url": "/airports/ATL",
+  "key": {
+    "airport": "ATL",
+    "role": "departure"
+  },
+  "data_period": {
+    "start": "2024-08-01",
+    "end": "2026-07-31"
+  },
+  "source": {
+    "attribution": "U.S. Department of Transportation, Bureau of Transportation Statistics",
+    "table": "Airline On-Time Performance (reporting carrier)"
+  },
+  "generated_at": "2026-09-17T00:00:00+00:00",
+  "headline_stats": {
+    "ops_scheduled": 6831,
+    "ops_operated": 6658,
+    "ops_measurable": 6658,
+    "on_time_rate": 0.7173325322919796,
+    "cancellation_rate": 0.02342263211828429,
+    "diversion_rate": 0.0019030888596105987,
+    "avg_arr_delay_min": 18.821117452688494,
+    "avg_arr_delay_when_late_min": 59.434643995749205,
+    "median_arr_delay_when_late_min": 49.0,
+    "share_3h_plus": 0.0045058576148993695
+  },
+  "coverage": {
+    "first_seen": "2025-08-01",
+    "last_seen": "2026-07-31",
+    "months_covered": 12
+  },
+  "monthly_series": [
+    {
+      "month": "2024-08",
+      "ops_scheduled": 580,
+      "ops_operated": 565,
+      "on_time_rate": 0.7097345132743362,
+      "cancellation_rate": 0.022413793103448276
+    },
+    {
+      "month": "2024-09",
+      "ops_scheduled": 561,
+      "ops_operated": 554,
+      "on_time_rate": 0.8104693140794224,
+      "cancellation_rate": 0.0106951871657754
+    },
+    {
+      "month": "2024-10",
+      "ops_scheduled": 580,
+      "ops_operated": 568,
+      "on_time_rate": 0.8151408450704225,
+      "cancellation_rate": 0.015517241379310345
+    },
+    {
+      "month": "2024-11",
+      "ops_scheduled": 562,
+      "ops_operated": 547,
+      "on_time_rate": 0.7806215722120659,
+      "cancellation_rate": 0.023131672597864767
+    },
+    {
+      "month": "2024-12",
+      "ops_scheduled": 580,
+      "ops_operated": 561,
+      "on_time_rate": 0.6577540106951871,
+      "cancellation_rate": 0.029310344827586206
+    },
+    {
+      "month": "2025-01",
+      "ops_scheduled": 580,
+      "ops_operated": 559,
+      "on_time_rate": 0.6529516994633273,
+      "cancellation_rate": 0.032758620689655175
+    },
+    {
+      "month": "2025-02",
+      "ops_scheduled": 524,
+      "ops_operated": 511,
+      "on_time_rate": 0.6888454011741683,
+      "cancellation_rate": 0.019083969465648856
+    },
+    {
+      "month": "2025-03",
+      "ops_scheduled": 580,
+      "ops_operated": 566,
+      "on_time_rate": 0.7367491166077739,
+      "cancellation_rate": 0.022413793103448276
+    },
+    {
+      "month": "2025-04",
+      "ops_scheduled": 562,
+      "ops_operated": 553,
+      "on_time_rate": 0.7649186256781193,
+      "cancellation_rate": 0.01601423487544484
+    },
+    {
+      "month": "2025-05",
+      "ops_scheduled": 580,
+      "ops_operated": 566,
+      "on_time_rate": 0.7773851590106007,
+      "cancellation_rate": 0.02413793103448276
+    },
+    {
+      "month": "2025-06",
+      "ops_scheduled": 561,
+      "ops_operated": 546,
+      "on_time_rate": 0.6996336996336996,
+      "cancellation_rate": 0.024955436720142603
+    },
+    {
+      "month": "2025-07",
+      "ops_scheduled": 580,
+      "ops_operated": 562,
+      "on_time_rate": 0.6316725978647687,
+      "cancellation_rate": 0.02586206896551724
+    },
+    {
+      "month": "2025-08",
+      "ops_scheduled": 580,
+      "ops_operated": 558,
+      "on_time_rate": 0.6971326164874552,
+      "cancellation_rate": 0.03620689655172414
+    },
+    {
+      "month": "2025-09",
+      "ops_scheduled": 562,
+      "ops_operated": 550,
+      "on_time_rate": 0.7709090909090909,
+      "cancellation_rate": 0.017793594306049824
+    },
+    {
+      "month": "2025-10",
+      "ops_scheduled": 580,
+      "ops_operated": 572,
+      "on_time_rate": 0.8059440559440559,
+      "cancellation_rate": 0.013793103448275862
+    },
+    {
+      "month": "2025-11",
+      "ops_scheduled": 561,
+      "ops_operated": 554,
+      "on_time_rate": 0.7617328519855595,
+      "cancellation_rate": 0.012477718360071301
+    },
+    {
+      "month": "2025-12",
+      "ops_scheduled": 581,
+      "ops_operated": 568,
+      "on_time_rate": 0.6514084507042254,
+      "cancellation_rate": 0.020654044750430294
+    },
+    {
+      "month": "2026-01",
+      "ops_scheduled": 580,
+      "ops_operated": 563,
+      "on_time_rate": 0.6536412078152753,
+      "cancellation_rate": 0.027586206896551724
+    },
+    {
+      "month": "2026-02",
+      "ops_scheduled": 524,
+      "ops_operated": 508,
+      "on_time_rate": 0.6968503937007874,
+      "cancellation_rate": 0.02480916030534351
+    },
+    {
+      "month": "2026-03",
+      "ops_scheduled": 580,
+      "ops_operated": 563,
+      "on_time_rate": 0.7282415630550622,
+      "cancellation_rate": 0.02586206896551724
+    },
+    {
+      "month": "2026-04",
+      "ops_scheduled": 561,
+      "ops_operated": 552,
+      "on_time_rate": 0.7681159420289855,
+      "cancellation_rate": 0.016042780748663103
+    },
+    {
+      "month": "2026-05",
+      "ops_scheduled": 580,
+      "ops_operated": 563,
+      "on_time_rate": 0.7619893428063943,
+      "cancellation_rate": 0.029310344827586206
+    },
+    {
+      "month": "2026-06",
+      "ops_scheduled": 562,
+      "ops_operated": 546,
+      "on_time_rate": 0.6666666666666666,
+      "cancellation_rate": 0.026690391459074734
+    },
+    {
+      "month": "2026-07",
+      "ops_scheduled": 580,
+      "ops_operated": 561,
+      "on_time_rate": 0.64349376114082,
+      "cancellation_rate": 0.029310344827586206
+    }
+  ],
+  "alternatives": [],
+  "delay_causes": {
+    "basis": "attributed_delay_minutes",
+    "total_minutes": 111856.0,
+    "minutes": {
+      "carrier": 27919.0,
+      "weather": 24370.0,
+      "nas": 25758.0,
+      "security": 282.0,
+      "late_aircraft": 33527.0
+    },
+    "shares": {
+      "carrier": 0.24959769703905021,
+      "weather": 0.2178694035188099,
+      "nas": 0.23027821484766128,
+      "security": 0.002521098555285367,
+      "late_aircraft": 0.29973358603919326
+    }
+  },
+  "delay_distribution": {
+    "counts": {
+      "on_time": 4776,
+      "d15_30": 255,
+      "d30_60": 962,
+      "d60_120": 541,
+      "d120_180": 94,
+      "d180_plus": 30,
+      "cancelled_or_diverted": 173
+    },
+    "shares": {
+      "on_time": 0.6991655687307862,
+      "d15_30": 0.03732981993851559,
+      "d30_60": 0.1408285756111843,
+      "d60_120": 0.07919777484994876,
+      "d120_180": 0.01376079636949202,
+      "d180_plus": 0.004391743522178305,
+      "cancelled_or_diverted": 0.02532572097789489
+    }
+  },
+  "summary": {
+    "sentences": [
+      "Departures from ATL runs late often enough to plan around: 72% of flights arrived within 15 minutes of schedule, across 6,658 flights that operated.",
+      "The worst month in the period was July 2025, at 63% on time.",
+      "2.3% of scheduled flights were cancelled \u2014 roughly one in 43.",
+      "When it does arrive late, it is 59 minutes behind schedule on average."
+    ],
+    "matched_rules": [
+      "headline",
+      "worst_month",
+      "cancellations",
+      "how_late"
+    ]
+  },
+  "demo_notice": "Mockup: every figure on this page is synthetic, generated for design review. It is not U.S. DOT data and must not be read as a description of any real flight.",
+  "gate": {
+    "outcome": "publish",
+    "noindex": false,
+    "reasons": [
+      "passed all gates"
+    ],
+    "skipped_gates": [
+      "similarity (not computed; arrives in M6)"
+    ],
+    "redirect_hint": null
+  }
+}

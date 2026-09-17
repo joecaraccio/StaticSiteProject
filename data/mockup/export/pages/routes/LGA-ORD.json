@@ -1,0 +1,315 @@
+{
+  "schema_version": 1,
+  "page_type": "route",
+  "url": "/routes/LGA-ORD",
+  "key": {
+    "origin": "LGA",
+    "dest": "ORD"
+  },
+  "data_period": {
+    "start": "2024-08-01",
+    "end": "2026-07-31"
+  },
+  "source": {
+    "attribution": "U.S. Department of Transportation, Bureau of Transportation Statistics",
+    "table": "Airline On-Time Performance (reporting carrier)"
+  },
+  "generated_at": "2026-09-17T00:00:00+00:00",
+  "headline_stats": {
+    "ops_scheduled": 1408,
+    "ops_operated": 1384,
+    "ops_measurable": 1384,
+    "on_time_rate": 0.638728323699422,
+    "cancellation_rate": 0.014914772727272728,
+    "diversion_rate": 0.002130681818181818,
+    "avg_arr_delay_min": 23.046965317919074,
+    "avg_arr_delay_when_late_min": 58.494,
+    "median_arr_delay_when_late_min": 48.0,
+    "share_3h_plus": 0.0072254335260115606
+  },
+  "coverage": {
+    "first_seen": "2025-08-01",
+    "last_seen": "2026-07-31",
+    "months_covered": 12
+  },
+  "monthly_series": [
+    {
+      "month": "2024-08",
+      "ops_scheduled": 119,
+      "ops_operated": 115,
+      "on_time_rate": 0.5130434782608696,
+      "cancellation_rate": 0.03361344537815126
+    },
+    {
+      "month": "2024-09",
+      "ops_scheduled": 116,
+      "ops_operated": 115,
+      "on_time_rate": 0.7391304347826086,
+      "cancellation_rate": 0.008620689655172414
+    },
+    {
+      "month": "2024-10",
+      "ops_scheduled": 120,
+      "ops_operated": 118,
+      "on_time_rate": 0.7372881355932204,
+      "cancellation_rate": 0.016666666666666666
+    },
+    {
+      "month": "2024-11",
+      "ops_scheduled": 115,
+      "ops_operated": 114,
+      "on_time_rate": 0.7017543859649122,
+      "cancellation_rate": 0.008695652173913044
+    },
+    {
+      "month": "2024-12",
+      "ops_scheduled": 120,
+      "ops_operated": 118,
+      "on_time_rate": 0.6016949152542372,
+      "cancellation_rate": 0.016666666666666666
+    },
+    {
+      "month": "2025-01",
+      "ops_scheduled": 120,
+      "ops_operated": 118,
+      "on_time_rate": 0.5338983050847458,
+      "cancellation_rate": 0.008333333333333333
+    },
+    {
+      "month": "2025-02",
+      "ops_scheduled": 108,
+      "ops_operated": 106,
+      "on_time_rate": 0.6226415094339622,
+      "cancellation_rate": 0.018518518518518517
+    },
+    {
+      "month": "2025-03",
+      "ops_scheduled": 119,
+      "ops_operated": 113,
+      "on_time_rate": 0.6460176991150443,
+      "cancellation_rate": 0.05042016806722689
+    },
+    {
+      "month": "2025-04",
+      "ops_scheduled": 116,
+      "ops_operated": 113,
+      "on_time_rate": 0.6106194690265486,
+      "cancellation_rate": 0.02586206896551724
+    },
+    {
+      "month": "2025-05",
+      "ops_scheduled": 119,
+      "ops_operated": 118,
+      "on_time_rate": 0.7372881355932204,
+      "cancellation_rate": 0.008403361344537815
+    },
+    {
+      "month": "2025-06",
+      "ops_scheduled": 116,
+      "ops_operated": 113,
+      "on_time_rate": 0.504424778761062,
+      "cancellation_rate": 0.017241379310344827
+    },
+    {
+      "month": "2025-07",
+      "ops_scheduled": 120,
+      "ops_operated": 116,
+      "on_time_rate": 0.5775862068965517,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2025-08",
+      "ops_scheduled": 119,
+      "ops_operated": 117,
+      "on_time_rate": 0.6324786324786325,
+      "cancellation_rate": 0.01680672268907563
+    },
+    {
+      "month": "2025-09",
+      "ops_scheduled": 116,
+      "ops_operated": 116,
+      "on_time_rate": 0.7931034482758621,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-10",
+      "ops_scheduled": 120,
+      "ops_operated": 117,
+      "on_time_rate": 0.7521367521367521,
+      "cancellation_rate": 0.016666666666666666
+    },
+    {
+      "month": "2025-11",
+      "ops_scheduled": 115,
+      "ops_operated": 115,
+      "on_time_rate": 0.6173913043478261,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-12",
+      "ops_scheduled": 120,
+      "ops_operated": 117,
+      "on_time_rate": 0.5299145299145299,
+      "cancellation_rate": 0.025
+    },
+    {
+      "month": "2026-01",
+      "ops_scheduled": 119,
+      "ops_operated": 116,
+      "on_time_rate": 0.603448275862069,
+      "cancellation_rate": 0.025210084033613446
+    },
+    {
+      "month": "2026-02",
+      "ops_scheduled": 108,
+      "ops_operated": 106,
+      "on_time_rate": 0.5188679245283019,
+      "cancellation_rate": 0.009259259259259259
+    },
+    {
+      "month": "2026-03",
+      "ops_scheduled": 120,
+      "ops_operated": 118,
+      "on_time_rate": 0.7288135593220338,
+      "cancellation_rate": 0.008333333333333333
+    },
+    {
+      "month": "2026-04",
+      "ops_scheduled": 116,
+      "ops_operated": 116,
+      "on_time_rate": 0.6551724137931034,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-05",
+      "ops_scheduled": 119,
+      "ops_operated": 119,
+      "on_time_rate": 0.6974789915966386,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-06",
+      "ops_scheduled": 116,
+      "ops_operated": 111,
+      "on_time_rate": 0.5765765765765766,
+      "cancellation_rate": 0.04310344827586207
+    },
+    {
+      "month": "2026-07",
+      "ops_scheduled": 120,
+      "ops_operated": 116,
+      "on_time_rate": 0.5431034482758621,
+      "cancellation_rate": 0.03333333333333333
+    }
+  ],
+  "alternatives": [
+    {
+      "carrier": "AA",
+      "flight_number": "2372",
+      "typical_sched_dep": "0720",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.847887323943662,
+      "cancellation_rate": 0.024657534246575342,
+      "avg_arr_delay_when_late_min": 71.96296296296296,
+      "is_this_page": false,
+      "url": "/flights/AA/2372/LGA-ORD"
+    },
+    {
+      "carrier": "WN",
+      "flight_number": "388",
+      "typical_sched_dep": "1920",
+      "ops_scheduled": 313,
+      "on_time_rate": 0.6302250803858521,
+      "cancellation_rate": 0.006389776357827476,
+      "avg_arr_delay_when_late_min": 56.643478260869564,
+      "is_this_page": false,
+      "url": "/flights/WN/388/LGA-ORD"
+    },
+    {
+      "carrier": "DL",
+      "flight_number": "2990",
+      "typical_sched_dep": "1705",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.6143250688705234,
+      "cancellation_rate": 0.005479452054794521,
+      "avg_arr_delay_when_late_min": 58.43571428571428,
+      "is_this_page": false,
+      "url": "/flights/DL/2990/LGA-ORD"
+    },
+    {
+      "carrier": "AA",
+      "flight_number": "366",
+      "typical_sched_dep": "2120",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.4619718309859155,
+      "cancellation_rate": 0.021917808219178082,
+      "avg_arr_delay_when_late_min": 55.84293193717277,
+      "is_this_page": false,
+      "url": "/flights/AA/366/LGA-ORD"
+    }
+  ],
+  "delay_causes": {
+    "basis": "attributed_delay_minutes",
+    "total_minutes": 29247.0,
+    "minutes": {
+      "carrier": 7096.0,
+      "weather": 6586.0,
+      "nas": 6443.0,
+      "security": 66.0,
+      "late_aircraft": 9056.0
+    },
+    "shares": {
+      "carrier": 0.24262317502649844,
+      "weather": 0.2251854891099942,
+      "nas": 0.22029609874517045,
+      "security": 0.0022566417068417273,
+      "late_aircraft": 0.3096385954114952
+    }
+  },
+  "delay_distribution": {
+    "counts": {
+      "on_time": 884,
+      "d15_30": 62,
+      "d30_60": 268,
+      "d60_120": 136,
+      "d120_180": 24,
+      "d180_plus": 10,
+      "cancelled_or_diverted": 24
+    },
+    "shares": {
+      "on_time": 0.6278409090909091,
+      "d15_30": 0.04403409090909091,
+      "d30_60": 0.1903409090909091,
+      "d60_120": 0.09659090909090909,
+      "d120_180": 0.017045454545454544,
+      "d180_plus": 0.007102272727272727,
+      "cancelled_or_diverted": 0.017045454545454544
+    }
+  },
+  "summary": {
+    "sentences": [
+      "The LGA to ORD route runs late often enough to plan around: 64% of flights arrived within 15 minutes of schedule, across 1,384 flights that operated.",
+      "The worst month in the period was June 2025, at 50% on time.",
+      "1.5% of scheduled flights were cancelled \u2014 roughly one in 67.",
+      "When it does arrive late, it is 58 minutes behind schedule on average."
+    ],
+    "matched_rules": [
+      "headline",
+      "worst_month",
+      "cancellations",
+      "how_late"
+    ]
+  },
+  "demo_notice": "Mockup: every figure on this page is synthetic, generated for design review. It is not U.S. DOT data and must not be read as a description of any real flight.",
+  "gate": {
+    "outcome": "publish",
+    "noindex": false,
+    "reasons": [
+      "passed all gates"
+    ],
+    "skipped_gates": [
+      "similarity (not computed; arrives in M6)"
+    ],
+    "redirect_hint": null
+  }
+}

@@ -2,7 +2,33 @@
 
 Update at the end of each working session.
 
-## 2026-09-17 (latest) — dev dependencies, type checking, broken links
+## 2026-09-17 (latest) — launcher scripts, committed mockup, reproducible exports
+
+**Done**
+
+- **`scripts/doctor.sh`** — preflight for the Docker stack: daemon reachable,
+  compose v2, toolchain, `.env`, port conflicts, disk, and what data exists.
+  Worth having given the stack has never been run on a real machine.
+- **`scripts/stack.sh`** — `up` / `down` / `restart` / `status` / `logs` / `reset`.
+  Creates `.env`, always sets `HOST_REPO_PATH` correctly, and **waits for each
+  service to answer** rather than returning when compose exits. `make up` now
+  delegates to it instead of duplicating the logic.
+- **`scripts/smoke.sh`** — everything CI runs, locally, in about 20 seconds.
+- **`data/mockup/export/` is now committed** (103 JSON files, 1.2 MB). Anyone with
+  Node can build the full site without Python or DuckDB, and because it is
+  diffable text it acts as a snapshot test of the whole chain.
+- **Export is now reproducible.** Getting the mockup into git surfaced a real bug:
+  DuckDB's `GROUP BY` has no ordering guarantee, so two exports of identical data
+  emitted pages in different orders and the manifest churned. Every view read for
+  export now has an explicit `ORDER BY`, the manifest is sorted by URL, and
+  `--generated-at` pins the timestamp. `smoke.sh` fails if a regeneration changes
+  the committed export.
+
+**Next**
+
+Unchanged: `make verify-source MONTH=2025-01` from a machine that can reach BTS.
+
+## 2026-09-17 — dev dependencies, type checking, broken links
 
 **Done**
 

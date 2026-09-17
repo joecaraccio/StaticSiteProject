@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "page_type": "flight",
+  "url": "/flights/UA/1551/BOS-ATL",
+  "key": {
+    "carrier": "UA",
+    "flight_number": "1551",
+    "origin": "BOS",
+    "dest": "ATL"
+  },
+  "data_period": {
+    "start": "2024-08-01",
+    "end": "2026-07-31"
+  },
+  "source": {
+    "attribution": "U.S. Department of Transportation, Bureau of Transportation Statistics",
+    "table": "Airline On-Time Performance (reporting carrier)"
+  },
+  "generated_at": "2026-09-17T00:00:00+00:00",
+  "headline_stats": {
+    "ops_scheduled": 313,
+    "ops_operated": 305,
+    "ops_measurable": 305,
+    "on_time_rate": 0.8327868852459016,
+    "cancellation_rate": 0.025559105431309903,
+    "diversion_rate": 0.0,
+    "avg_arr_delay_min": 10.721311475409836,
+    "avg_arr_delay_when_late_min": 50.31372549019608,
+    "median_arr_delay_when_late_min": 43.0,
+    "share_3h_plus": 0.003278688524590164
+  },
+  "coverage": {
+    "first_seen": "2025-08-01",
+    "last_seen": "2026-07-31",
+    "months_covered": 12
+  },
+  "monthly_series": [
+    {
+      "month": "2024-08",
+      "ops_scheduled": 27,
+      "ops_operated": 27,
+      "on_time_rate": 0.8888888888888888,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-09",
+      "ops_scheduled": 25,
+      "ops_operated": 23,
+      "on_time_rate": 0.782608695652174,
+      "cancellation_rate": 0.08
+    },
+    {
+      "month": "2024-10",
+      "ops_scheduled": 27,
+      "ops_operated": 26,
+      "on_time_rate": 0.8846153846153846,
+      "cancellation_rate": 0.037037037037037035
+    },
+    {
+      "month": "2024-11",
+      "ops_scheduled": 26,
+      "ops_operated": 24,
+      "on_time_rate": 0.8333333333333334,
+      "cancellation_rate": 0.07692307692307693
+    },
+    {
+      "month": "2024-12",
+      "ops_scheduled": 26,
+      "ops_operated": 26,
+      "on_time_rate": 0.6923076923076923,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-01",
+      "ops_scheduled": 27,
+      "ops_operated": 26,
+      "on_time_rate": 0.8076923076923077,
+      "cancellation_rate": 0.037037037037037035
+    },
+    {
+      "month": "2025-02",
+      "ops_scheduled": 24,
+      "ops_operated": 23,
+      "on_time_rate": 0.6521739130434783,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-03",
+      "ops_scheduled": 26,
+      "ops_operated": 25,
+      "on_time_rate": 0.88,
+      "cancellation_rate": 0.038461538461538464
+    },
+    {
+      "month": "2025-04",
+      "ops_scheduled": 26,
+      "ops_operated": 26,
+      "on_time_rate": 0.6923076923076923,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-05",
+      "ops_scheduled": 27,
+      "ops_operated": 27,
+      "on_time_rate": 0.9629629629629629,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-06",
+      "ops_scheduled": 25,
+      "ops_operated": 24,
+      "on_time_rate": 0.7916666666666666,
+      "cancellation_rate": 0.04
+    },
+    {
+      "month": "2025-07",
+      "ops_scheduled": 27,
+      "ops_operated": 27,
+      "on_time_rate": 0.8148148148148148,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-08",
+      "ops_scheduled": 27,
+      "ops_operated": 26,
+      "on_time_rate": 0.8461538461538461,
+      "cancellation_rate": 0.037037037037037035
+    },
+    {
+      "month": "2025-09",
+      "ops_scheduled": 25,
+      "ops_operated": 25,
+      "on_time_rate": 0.84,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-10",
+      "ops_scheduled": 27,
+      "ops_operated": 27,
+      "on_time_rate": 0.9259259259259259,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-11",
+      "ops_scheduled": 26,
+      "ops_operated": 26,
+      "on_time_rate": 0.8461538461538461,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-12",
+      "ops_scheduled": 26,
+      "ops_operated": 26,
+      "on_time_rate": 0.9230769230769231,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-01",
+      "ops_scheduled": 27,
+      "ops_operated": 25,
+      "on_time_rate": 0.72,
+      "cancellation_rate": 0.07407407407407407
+    },
+    {
+      "month": "2026-02",
+      "ops_scheduled": 24,
+      "ops_operated": 24,
+      "on_time_rate": 0.7083333333333334,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-03",
+      "ops_scheduled": 26,
+      "ops_operated": 26,
+      "on_time_rate": 0.8076923076923077,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-04",
+      "ops_scheduled": 26,
+      "ops_operated": 24,
+      "on_time_rate": 0.8333333333333334,
+      "cancellation_rate": 0.07692307692307693
+    },
+    {
+      "month": "2026-05",
+      "ops_scheduled": 27,
+      "ops_operated": 25,
+      "on_time_rate": 0.84,
+      "cancellation_rate": 0.07407407407407407
+    },
+    {
+      "month": "2026-06",
+      "ops_scheduled": 25,
+      "ops_operated": 25,
+      "on_time_rate": 0.84,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-07",
+      "ops_scheduled": 27,
+      "ops_operated": 26,
+      "on_time_rate": 0.8461538461538461,
+      "cancellation_rate": 0.037037037037037035
+    }
+  ],
+  "alternatives": [
+    {
+      "carrier": "B6",
+      "flight_number": "1825",
+      "typical_sched_dep": "0845",
+      "ops_scheduled": 261,
+      "on_time_rate": 0.8527131782945736,
+      "cancellation_rate": 0.011494252873563218,
+      "avg_arr_delay_when_late_min": 55.3421052631579,
+      "is_this_page": false,
+      "url": "/flights/B6/1825/BOS-ATL"
+    },
+    {
+      "carrier": "UA",
+      "flight_number": "1551",
+      "typical_sched_dep": "1030",
+      "ops_scheduled": 313,
+      "on_time_rate": 0.8327868852459016,
+      "cancellation_rate": 0.025559105431309903,
+      "avg_arr_delay_when_late_min": 50.31372549019608,
+      "is_this_page": true,
+      "url": "/flights/UA/1551/BOS-ATL"
+    },
+    {
+      "carrier": "B6",
+      "flight_number": "1427",
+      "typical_sched_dep": "1620",
+      "ops_scheduled": 261,
+      "on_time_rate": 0.642023346303502,
+      "cancellation_rate": 0.01532567049808429,
+      "avg_arr_delay_when_late_min": 57.29347826086956,
+      "is_this_page": false,
+      "url": "/flights/B6/1427/BOS-ATL"
+    },
+    {
+      "carrier": "UA",
+      "flight_number": "626",
+      "typical_sched_dep": "1740",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.6090651558073654,
+      "cancellation_rate": 0.0273972602739726,
+      "avg_arr_delay_when_late_min": 58.15217391304348,
+      "is_this_page": false,
+      "url": "/flights/UA/626/BOS-ATL"
+    }
+  ],
+  "delay_causes": {
+    "basis": "attributed_delay_minutes",
+    "total_minutes": 2566.0,
+    "minutes": {
+      "carrier": 670.0,
+      "weather": 485.0,
+      "nas": 513.0,
+      "security": 4.0,
+      "late_aircraft": 894.0
+    },
+    "shares": {
+      "carrier": 0.26110678098207324,
+      "weather": 0.18901013250194856,
+      "nas": 0.19992205767731877,
+      "security": 0.001558846453624318,
+      "late_aircraft": 0.34840218238503506
+    }
+  },
+  "delay_distribution": {
+    "counts": {
+      "on_time": 254,
+      "d15_30": 9,
+      "d30_60": 31,
+      "d60_120": 10,
+      "d120_180": 0,
+      "d180_plus": 1,
+      "cancelled_or_diverted": 8
+    },
+    "shares": {
+      "on_time": 0.8115015974440895,
+      "d15_30": 0.02875399361022364,
+      "d30_60": 0.09904153354632587,
+      "d60_120": 0.03194888178913738,
+      "d120_180": 0.0,
+      "d180_plus": 0.003194888178913738,
+      "cancelled_or_diverted": 0.025559105431309903
+    }
+  },
+  "summary": {
+    "sentences": [
+      "UA 1551 is on time more often than not: 83% of flights arrived within 15 minutes of schedule, across 305 flights that operated.",
+      "That is 10 points better than the BOS to ATL route, which averages 73%.",
+      "The worst month in the period was February 2025, at 65% on time.",
+      "2.6% of scheduled flights were cancelled \u2014 roughly one in 39.",
+      "When it does arrive late, it is 50 minutes behind schedule on average."
+    ],
+    "matched_rules": [
+      "headline",
+      "versus_peers",
+      "worst_month",
+      "cancellations",
+      "how_late"
+    ]
+  },
+  "demo_notice": "Mockup: every figure on this page is synthetic, generated for design review. It is not U.S. DOT data and must not be read as a description of any real flight.",
+  "gate": {
+    "outcome": "publish",
+    "noindex": false,
+    "reasons": [
+      "passed all gates"
+    ],
+    "skipped_gates": [
+      "similarity (not computed; arrives in M6)"
+    ],
+    "redirect_hint": null
+  }
+}

@@ -78,7 +78,10 @@ make check-site                                      # the same thing
 Through Docker (see `docker/README.md`); `make` sets HOST_REPO_PATH for you:
 
 ```
-make up                          # dashboard :8000, Dagu :8080, DuckDB UI :4213, site :8081
+make doctor                      # check this machine can run the stack — run first
+make up                          # start everything and wait until it answers
+make ps                          # what is running and answering
+make smoke                       # everything CI runs, locally (~20s)
 make verify-source MONTH=2025-01
 make ingest MONTHS=2024-01..2024-12
 make site                        # export pages + build the Astro site
@@ -86,6 +89,9 @@ make test / make lint            # in the pipeline image
 make ci                          # run .github/workflows locally via act
 make help                        # everything else
 ```
+
+Scripts live in `scripts/` and are documented in `scripts/README.md`; the
+Makefile delegates to them rather than duplicating their logic.
 
 Site, directly:
 
@@ -122,7 +128,8 @@ Screenshots need Chromium once: `cd site && npx playwright install chromium`.
 - **Raw data is immutable.** Store downloads as received, with a checksum and fetch timestamp. All transformations happen downstream.
 - **Quality gates are not optional.** Every generated page must pass through the gate runner, which returns `publish`, `noindex`, or `drop`. A gate whose input does not exist yet must report itself as *skipped* in the report, never pass silently.
 - **Summary text is rule-based.** Page summaries come from deterministic, tested rules in `pipeline/summaries/`, not from a language model at build time. Templates phrase nothing: a verdict word like "usually late" is summary text and belongs in a rule.
-- **Mockup data is quarantined.** Synthetic data for design work lives in `data/mockup/`, builds to `site/dist-mockup/`, and every page it produces carries a visible banner and is forced to `noindex`. Never point a real build at it.
+- **Mockup data is quarantined.** Synthetic data for design work lives in `data/mockup/`, builds to `site/dist-mockup/`, and every page it produces carries a visible banner and is forced to `noindex`. Never point a real build at it. `data/mockup/export/` is committed (diffable JSON, pinned timestamp) so the site can be built with Node alone; the derived Parquet and DuckDB files are not.
+- **Exports are reproducible.** Re-exporting unchanged data must produce byte-identical output. DuckDB's `GROUP BY` gives no ordering guarantee, so every view read for export carries an explicit `ORDER BY`.
 - **Credit the source.** Every page states that data comes from the U.S. Department of Transportation, Bureau of Transportation Statistics, and shows the data period.
 - **No secrets in the repo.** Use environment variables and `.env` (gitignored).
 

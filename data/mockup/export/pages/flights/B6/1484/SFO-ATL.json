@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "page_type": "flight",
+  "url": "/flights/B6/1484/SFO-ATL",
+  "key": {
+    "carrier": "B6",
+    "flight_number": "1484",
+    "origin": "SFO",
+    "dest": "ATL"
+  },
+  "data_period": {
+    "start": "2024-08-01",
+    "end": "2026-07-31"
+  },
+  "source": {
+    "attribution": "U.S. Department of Transportation, Bureau of Transportation Statistics",
+    "table": "Airline On-Time Performance (reporting carrier)"
+  },
+  "generated_at": "2026-09-17T00:00:00+00:00",
+  "headline_stats": {
+    "ops_scheduled": 365,
+    "ops_operated": 360,
+    "ops_measurable": 360,
+    "on_time_rate": 0.8777777777777778,
+    "cancellation_rate": 0.0136986301369863,
+    "diversion_rate": 0.0,
+    "avg_arr_delay_min": 9.866666666666667,
+    "avg_arr_delay_when_late_min": 56.86363636363637,
+    "median_arr_delay_when_late_min": 44.0,
+    "share_3h_plus": 0.0
+  },
+  "coverage": {
+    "first_seen": "2025-08-01",
+    "last_seen": "2026-07-31",
+    "months_covered": 12
+  },
+  "monthly_series": [
+    {
+      "month": "2024-08",
+      "ops_scheduled": 31,
+      "ops_operated": 29,
+      "on_time_rate": 0.7931034482758621,
+      "cancellation_rate": 0.06451612903225806
+    },
+    {
+      "month": "2024-09",
+      "ops_scheduled": 30,
+      "ops_operated": 29,
+      "on_time_rate": 0.8275862068965517,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2024-10",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 1.0,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-11",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.8666666666666667,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-12",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.8333333333333334,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-01",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.8064516129032258,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-02",
+      "ops_scheduled": 28,
+      "ops_operated": 28,
+      "on_time_rate": 0.8928571428571429,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-03",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.8387096774193549,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-04",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 1.0,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-05",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.9354838709677419,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-06",
+      "ops_scheduled": 30,
+      "ops_operated": 29,
+      "on_time_rate": 0.896551724137931,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2025-07",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.9333333333333333,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2025-08",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 1.0,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2025-09",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.9333333333333333,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-10",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.8709677419354839,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-11",
+      "ops_scheduled": 30,
+      "ops_operated": 29,
+      "on_time_rate": 0.9310344827586207,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2025-12",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.8387096774193549,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-01",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.8709677419354839,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-02",
+      "ops_scheduled": 28,
+      "ops_operated": 27,
+      "on_time_rate": 0.7777777777777778,
+      "cancellation_rate": 0.03571428571428571
+    },
+    {
+      "month": "2026-03",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.8387096774193549,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-04",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.9,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-05",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.9333333333333333,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2026-06",
+      "ops_scheduled": 30,
+      "ops_operated": 29,
+      "on_time_rate": 0.7586206896551724,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2026-07",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.8709677419354839,
+      "cancellation_rate": 0.0
+    }
+  ],
+  "alternatives": [
+    {
+      "carrier": "B6",
+      "flight_number": "1484",
+      "typical_sched_dep": "0740",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.8777777777777778,
+      "cancellation_rate": 0.0136986301369863,
+      "avg_arr_delay_when_late_min": 56.86363636363637,
+      "is_this_page": true,
+      "url": "/flights/B6/1484/SFO-ATL"
+    },
+    {
+      "carrier": "UA",
+      "flight_number": "1777",
+      "typical_sched_dep": "1030",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.7784090909090909,
+      "cancellation_rate": 0.03561643835616438,
+      "avg_arr_delay_when_late_min": 54.94871794871795,
+      "is_this_page": false,
+      "url": "/flights/UA/1777/SFO-ATL"
+    },
+    {
+      "carrier": "WN",
+      "flight_number": "2791",
+      "typical_sched_dep": "1630",
+      "ops_scheduled": 261,
+      "on_time_rate": 0.6186770428015564,
+      "cancellation_rate": 0.01532567049808429,
+      "avg_arr_delay_when_late_min": 54.724489795918366,
+      "is_this_page": false,
+      "url": "/flights/WN/2791/SFO-ATL"
+    },
+    {
+      "carrier": "B6",
+      "flight_number": "796",
+      "typical_sched_dep": "2105",
+      "ops_scheduled": 313,
+      "on_time_rate": 0.4967741935483871,
+      "cancellation_rate": 0.009584664536741214,
+      "avg_arr_delay_when_late_min": 58.94230769230769,
+      "is_this_page": false,
+      "url": "/flights/B6/796/SFO-ATL"
+    }
+  ],
+  "delay_causes": {
+    "basis": "attributed_delay_minutes",
+    "total_minutes": 2502.0,
+    "minutes": {
+      "carrier": 590.0,
+      "weather": 521.0,
+      "nas": 520.0,
+      "security": 7.0,
+      "late_aircraft": 864.0
+    },
+    "shares": {
+      "carrier": 0.23581135091926458,
+      "weather": 0.2082334132693845,
+      "nas": 0.20783373301358912,
+      "security": 0.002797761790567546,
+      "late_aircraft": 0.34532374100719426
+    }
+  },
+  "delay_distribution": {
+    "counts": {
+      "on_time": 316,
+      "d15_30": 6,
+      "d30_60": 24,
+      "d60_120": 10,
+      "d120_180": 4,
+      "d180_plus": 0,
+      "cancelled_or_diverted": 5
+    },
+    "shares": {
+      "on_time": 0.8657534246575342,
+      "d15_30": 0.01643835616438356,
+      "d30_60": 0.06575342465753424,
+      "d60_120": 0.0273972602739726,
+      "d120_180": 0.010958904109589041,
+      "d180_plus": 0.0,
+      "cancelled_or_diverted": 0.0136986301369863
+    }
+  },
+  "summary": {
+    "sentences": [
+      "B6 1484 is usually on time: 88% of flights arrived within 15 minutes of schedule, across 360 flights that operated.",
+      "That is 17 points better than the SFO to ATL route, which averages 71%.",
+      "The worst month in the period was June 2026, at 76% on time.",
+      "1.4% of scheduled flights were cancelled \u2014 roughly one in 73.",
+      "When it does arrive late, it is 57 minutes behind schedule on average."
+    ],
+    "matched_rules": [
+      "headline",
+      "versus_peers",
+      "worst_month",
+      "cancellations",
+      "how_late"
+    ]
+  },
+  "demo_notice": "Mockup: every figure on this page is synthetic, generated for design review. It is not U.S. DOT data and must not be read as a description of any real flight.",
+  "gate": {
+    "outcome": "publish",
+    "noindex": false,
+    "reasons": [
+      "passed all gates"
+    ],
+    "skipped_gates": [
+      "similarity (not computed; arrives in M6)"
+    ],
+    "redirect_hint": null
+  }
+}

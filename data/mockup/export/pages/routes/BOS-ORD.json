@@ -1,0 +1,315 @@
+{
+  "schema_version": 1,
+  "page_type": "route",
+  "url": "/routes/BOS-ORD",
+  "key": {
+    "origin": "BOS",
+    "dest": "ORD"
+  },
+  "data_period": {
+    "start": "2024-08-01",
+    "end": "2026-07-31"
+  },
+  "source": {
+    "attribution": "U.S. Department of Transportation, Bureau of Transportation Statistics",
+    "table": "Airline On-Time Performance (reporting carrier)"
+  },
+  "generated_at": "2026-09-17T00:00:00+00:00",
+  "headline_stats": {
+    "ops_scheduled": 1252,
+    "ops_operated": 1227,
+    "ops_measurable": 1227,
+    "on_time_rate": 0.5745721271393643,
+    "cancellation_rate": 0.01757188498402556,
+    "diversion_rate": 0.0023961661341853034,
+    "avg_arr_delay_min": 26.3039934800326,
+    "avg_arr_delay_when_late_min": 57.71264367816092,
+    "median_arr_delay_when_late_min": 48.0,
+    "share_3h_plus": 0.007334963325183374
+  },
+  "coverage": {
+    "first_seen": "2025-08-01",
+    "last_seen": "2026-07-31",
+    "months_covered": 12
+  },
+  "monthly_series": [
+    {
+      "month": "2024-08",
+      "ops_scheduled": 107,
+      "ops_operated": 106,
+      "on_time_rate": 0.5377358490566038,
+      "cancellation_rate": 0.009345794392523364
+    },
+    {
+      "month": "2024-09",
+      "ops_scheduled": 102,
+      "ops_operated": 100,
+      "on_time_rate": 0.7,
+      "cancellation_rate": 0.0196078431372549
+    },
+    {
+      "month": "2024-10",
+      "ops_scheduled": 107,
+      "ops_operated": 106,
+      "on_time_rate": 0.7358490566037735,
+      "cancellation_rate": 0.009345794392523364
+    },
+    {
+      "month": "2024-11",
+      "ops_scheduled": 103,
+      "ops_operated": 100,
+      "on_time_rate": 0.76,
+      "cancellation_rate": 0.02912621359223301
+    },
+    {
+      "month": "2024-12",
+      "ops_scheduled": 105,
+      "ops_operated": 104,
+      "on_time_rate": 0.5,
+      "cancellation_rate": 0.009523809523809525
+    },
+    {
+      "month": "2025-01",
+      "ops_scheduled": 108,
+      "ops_operated": 106,
+      "on_time_rate": 0.5188679245283019,
+      "cancellation_rate": 0.018518518518518517
+    },
+    {
+      "month": "2025-02",
+      "ops_scheduled": 96,
+      "ops_operated": 92,
+      "on_time_rate": 0.532608695652174,
+      "cancellation_rate": 0.041666666666666664
+    },
+    {
+      "month": "2025-03",
+      "ops_scheduled": 105,
+      "ops_operated": 105,
+      "on_time_rate": 0.5904761904761905,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-04",
+      "ops_scheduled": 103,
+      "ops_operated": 103,
+      "on_time_rate": 0.6116504854368932,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-05",
+      "ops_scheduled": 107,
+      "ops_operated": 105,
+      "on_time_rate": 0.7047619047619048,
+      "cancellation_rate": 0.009345794392523364
+    },
+    {
+      "month": "2025-06",
+      "ops_scheduled": 102,
+      "ops_operated": 100,
+      "on_time_rate": 0.63,
+      "cancellation_rate": 0.0196078431372549
+    },
+    {
+      "month": "2025-07",
+      "ops_scheduled": 107,
+      "ops_operated": 105,
+      "on_time_rate": 0.45714285714285713,
+      "cancellation_rate": 0.009345794392523364
+    },
+    {
+      "month": "2025-08",
+      "ops_scheduled": 106,
+      "ops_operated": 104,
+      "on_time_rate": 0.5,
+      "cancellation_rate": 0.018867924528301886
+    },
+    {
+      "month": "2025-09",
+      "ops_scheduled": 102,
+      "ops_operated": 100,
+      "on_time_rate": 0.69,
+      "cancellation_rate": 0.0196078431372549
+    },
+    {
+      "month": "2025-10",
+      "ops_scheduled": 108,
+      "ops_operated": 108,
+      "on_time_rate": 0.6203703703703703,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-11",
+      "ops_scheduled": 102,
+      "ops_operated": 100,
+      "on_time_rate": 0.72,
+      "cancellation_rate": 0.0196078431372549
+    },
+    {
+      "month": "2025-12",
+      "ops_scheduled": 106,
+      "ops_operated": 105,
+      "on_time_rate": 0.44761904761904764,
+      "cancellation_rate": 0.009433962264150943
+    },
+    {
+      "month": "2026-01",
+      "ops_scheduled": 107,
+      "ops_operated": 105,
+      "on_time_rate": 0.44761904761904764,
+      "cancellation_rate": 0.009345794392523364
+    },
+    {
+      "month": "2026-02",
+      "ops_scheduled": 96,
+      "ops_operated": 92,
+      "on_time_rate": 0.5434782608695652,
+      "cancellation_rate": 0.041666666666666664
+    },
+    {
+      "month": "2026-03",
+      "ops_scheduled": 105,
+      "ops_operated": 103,
+      "on_time_rate": 0.6213592233009708,
+      "cancellation_rate": 0.01904761904761905
+    },
+    {
+      "month": "2026-04",
+      "ops_scheduled": 104,
+      "ops_operated": 103,
+      "on_time_rate": 0.6504854368932039,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-05",
+      "ops_scheduled": 106,
+      "ops_operated": 101,
+      "on_time_rate": 0.5841584158415841,
+      "cancellation_rate": 0.03773584905660377
+    },
+    {
+      "month": "2026-06",
+      "ops_scheduled": 102,
+      "ops_operated": 101,
+      "on_time_rate": 0.5445544554455446,
+      "cancellation_rate": 0.00980392156862745
+    },
+    {
+      "month": "2026-07",
+      "ops_scheduled": 108,
+      "ops_operated": 105,
+      "on_time_rate": 0.5333333333333333,
+      "cancellation_rate": 0.027777777777777776
+    }
+  ],
+  "alternatives": [
+    {
+      "carrier": "AA",
+      "flight_number": "637",
+      "typical_sched_dep": "1030",
+      "ops_scheduled": 261,
+      "on_time_rate": 0.8047808764940239,
+      "cancellation_rate": 0.034482758620689655,
+      "avg_arr_delay_when_late_min": 60.775510204081634,
+      "is_this_page": false,
+      "url": "/flights/AA/637/BOS-ORD"
+    },
+    {
+      "carrier": "UA",
+      "flight_number": "2995",
+      "typical_sched_dep": "1705",
+      "ops_scheduled": 261,
+      "on_time_rate": 0.6039215686274509,
+      "cancellation_rate": 0.019157088122605363,
+      "avg_arr_delay_when_late_min": 59.693069306930695,
+      "is_this_page": false,
+      "url": "/flights/UA/2995/BOS-ORD"
+    },
+    {
+      "carrier": "B6",
+      "flight_number": "2220",
+      "typical_sched_dep": "1900",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.5235457063711911,
+      "cancellation_rate": 0.00821917808219178,
+      "avg_arr_delay_when_late_min": 54.75,
+      "is_this_page": false,
+      "url": "/flights/B6/2220/BOS-ORD"
+    },
+    {
+      "carrier": "AA",
+      "flight_number": "692",
+      "typical_sched_dep": "2145",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.4444444444444444,
+      "cancellation_rate": 0.0136986301369863,
+      "avg_arr_delay_when_late_min": 58.51,
+      "is_this_page": false,
+      "url": "/flights/AA/692/BOS-ORD"
+    }
+  ],
+  "delay_causes": {
+    "basis": "attributed_delay_minutes",
+    "total_minutes": 30126.0,
+    "minutes": {
+      "carrier": 7162.0,
+      "weather": 6703.0,
+      "nas": 6801.0,
+      "security": 74.0,
+      "late_aircraft": 9386.0
+    },
+    "shares": {
+      "carrier": 0.237734846976034,
+      "weather": 0.22249883821283942,
+      "nas": 0.2257518422624975,
+      "security": 0.0024563499966806083,
+      "late_aircraft": 0.3115581225519485
+    }
+  },
+  "delay_distribution": {
+    "counts": {
+      "on_time": 705,
+      "d15_30": 82,
+      "d30_60": 272,
+      "d60_120": 131,
+      "d120_180": 28,
+      "d180_plus": 9,
+      "cancelled_or_diverted": 25
+    },
+    "shares": {
+      "on_time": 0.5630990415335463,
+      "d15_30": 0.06549520766773163,
+      "d30_60": 0.21725239616613418,
+      "d60_120": 0.10463258785942492,
+      "d120_180": 0.022364217252396165,
+      "d180_plus": 0.00718849840255591,
+      "cancelled_or_diverted": 0.019968051118210862
+    }
+  },
+  "summary": {
+    "sentences": [
+      "The BOS to ORD route is usually late: 57% of flights arrived within 15 minutes of schedule, across 1,227 flights that operated.",
+      "The worst month in the period was December 2025, at 45% on time.",
+      "1.8% of scheduled flights were cancelled \u2014 roughly one in 57.",
+      "When it does arrive late, it is 58 minutes behind schedule on average."
+    ],
+    "matched_rules": [
+      "headline",
+      "worst_month",
+      "cancellations",
+      "how_late"
+    ]
+  },
+  "demo_notice": "Mockup: every figure on this page is synthetic, generated for design review. It is not U.S. DOT data and must not be read as a description of any real flight.",
+  "gate": {
+    "outcome": "publish",
+    "noindex": false,
+    "reasons": [
+      "passed all gates"
+    ],
+    "skipped_gates": [
+      "similarity (not computed; arrives in M6)"
+    ],
+    "redirect_hint": null
+  }
+}

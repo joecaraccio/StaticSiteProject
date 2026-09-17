@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "page_type": "flight",
+  "url": "/flights/AA/1540/DEN-ATL",
+  "key": {
+    "carrier": "AA",
+    "flight_number": "1540",
+    "origin": "DEN",
+    "dest": "ATL"
+  },
+  "data_period": {
+    "start": "2024-08-01",
+    "end": "2026-07-31"
+  },
+  "source": {
+    "attribution": "U.S. Department of Transportation, Bureau of Transportation Statistics",
+    "table": "Airline On-Time Performance (reporting carrier)"
+  },
+  "generated_at": "2026-09-17T00:00:00+00:00",
+  "headline_stats": {
+    "ops_scheduled": 313,
+    "ops_operated": 308,
+    "ops_measurable": 308,
+    "on_time_rate": 0.7402597402597403,
+    "cancellation_rate": 0.012779552715654952,
+    "diversion_rate": 0.003194888178913738,
+    "avg_arr_delay_min": 18.545454545454547,
+    "avg_arr_delay_when_late_min": 63.7125,
+    "median_arr_delay_when_late_min": 47.5,
+    "share_3h_plus": 0.00974025974025974
+  },
+  "coverage": {
+    "first_seen": "2025-08-01",
+    "last_seen": "2026-07-31",
+    "months_covered": 12
+  },
+  "monthly_series": [
+    {
+      "month": "2024-08",
+      "ops_scheduled": 27,
+      "ops_operated": 27,
+      "on_time_rate": 0.6666666666666666,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-09",
+      "ops_scheduled": 25,
+      "ops_operated": 25,
+      "on_time_rate": 0.8,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-10",
+      "ops_scheduled": 27,
+      "ops_operated": 27,
+      "on_time_rate": 0.8888888888888888,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-11",
+      "ops_scheduled": 26,
+      "ops_operated": 26,
+      "on_time_rate": 0.8076923076923077,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-12",
+      "ops_scheduled": 26,
+      "ops_operated": 23,
+      "on_time_rate": 0.782608695652174,
+      "cancellation_rate": 0.11538461538461539
+    },
+    {
+      "month": "2025-01",
+      "ops_scheduled": 27,
+      "ops_operated": 27,
+      "on_time_rate": 0.7777777777777778,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-02",
+      "ops_scheduled": 24,
+      "ops_operated": 24,
+      "on_time_rate": 0.8333333333333334,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-03",
+      "ops_scheduled": 26,
+      "ops_operated": 25,
+      "on_time_rate": 0.84,
+      "cancellation_rate": 0.038461538461538464
+    },
+    {
+      "month": "2025-04",
+      "ops_scheduled": 26,
+      "ops_operated": 25,
+      "on_time_rate": 0.76,
+      "cancellation_rate": 0.038461538461538464
+    },
+    {
+      "month": "2025-05",
+      "ops_scheduled": 27,
+      "ops_operated": 25,
+      "on_time_rate": 0.84,
+      "cancellation_rate": 0.07407407407407407
+    },
+    {
+      "month": "2025-06",
+      "ops_scheduled": 25,
+      "ops_operated": 23,
+      "on_time_rate": 0.5652173913043478,
+      "cancellation_rate": 0.08
+    },
+    {
+      "month": "2025-07",
+      "ops_scheduled": 27,
+      "ops_operated": 26,
+      "on_time_rate": 0.8076923076923077,
+      "cancellation_rate": 0.037037037037037035
+    },
+    {
+      "month": "2025-08",
+      "ops_scheduled": 27,
+      "ops_operated": 27,
+      "on_time_rate": 0.6666666666666666,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-09",
+      "ops_scheduled": 25,
+      "ops_operated": 25,
+      "on_time_rate": 0.8,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-10",
+      "ops_scheduled": 27,
+      "ops_operated": 26,
+      "on_time_rate": 0.7307692307692307,
+      "cancellation_rate": 0.037037037037037035
+    },
+    {
+      "month": "2025-11",
+      "ops_scheduled": 26,
+      "ops_operated": 26,
+      "on_time_rate": 0.7692307692307693,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-12",
+      "ops_scheduled": 26,
+      "ops_operated": 25,
+      "on_time_rate": 0.8,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-01",
+      "ops_scheduled": 27,
+      "ops_operated": 27,
+      "on_time_rate": 0.6296296296296297,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-02",
+      "ops_scheduled": 24,
+      "ops_operated": 23,
+      "on_time_rate": 0.7391304347826086,
+      "cancellation_rate": 0.041666666666666664
+    },
+    {
+      "month": "2026-03",
+      "ops_scheduled": 26,
+      "ops_operated": 26,
+      "on_time_rate": 0.6923076923076923,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-04",
+      "ops_scheduled": 26,
+      "ops_operated": 26,
+      "on_time_rate": 0.7692307692307693,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-05",
+      "ops_scheduled": 27,
+      "ops_operated": 27,
+      "on_time_rate": 0.8518518518518519,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2026-06",
+      "ops_scheduled": 25,
+      "ops_operated": 23,
+      "on_time_rate": 0.6956521739130435,
+      "cancellation_rate": 0.08
+    },
+    {
+      "month": "2026-07",
+      "ops_scheduled": 27,
+      "ops_operated": 27,
+      "on_time_rate": 0.7407407407407407,
+      "cancellation_rate": 0.0
+    }
+  ],
+  "alternatives": [
+    {
+      "carrier": "B6",
+      "flight_number": "2076",
+      "typical_sched_dep": "0600",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.8491620111731844,
+      "cancellation_rate": 0.019178082191780823,
+      "avg_arr_delay_when_late_min": 64.0925925925926,
+      "is_this_page": false,
+      "url": "/flights/B6/2076/DEN-ATL"
+    },
+    {
+      "carrier": "WN",
+      "flight_number": "1720",
+      "typical_sched_dep": "0850",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.84375,
+      "cancellation_rate": 0.03561643835616438,
+      "avg_arr_delay_when_late_min": 59.63636363636363,
+      "is_this_page": false,
+      "url": "/flights/WN/1720/DEN-ATL"
+    },
+    {
+      "carrier": "AA",
+      "flight_number": "1540",
+      "typical_sched_dep": "1050",
+      "ops_scheduled": 313,
+      "on_time_rate": 0.7402597402597403,
+      "cancellation_rate": 0.012779552715654952,
+      "avg_arr_delay_when_late_min": 63.7125,
+      "is_this_page": true,
+      "url": "/flights/AA/1540/DEN-ATL"
+    },
+    {
+      "carrier": "B6",
+      "flight_number": "2206",
+      "typical_sched_dep": "1430",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.6890756302521008,
+      "cancellation_rate": 0.021917808219178082,
+      "avg_arr_delay_when_late_min": 54.270270270270274,
+      "is_this_page": false,
+      "url": "/flights/B6/2206/DEN-ATL"
+    }
+  ],
+  "delay_causes": {
+    "basis": "attributed_delay_minutes",
+    "total_minutes": 5097.0,
+    "minutes": {
+      "carrier": 1295.0,
+      "weather": 1147.0,
+      "nas": 1226.0,
+      "security": 16.0,
+      "late_aircraft": 1413.0
+    },
+    "shares": {
+      "carrier": 0.25407102216990385,
+      "weather": 0.22503433392191485,
+      "nas": 0.24053364724347656,
+      "security": 0.0031391014322150286,
+      "late_aircraft": 0.2772218952324897
+    }
+  },
+  "delay_distribution": {
+    "counts": {
+      "on_time": 228,
+      "d15_30": 14,
+      "d30_60": 32,
+      "d60_120": 28,
+      "d120_180": 3,
+      "d180_plus": 3,
+      "cancelled_or_diverted": 5
+    },
+    "shares": {
+      "on_time": 0.7284345047923323,
+      "d15_30": 0.04472843450479233,
+      "d30_60": 0.10223642172523961,
+      "d60_120": 0.08945686900958466,
+      "d120_180": 0.009584664536741214,
+      "d180_plus": 0.009584664536741214,
+      "cancelled_or_diverted": 0.01597444089456869
+    }
+  },
+  "summary": {
+    "sentences": [
+      "AA 1540 runs late often enough to plan around: 74% of flights arrived within 15 minutes of schedule, across 308 flights that operated.",
+      "That is 4 points worse than the DEN to ATL route, which averages 78%.",
+      "B6 2076 is the most reliable option on this route at 85%, 11 points better.",
+      "The worst month in the period was June 2025, at 57% on time.",
+      "1.3% of scheduled flights were cancelled \u2014 roughly one in 78.",
+      "When it does arrive late, it is 64 minutes behind schedule on average."
+    ],
+    "matched_rules": [
+      "headline",
+      "versus_peers",
+      "better_option",
+      "worst_month",
+      "cancellations",
+      "how_late"
+    ]
+  },
+  "demo_notice": "Mockup: every figure on this page is synthetic, generated for design review. It is not U.S. DOT data and must not be read as a description of any real flight.",
+  "gate": {
+    "outcome": "publish",
+    "noindex": false,
+    "reasons": [
+      "passed all gates"
+    ],
+    "skipped_gates": [
+      "similarity (not computed; arrives in M6)"
+    ],
+    "redirect_hint": null
+  }
+}

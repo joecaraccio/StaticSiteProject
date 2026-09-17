@@ -299,6 +299,12 @@ def main() -> int:
         "--seed", type=int, default=20260917, help="RNG seed; the run is deterministic"
     )
     parser.add_argument("--keep", action="store_true", help="reuse existing generated data")
+    parser.add_argument(
+        "--generated-at",
+        default="2026-09-17",
+        metavar="YYYY-MM-DD",
+        help="pinned export timestamp; keeps the committed mockup diff-free",
+    )
     args = parser.parse_args()
 
     # Safety rail: this must never write into the real data root.
@@ -321,7 +327,19 @@ def main() -> int:
         run(["normalize", "--months", month_label], MOCKUP_ROOT)
 
     run(["build"], MOCKUP_ROOT)
-    run(["export", "--demo-notice", DEMO_NOTICE], MOCKUP_ROOT)
+    # The export is committed to git, so its timestamp is pinned: re-running this
+    # script produces no diff unless the pipeline's actual output changed, which
+    # turns data/mockup/export into a snapshot test of the whole chain.
+    run(
+        [
+            "export",
+            "--demo-notice",
+            DEMO_NOTICE,
+            "--generated-at",
+            f"{args.generated_at}T00:00:00+00:00",
+        ],
+        MOCKUP_ROOT,
+    )
 
     print()
     print("Mockup data ready. Build the site against it with:")

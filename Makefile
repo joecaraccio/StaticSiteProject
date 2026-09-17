@@ -11,7 +11,7 @@ export HOST_REPO_PATH := $(CURDIR)
 RUN := $(COMPOSE) run --rm
 
 .DEFAULT_GOAL := help
-.PHONY: help up down restart logs ps dash build-images pull \
+.PHONY: help up down restart logs ps dash build-images pull doctor smoke reset \
         verify-source ingest normalize build export status query sql \
         site site-build dev test lint fmt check-site ci ci-list shell clean clean-data \
         mockup mockup-site screenshots check-links
@@ -24,16 +24,23 @@ help: ## Show this help
 
 # --- stack ---------------------------------------------------------------
 
-up: build-images ## Start dashboard, Dagu, DuckDB UI and the site server
-	$(COMPOSE) up -d dashboard dagu duckdb-ui web
-	@echo ""
-	@echo "  Dashboard   http://localhost:$${DASHBOARD_PORT:-8000}   <- start here"
-	@echo "  Dagu        http://localhost:$${DAGU_PORT:-8080}"
-	@echo "  DuckDB UI   http://localhost:$${DUCKDB_UI_PORT:-4213}"
-	@echo "  Site        http://localhost:$${WEB_PORT:-8081}"
+# Delegates rather than duplicating: the script creates .env, checks that Docker
+# is actually running, and waits for each service to answer instead of returning
+# the moment compose exits.
+up: ## Start the stack and wait until every service answers
+	./scripts/stack.sh up
+
+doctor: ## Check this machine can run the stack
+	./scripts/doctor.sh
+
+smoke: ## Run everything CI runs, locally (add --fast to skip end-to-end)
+	./scripts/smoke.sh
+
+reset: ## Stop the stack, drop volumes, delete derived data
+	./scripts/stack.sh reset
 
 down: ## Stop everything (keeps volumes and data)
-	$(COMPOSE) down
+	./scripts/stack.sh down
 
 restart: ## Restart the long-running services
 	$(COMPOSE) restart dashboard dagu duckdb-ui web
@@ -41,8 +48,9 @@ restart: ## Restart the long-running services
 logs: ## Tail logs for all services
 	$(COMPOSE) logs -f --tail=80
 
-ps: ## Show service status
-	$(COMPOSE) ps
+# Named `ps`, not `status`: `make status` is the pipeline's data status.
+ps: ## Show which services are running and answering
+	./scripts/stack.sh status
 
 dash: ## Open the dashboard in a browser
 	@python3 -m webbrowser "http://localhost:$${DASHBOARD_PORT:-8000}" 2>/dev/null \

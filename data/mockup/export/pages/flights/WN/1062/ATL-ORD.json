@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "page_type": "flight",
+  "url": "/flights/WN/1062/ATL-ORD",
+  "key": {
+    "carrier": "WN",
+    "flight_number": "1062",
+    "origin": "ATL",
+    "dest": "ORD"
+  },
+  "data_period": {
+    "start": "2024-08-01",
+    "end": "2026-07-31"
+  },
+  "source": {
+    "attribution": "U.S. Department of Transportation, Bureau of Transportation Statistics",
+    "table": "Airline On-Time Performance (reporting carrier)"
+  },
+  "generated_at": "2026-09-17T00:00:00+00:00",
+  "headline_stats": {
+    "ops_scheduled": 365,
+    "ops_operated": 349,
+    "ops_measurable": 349,
+    "on_time_rate": 0.6532951289398281,
+    "cancellation_rate": 0.0410958904109589,
+    "diversion_rate": 0.0027397260273972603,
+    "avg_arr_delay_min": 21.773638968481375,
+    "avg_arr_delay_when_late_min": 57.34710743801653,
+    "median_arr_delay_when_late_min": 50.0,
+    "share_3h_plus": 0.0028653295128939827
+  },
+  "coverage": {
+    "first_seen": "2025-08-01",
+    "last_seen": "2026-07-31",
+    "months_covered": 12
+  },
+  "monthly_series": [
+    {
+      "month": "2024-08",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.7,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2024-09",
+      "ops_scheduled": 30,
+      "ops_operated": 29,
+      "on_time_rate": 0.7241379310344828,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2024-10",
+      "ops_scheduled": 31,
+      "ops_operated": 29,
+      "on_time_rate": 0.8275862068965517,
+      "cancellation_rate": 0.06451612903225806
+    },
+    {
+      "month": "2024-11",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.6666666666666666,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2024-12",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.5666666666666667,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2025-01",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.6774193548387096,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-02",
+      "ops_scheduled": 28,
+      "ops_operated": 28,
+      "on_time_rate": 0.6428571428571429,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-03",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.6,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2025-04",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.6333333333333333,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-05",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.9032258064516129,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-06",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.6,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-07",
+      "ops_scheduled": 31,
+      "ops_operated": 28,
+      "on_time_rate": 0.5,
+      "cancellation_rate": 0.0967741935483871
+    },
+    {
+      "month": "2025-08",
+      "ops_scheduled": 31,
+      "ops_operated": 27,
+      "on_time_rate": 0.5185185185185185,
+      "cancellation_rate": 0.12903225806451613
+    },
+    {
+      "month": "2025-09",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.7,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-10",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.7333333333333333,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2025-11",
+      "ops_scheduled": 30,
+      "ops_operated": 30,
+      "on_time_rate": 0.6666666666666666,
+      "cancellation_rate": 0.0
+    },
+    {
+      "month": "2025-12",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.5,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2026-01",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.5,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2026-02",
+      "ops_scheduled": 28,
+      "ops_operated": 26,
+      "on_time_rate": 0.6538461538461539,
+      "cancellation_rate": 0.07142857142857142
+    },
+    {
+      "month": "2026-03",
+      "ops_scheduled": 31,
+      "ops_operated": 28,
+      "on_time_rate": 0.7857142857142857,
+      "cancellation_rate": 0.0967741935483871
+    },
+    {
+      "month": "2026-04",
+      "ops_scheduled": 30,
+      "ops_operated": 29,
+      "on_time_rate": 0.7586206896551724,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2026-05",
+      "ops_scheduled": 31,
+      "ops_operated": 30,
+      "on_time_rate": 0.8,
+      "cancellation_rate": 0.03225806451612903
+    },
+    {
+      "month": "2026-06",
+      "ops_scheduled": 30,
+      "ops_operated": 28,
+      "on_time_rate": 0.6428571428571429,
+      "cancellation_rate": 0.03333333333333333
+    },
+    {
+      "month": "2026-07",
+      "ops_scheduled": 31,
+      "ops_operated": 31,
+      "on_time_rate": 0.5806451612903226,
+      "cancellation_rate": 0.0
+    }
+  ],
+  "alternatives": [
+    {
+      "carrier": "UA",
+      "flight_number": "1118",
+      "typical_sched_dep": "0630",
+      "ops_scheduled": 313,
+      "on_time_rate": 0.9302325581395349,
+      "cancellation_rate": 0.03194888178913738,
+      "avg_arr_delay_when_late_min": 70.28571428571429,
+      "is_this_page": false,
+      "url": "/flights/UA/1118/ATL-ORD"
+    },
+    {
+      "carrier": "DL",
+      "flight_number": "2949",
+      "typical_sched_dep": "1005",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.7409470752089137,
+      "cancellation_rate": 0.01643835616438356,
+      "avg_arr_delay_when_late_min": 54.01075268817204,
+      "is_this_page": false,
+      "url": "/flights/DL/2949/ATL-ORD"
+    },
+    {
+      "carrier": "WN",
+      "flight_number": "1062",
+      "typical_sched_dep": "1440",
+      "ops_scheduled": 365,
+      "on_time_rate": 0.6532951289398281,
+      "cancellation_rate": 0.0410958904109589,
+      "avg_arr_delay_when_late_min": 57.34710743801653,
+      "is_this_page": true,
+      "url": "/flights/WN/1062/ATL-ORD"
+    },
+    {
+      "carrier": "UA",
+      "flight_number": "1322",
+      "typical_sched_dep": "1615",
+      "ops_scheduled": 313,
+      "on_time_rate": 0.6013071895424836,
+      "cancellation_rate": 0.019169329073482427,
+      "avg_arr_delay_when_late_min": 62.34426229508197,
+      "is_this_page": false,
+      "url": "/flights/UA/1322/ATL-ORD"
+    }
+  ],
+  "delay_causes": {
+    "basis": "attributed_delay_minutes",
+    "total_minutes": 6939.0,
+    "minutes": {
+      "carrier": 1595.0,
+      "weather": 1512.0,
+      "nas": 1465.0,
+      "security": 17.0,
+      "late_aircraft": 2350.0
+    },
+    "shares": {
+      "carrier": 0.2298602104049575,
+      "weather": 0.2178988326848249,
+      "nas": 0.2111255224095691,
+      "security": 0.002449920737858481,
+      "late_aircraft": 0.33866551376279
+    }
+  },
+  "delay_distribution": {
+    "counts": {
+      "on_time": 228,
+      "d15_30": 16,
+      "d30_60": 62,
+      "d60_120": 36,
+      "d120_180": 6,
+      "d180_plus": 1,
+      "cancelled_or_diverted": 16
+    },
+    "shares": {
+      "on_time": 0.6246575342465753,
+      "d15_30": 0.043835616438356165,
+      "d30_60": 0.16986301369863013,
+      "d60_120": 0.09863013698630137,
+      "d120_180": 0.01643835616438356,
+      "d180_plus": 0.0027397260273972603,
+      "cancelled_or_diverted": 0.043835616438356165
+    }
+  },
+  "summary": {
+    "sentences": [
+      "WN 1062 runs late often enough to plan around: 65% of flights arrived within 15 minutes of schedule, across 349 flights that operated.",
+      "That is 8 points worse than the ATL to ORD route, which averages 73%.",
+      "UA 1118 is the most reliable option on this route at 93%, 28 points better.",
+      "The worst month in the period was July 2025, at 50% on time.",
+      "4.1% of scheduled flights were cancelled \u2014 roughly one in 24.",
+      "When it does arrive late, it is 57 minutes behind schedule on average."
+    ],
+    "matched_rules": [
+      "headline",
+      "versus_peers",
+      "better_option",
+      "worst_month",
+      "cancellations",
+      "how_late"
+    ]
+  },
+  "demo_notice": "Mockup: every figure on this page is synthetic, generated for design review. It is not U.S. DOT data and must not be read as a description of any real flight.",
+  "gate": {
+    "outcome": "publish",
+    "noindex": false,
+    "reasons": [
+      "passed all gates"
+    ],
+    "skipped_gates": [
+      "similarity (not computed; arrives in M6)"
+    ],
+    "redirect_hint": null
+  }
+}
