@@ -2,6 +2,31 @@
 
 Update at the end of each working session.
 
+## 2026-09-18 (later) — three colour schemes
+
+**Done**
+
+- **Design tokens split in two.** Status roles (on-time green, cancelled neutral,
+  the four reliability bands) are declared once and never themed; surfaces, text,
+  the primary hue, the chart ramp and the hero belong to a theme. A red chip has
+  to mean the same thing whatever the site looks like.
+- **Three schemes**, selected with `SITE_THEME` at build time:
+  `ocean` (blue on warm neutral, the original), `harbor` (teal on cool slate) and
+  `paper` (indigo on warm cream). `make themes` builds all three side by side.
+- **Every scheme is validated, not eyeballed.** Each ramp was checked for monotone
+  lightness, step gaps and a light end clearing the surface, in both modes; text,
+  link and series colours checked for contrast against that theme's surface. The
+  first teal ramp failed its light end at 1.72:1 against a 2:1 floor and was
+  re-stepped — it would have shipped an unreadable lightest bucket.
+- `@types/node` added (dev only) after `astro check` caught `process.env` in the
+  layout.
+- Comparison screenshots in `docs/screenshots/themes/`, with a README.
+
+**Open question**
+
+Which scheme to keep. `ocean` remains the default until told otherwise; switching
+is a one-word change.
+
 ## 2026-09-18 — homepage colour and search autocomplete
 
 **Done**

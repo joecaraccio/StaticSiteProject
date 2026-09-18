@@ -30,12 +30,14 @@ const {
 } = Astro.props as Props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? "http://localhost:8081");
+// Colour scheme, chosen at build time. See the header of public/styles/global.css.
+const theme = process.env.SITE_THEME ?? "ocean";
 // Synthetic pages must never be indexed, whatever the gates said.
 const blockIndexing = noindex || Boolean(demoNotice);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme={theme}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

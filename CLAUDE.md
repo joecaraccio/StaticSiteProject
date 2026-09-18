@@ -27,8 +27,8 @@ Dev dependencies (test, lint, type-check, tooling) can be added as needed. Ask
 before adding a **runtime** dependency not listed above — anything that ships in
 the pipeline or the built site.
 
-Current dev-only additions: `playwright` and `@astrojs/check` + `typescript` in
-`site/`, for screenshots and site type-checking.
+Current dev-only additions: `playwright`, `@astrojs/check`, `typescript` and
+`@types/node` in `site/`, for screenshots and site type-checking.
 
 ## Repository layout
 
@@ -106,7 +106,13 @@ Design work (synthetic data, never mixed with real data):
 make mockup          # generate data/mockup/ and build site/dist-mockup/
 make mockup-site     # rebuild the mockup site from existing synthetic data
 make screenshots     # capture docs/screenshots/ from the mockup build
+make themes          # build the mockup in every colour scheme, side by side
+make mockup-site THEME=harbor   # one scheme
 ```
+
+Colour schemes are `ocean` (default), `harbor` and `paper`, selected with
+`SITE_THEME` at build time. The list and what each one changes is documented at
+the head of `site/public/styles/global.css`.
 
 Screenshots need Chromium once: `cd site && npx playwright install chromium`.
 

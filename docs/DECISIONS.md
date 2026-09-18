@@ -12,6 +12,20 @@ Record meaningful choices here, newest first.
 
 ---
 
+### 2026-09-18 · Themes may change surfaces and hue; status colours are fixed
+- **Decision:** `SITE_THEME` selects a colour scheme at build time (`ocean`, `harbor`, `paper`). A theme owns surfaces, text, borders, the primary hue, the delay-severity ramp and the hero gradient. It does **not** own the status roles: on-time green, cancelled neutral, and the four reliability band colours are declared once, outside every theme block.
+- **Why:** A red chip has to mean the same thing whatever the site looks like. Letting a theme re-colour the bands would make the meaning of a colour depend on a build flag, and the bands are already tied to thresholds in `pipeline/summaries/rules.py`. This also matches the dataviz guidance that a status palette is fixed and never themed.
+- **Alternatives considered:** Theming everything (meaning becomes cosmetic); a single hardcoded scheme (no way to try alternatives without a rewrite).
+- **Revisit if:** a theme's surfaces move far enough that a fixed band colour fails contrast against them — the check is cheap and should be re-run per theme.
+
+### 2026-09-18 · Each theme's chart ramp is validated, not hand-picked
+- **Decision:** Every theme ships a five-step single-hue ordinal ramp for delay severity, checked with the dataviz validator for monotone lightness, adjacent-step gaps of at least 0.06, and a light end clearing the surface — in both light and dark. Text, link and series colours are checked for contrast against that theme's surface.
+- **Why:** Changing the accent hue silently breaks the chart ramp otherwise. The first teal ramp failed on its light end at 1.72:1 against a 2:1 floor and had to be re-stepped; a scheme that looked fine would have shipped an unreadable lightest bucket.
+- **Alternatives considered:** Reusing the blue ramp across themes (the chart stops belonging to the page); deriving a ramp programmatically (needs a colour library and still needs checking).
+- **Revisit if:** a fourth theme is added — run the validator before writing the CSS, not after.
+
+---
+
 ### 2026-09-18 · Reliability bands live in the rule engine, not in CSS
 - **Decision:** `pipeline/summaries/rules.py` owns a `BANDS` table (good / warning / serious / critical) used both to phrase the headline sentence and to set `summary.band` in the page JSON. The site maps a band name to a colour and never decides where a band starts.
 - **Why:** A colour-coded verdict is a verdict. CLAUDE.md puts verdict language in `pipeline/summaries/`, and the engine already had these exact thresholds hardcoded inside the headline rule. Had the site picked its own, a page could have said "usually on time" beside an amber chip. A test asserts the band and the sentence never disagree.

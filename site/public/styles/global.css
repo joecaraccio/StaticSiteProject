@@ -1,46 +1,35 @@
-/* Tokens. The chart colours are the validated palette from the dataviz skill:
-   a single categorical slot for the trend line, and a five-step single-hue
-   ordinal ramp for delay severity (monotone lightness, visible step gaps,
-   light end clearing the surface). Dark mode is a selected set of steps from
-   the same ramps, not an automatic flip. */
+/* Design tokens.
+ *
+ * Split in two. Everything under "fixed" means the same thing in every theme and
+ * must not be re-coloured: the status roles (on time, cancelled) and the
+ * reliability bands, whose thresholds come from pipeline/summaries/rules.py. A
+ * red chip has to mean the same thing whatever the site looks like.
+ *
+ * Everything under a theme block is free to change: surfaces, text, the primary
+ * hue, the chart ramp and the hero. Pick one with SITE_THEME at build time:
+ *
+ *   SITE_THEME=ocean   Ocean — blue on warm neutral (original)
+ *   SITE_THEME=harbor  Harbor — teal on cool slate
+ *   SITE_THEME=paper   Paper — indigo on warm cream
+ *
+ * Chart colours are validated with the dataviz palette checker, not eyeballed;
+ * dark mode is a selected set of steps, not an automatic flip.
+ */
+
 :root {
   color-scheme: light dark;
 
-  --surface: #fcfcfb;
-  --surface-raised: #ffffff;
-  --border: #e2e1dd;
-  --text-primary: #0b0b0b;
-  --text-secondary: #52514e;
-  --text-muted: #77756f;
-  --link: #1c5cab;
+  /* --- fixed: status roles, never themed --- */
+  --sev-0: #0ca30c;        /* on time */
+  --sev-none: #9b9a94;     /* cancelled or diverted */
 
-  --series-1: #2a78d6;
-
-  /* Delay severity, light → dark. On time is a status, not a severity step. */
-  --sev-0: #0ca30c;  /* on time (status: good) */
-  --sev-1: #86b6ef;  /* 15–30 min  */
-  --sev-2: #5598e7;  /* 30–60      */
-  --sev-3: #2a78d6;  /* 60–120     */
-  --sev-4: #1c5cab;  /* 120–180    */
-  --sev-5: #104281;  /* 180+       */
-  --sev-none: #9b9a94; /* cancelled or diverted */
-
-  --grid: #e8e7e3;
-
-  /* Reliability bands. The thresholds live in pipeline/summaries/rules.py — the
-     site only maps a band name to a colour, it never decides where a band starts.
-     Text-on-chip contrast is >= 5.8:1 in light and >= 7:1 in dark (checked, not
-     eyeballed); every chip also carries a 1px border in its own ink so it stays
-     visible against any surface. */
+  /* Reliability bands. Thresholds live in pipeline/summaries/rules.py; the site
+     only maps a band name to a colour. Rank is carried by the chip's meter, so
+     colour here is reinforcement rather than the identity channel. */
   --band-good-bg: #e2f4e6;      --band-good-fg: #0a6b23;
   --band-warning-bg: #faeaca;   --band-warning-fg: #7a5200;
   --band-serious-bg: #fdeae0;   --band-serious-fg: #b0490a;
   --band-critical-bg: #fbe8e7;  --band-critical-fg: #a32420;
-
-  /* Hero. A tinted band rather than flat surface, so the page opens with colour. */
-  --hero-from: #d3e5fc;
-  --hero-to: #d4eedd;
-  --hero-edge: #b6d2f1;
 
   /* Mockup banner. Deliberately unlike anything else on the page. */
   --demo-bg: #fdf2dc;
@@ -53,39 +42,172 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --surface: #1a1a19;
-    --surface-raised: #232322;
-    --border: #38383400;
-    --border: #383835;
-    --text-primary: #ffffff;
-    --text-secondary: #c3c2b7;
-    --text-muted: #9a998f;
-    --link: #86b6ef;
-
-    --series-1: #3987e5;
-
-    --sev-0: #0ca30c;
-    --sev-1: #cde2fb;
-    --sev-2: #9ec5f4;
-    --sev-3: #6da7ec;
-    --sev-4: #3987e5;
-    --sev-5: #256abf;
     --sev-none: #6e6d67;
-
-    --grid: #2e2e2b;
-
-    --demo-bg: #3a2c10;
-    --demo-text: #f6d79b;
-    --demo-border: #5c4718;
 
     --band-good-bg: #12301c;      --band-good-fg: #7ddba1;
     --band-warning-bg: #33270f;   --band-warning-fg: #f0c274;
     --band-serious-bg: #3a2417;   --band-serious-fg: #f0a882;
     --band-critical-bg: #41201d;  --band-critical-fg: #f2a099;
 
+    --demo-bg: #3a2c10;
+    --demo-text: #f6d79b;
+    --demo-border: #5c4718;
+  }
+}
+
+
+/* --- Ocean — blue on warm neutral (original) --- */
+:root, :root[data-theme="ocean"] {
+  --surface: #fcfcfb;
+  --surface-raised: #ffffff;
+  --border: #e2e1dd;
+  --text-primary: #16191d;
+  --text-secondary: #52514e;
+  --text-muted: #77756f;
+  --link: #1c5cab;
+  --series-1: #2a78d6;
+  --grid: #e8e7e3;
+
+  /* Delay severity: one hue, light to dark. Validated for monotone
+     lightness, visible step gaps and a light end that clears the surface. */
+  --sev-1: #86b6ef;
+  --sev-2: #5598e7;
+  --sev-3: #2a78d6;
+  --sev-4: #1c5cab;
+  --sev-5: #104281;
+
+  --hero-from: #d3e5fc;
+  --hero-to: #d4eedd;
+  --hero-edge: #b6d2f1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #1a1a19;
+    --surface-raised: #232322;
+    --border: #383835;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #9a998f;
+    --link: #86b6ef;
+    --series-1: #3987e5;
+    --grid: #2e2e2b;
+
+    /* Delay severity: one hue, light to dark. Validated for monotone
+       lightness, visible step gaps and a light end that clears the surface. */
+    --sev-1: #cde2fb;
+    --sev-2: #9ec5f4;
+    --sev-3: #6da7ec;
+    --sev-4: #3987e5;
+    --sev-5: #256abf;
+
     --hero-from: #17273f;
     --hero-to: #152e20;
     --hero-edge: #2b3f5b;
+  }
+}
+
+
+/* --- Harbor — teal on cool slate --- */
+:root[data-theme="harbor"] {
+  --surface: #f5f8f9;
+  --surface-raised: #ffffff;
+  --border: #dbe4e7;
+  --text-primary: #111819;
+  --text-secondary: #4a565a;
+  --text-muted: #6f7c80;
+  --link: #0f6f7a;
+  --series-1: #13818d;
+  --grid: #e3ebed;
+
+  /* Delay severity: one hue, light to dark. Validated for monotone
+     lightness, visible step gaps and a light end that clears the surface. */
+  --sev-1: #5cbcc6;
+  --sev-2: #2fa0ad;
+  --sev-3: #13818d;
+  --sev-4: #0a6470;
+  --sev-5: #064a54;
+
+  --hero-from: #d6ecef;
+  --hero-to: #dbeee4;
+  --hero-edge: #b7d9de;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="harbor"] {
+    --surface: #121819;
+    --surface-raised: #1b2325;
+    --border: #2c3739;
+    --text-primary: #f0f5f6;
+    --text-secondary: #b4c3c7;
+    --text-muted: #889699;
+    --link: #6ec2cb;
+    --series-1: #3fa8b4;
+    --grid: #243032;
+
+    /* Delay severity: one hue, light to dark. Validated for monotone
+       lightness, visible step gaps and a light end that clears the surface. */
+    --sev-1: #cbe9ed;
+    --sev-2: #9ed6dc;
+    --sev-3: #6ec2cb;
+    --sev-4: #3fa8b4;
+    --sev-5: #218c99;
+
+    --hero-from: #12313a;
+    --hero-to: #12332c;
+    --hero-edge: #22474f;
+  }
+}
+
+
+/* --- Paper — indigo on warm cream --- */
+:root[data-theme="paper"] {
+  --surface: #faf7f2;
+  --surface-raised: #ffffff;
+  --border: #e7e0d4;
+  --text-primary: #1a1713;
+  --text-secondary: #544e45;
+  --text-muted: #7c7467;
+  --link: #4438a0;
+  --series-1: #4f42ae;
+  --grid: #ece5da;
+
+  /* Delay severity: one hue, light to dark. Validated for monotone
+     lightness, visible step gaps and a light end that clears the surface. */
+  --sev-1: #b3aee8;
+  --sev-2: #8f86dd;
+  --sev-3: #6c5fd0;
+  --sev-4: #4f42ae;
+  --sev-5: #372d80;
+
+  --hero-from: #e6e2f8;
+  --hero-to: #f3e9dc;
+  --hero-edge: #d3cced;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="paper"] {
+    --surface: #17151c;
+    --surface-raised: #211e29;
+    --border: #332e40;
+    --text-primary: #f4f1fa;
+    --text-secondary: #c2bcd2;
+    --text-muted: #948da6;
+    --link: #a39ae7;
+    --series-1: #8578dd;
+    --grid: #282434;
+
+    /* Delay severity: one hue, light to dark. Validated for monotone
+       lightness, visible step gaps and a light end that clears the surface. */
+    --sev-1: #ddd9f7;
+    --sev-2: #c0baef;
+    --sev-3: #a39ae7;
+    --sev-4: #8578dd;
+    --sev-5: #6558c4;
+
+    --hero-from: #241f3b;
+    --hero-to: #2a2338;
+    --hero-edge: #3b3358;
   }
 }
 

@@ -14,7 +14,7 @@ RUN := $(COMPOSE) run --rm
 .PHONY: help up down restart logs ps dash build-images pull doctor smoke reset \
         verify-source ingest normalize build export status query sql \
         site site-build dev test lint fmt check-site ci ci-list shell clean clean-data \
-        mockup mockup-site screenshots check-links
+        mockup mockup-site themes screenshots check-links
 
 help: ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -115,7 +115,17 @@ mockup: ## Generate synthetic data and build the mockup site
 	$(MAKE) mockup-site
 
 mockup-site: ## Rebuild the mockup site from existing synthetic data
-	cd site && PAGES_DIR=$(CURDIR)/data/mockup/export OUT_DIR=dist-mockup npm run build
+	cd site && SITE_THEME=$(THEME) PAGES_DIR=$(CURDIR)/data/mockup/export OUT_DIR=dist-mockup npm run build
+
+# Colour scheme. See the header of site/public/styles/global.css for the list.
+THEME ?= ocean
+
+themes: ## Build the mockup in every colour scheme, into site/dist-<theme>/
+	@for t in ocean harbor paper; do \
+	  echo "building $$t..."; \
+	  (cd site && SITE_THEME=$$t PAGES_DIR=$(CURDIR)/data/mockup/export OUT_DIR=dist-$$t npm run build >/dev/null) || exit 1; \
+	done
+	@echo "Compare: site/dist-ocean, site/dist-harbor, site/dist-paper"
 
 screenshots: ## Screenshot the mockup into docs/screenshots
 	node scripts/screenshot_site.mjs
