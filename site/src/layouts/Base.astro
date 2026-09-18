@@ -16,6 +16,8 @@ interface Props {
   noindex?: boolean;
   demoNotice?: string | null;
   compactHeader?: boolean;
+  /** Wider column, for pages that lay out in more than one column. */
+  wide?: boolean;
 }
 
 const {
@@ -24,6 +26,7 @@ const {
   noindex = false,
   demoNotice = null,
   compactHeader = false,
+  wide = false,
 } = Astro.props as Props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? "http://localhost:8081");
@@ -45,7 +48,7 @@ const blockIndexing = noindex || Boolean(demoNotice);
   <body>
     {demoNotice && <DemoBanner notice={demoNotice} />}
     <SiteHeader compact={compactHeader} />
-    <main class="wrap">
+    <main class={wide ? "wrap wide" : "wrap"}>
       <slot />
     </main>
     <SiteFooter />

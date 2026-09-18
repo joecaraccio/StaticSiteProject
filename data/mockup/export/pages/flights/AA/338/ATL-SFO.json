@@ -304,7 +304,8 @@
       "worst_month",
       "cancellations",
       "how_late"
-    ]
+    ],
+    "band": "warning"
   },
   "demo_notice": "Mockup: every figure on this page is synthetic, generated for design review. It is not U.S. DOT data and must not be read as a description of any real flight.",
   "gate": {

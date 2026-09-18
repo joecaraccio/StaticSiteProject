@@ -1,0 +1,299 @@
+---
+/**
+ * The homepage search: a large input with an autocomplete listbox.
+ *
+ * Progressive enhancement. The index is embedded at build time and the whole
+ * browsable list is rendered below, so with JavaScript off the page is still a
+ * complete directory — the script only adds the dropdown.
+ *
+ * Follows the ARIA combobox pattern: the input owns the listbox, announces
+ * expansion, and points at the active option, so arrow keys work for everyone
+ * rather than only for people using a mouse.
+ */
+interface Entry {
+  url: string;
+  title: string;
+  type: string;
+  band: string | null;
+  rate: number | null;
+  haystack: string;
+}
+
+interface Props {
+  entries: Entry[];
+  placeholder?: string;
+}
+
+const { entries, placeholder = "Search a route, airport, airline or flight number" } =
+  Astro.props as Props;
+
+// Compact tuples rather than objects: this ships inline in the HTML, and at ~100
+// pages the difference between the two is a few KB.
+const index = entries.map((e) => [e.haystack, e.url, e.title, e.type, e.band ?? "", e.rate ?? -1]);
+---
+
+<div class="search-shell">
+  <form class="search" role="search" autocomplete="off" onsubmit="return false">
+    <label class="sr-only" for="q">Search flights, routes, airports and airlines</label>
+    <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+      <circle cx="9" cy="9" r="6.25" fill="none" stroke="currentColor" stroke-width="1.9" />
+      <path d="M13.7 13.7L17.5 17.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
+    </svg>
+    <input
+      id="q"
+      type="text"
+      role="combobox"
+      placeholder={placeholder}
+      aria-expanded="false"
+      aria-controls="ac-list"
+      aria-autocomplete="list"
+      aria-haspopup="listbox"
+    />
+    <button type="button" id="q-clear" aria-label="Clear search" hidden>
+      <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+        <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </button>
+  </form>
+  <ul id="ac-list" role="listbox" aria-label="Search results" hidden></ul>
+  <p class="hint" id="q-hint">
+    Try <button type="button" class="chip-btn" data-q="ORD">ORD</button>
+    <button type="button" class="chip-btn" data-q="BOS ORD">BOS ORD</button>
+    <button type="button" class="chip-btn" data-q="DL">DL</button>
+  </p>
+</div>
+
+<script is:inline define:vars={{ index }}>
+  (() => {
+    const input = document.getElementById("q");
+    const list = document.getElementById("ac-list");
+    const clear = document.getElementById("q-clear");
+    if (!input || !list) return;
+
+    const TYPE_LABEL = { flight: "Flight", route: "Route", airport: "Airport", airline: "Airline" };
+    const BAND_LABEL = {
+      good: "usually on time",
+      warning: "mostly on time",
+      serious: "often late",
+      critical: "usually late",
+    };
+    // Routes and airports are what people search for; a flight number is the
+    // narrow case. Ranking by type keeps the useful answer at the top.
+    const TYPE_RANK = { route: 0, airport: 1, airline: 2, flight: 3 };
+    const MAX = 8;
+
+    let matches = [];
+    let active = -1;
+
+    const escape = (value) =>
+      String(value).replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
+      );
+
+    function search(query) {
+      const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      if (terms.length === 0) return [];
+      return index
+        .filter(([hay]) => terms.every((t) => hay.includes(t)))
+        .sort((a, b) => TYPE_RANK[a[3]] - TYPE_RANK[b[3]] || b[5] - a[5])
+        .slice(0, MAX);
+    }
+
+    function render() {
+      if (matches.length === 0) {
+        list.hidden = true;
+        input.setAttribute("aria-expanded", "false");
+        input.removeAttribute("aria-activedescendant");
+        return;
+      }
+      list.innerHTML = matches
+        .map(([, url, title, type, band, rate], i) => {
+          const pct = rate >= 0 ? `${Math.round(rate * 100)}%` : "—";
+          const cls = band ? `band-${band}` : "band-unknown";
+          const words = band ? BAND_LABEL[band] : "not enough data";
+          return `<li role="option" id="ac-${i}" aria-selected="${i === active}" data-url="${escape(url)}">
+            <a href="${escape(url)}" tabindex="-1">
+              <span class="ac-main">
+                <span class="ac-title">${escape(title)}</span>
+                <span class="ac-type">${TYPE_LABEL[type] ?? type}</span>
+              </span>
+              <span class="band ${cls}"><span>${pct}</span><span class="band-label">${words}</span></span>
+            </a></li>`;
+        })
+        .join("");
+      list.hidden = false;
+      input.setAttribute("aria-expanded", "true");
+      if (active >= 0) input.setAttribute("aria-activedescendant", `ac-${active}`);
+      else input.removeAttribute("aria-activedescendant");
+    }
+
+    function move(delta) {
+      if (matches.length === 0) return;
+      active = (active + delta + matches.length) % matches.length;
+      render();
+      list.children[active]?.scrollIntoView({ block: "nearest" });
+    }
+
+    function go(i) {
+      const entry = matches[i];
+      if (entry) window.location.href = entry[1];
+    }
+
+    function update(value) {
+      matches = search(value);
+      active = -1;
+      clear.hidden = value.length === 0;
+      render();
+    }
+
+    input.addEventListener("input", (event) => update(event.target.value));
+
+    input.addEventListener("keydown", (event) => {
+      switch (event.key) {
+        case "ArrowDown": event.preventDefault(); move(1); break;
+        case "ArrowUp": event.preventDefault(); move(-1); break;
+        case "Enter":
+          // With nothing highlighted, the single best match is the obvious target.
+          if (matches.length > 0) { event.preventDefault(); go(active >= 0 ? active : 0); }
+          break;
+        case "Escape":
+          if (!list.hidden) { matches = []; render(); }
+          else { input.value = ""; update(""); }
+          break;
+      }
+    });
+
+    list.addEventListener("mousemove", (event) => {
+      const item = event.target.closest("li[role=option]");
+      if (!item) return;
+      const next = [...list.children].indexOf(item);
+      if (next !== active) { active = next; render(); }
+    });
+
+    clear.addEventListener("click", () => { input.value = ""; update(""); input.focus(); });
+
+    document.addEventListener("click", (event) => {
+      if (!event.target.closest(".search-shell")) { matches = []; render(); }
+    });
+
+    for (const button of document.querySelectorAll(".chip-btn")) {
+      button.addEventListener("click", () => {
+        input.value = button.dataset.q;
+        input.focus();
+        update(input.value);
+      });
+    }
+
+    // "/" focuses search, the way most search-first sites behave.
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "/" && document.activeElement !== input) {
+        event.preventDefault();
+        input.focus();
+      }
+    });
+  })();
+</script>
+
+<style is:global>
+  /* Global, not scoped: the listbox items are built by the inline script with
+     innerHTML, so they never get Astro's scoping attribute and scoped rules
+     would not reach them. Every selector here is under .search-shell or
+     #ac-list, both unique to this component. */
+  .search-shell { position: relative; max-width: 640px; }
+
+  .search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface-raised);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 0 16px;
+    color: var(--text-muted);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+    transition: border-color 0.12s, box-shadow 0.12s;
+  }
+  .search:focus-within {
+    border-color: var(--series-1);
+    color: var(--series-1);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--series-1) 18%, transparent);
+  }
+  .search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    padding: 17px 0;
+    font: inherit;
+    font-size: 17px;
+    color: var(--text-primary);
+    outline: none;
+  }
+  .search button {
+    border: 0;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    border-radius: 6px;
+  }
+  .search button:hover { color: var(--text-primary); background: var(--surface); }
+
+  #ac-list {
+    position: absolute;
+    z-index: 20;
+    left: 0;
+    right: 0;
+    margin: 6px 0 0;
+    padding: 5px;
+    list-style: none;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 28px rgb(0 0 0 / 0.13);
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  #ac-list li { list-style: none; }
+  #ac-list a {
+    display: flex;
+    text-decoration: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 11px;
+    border-radius: 8px;
+    color: inherit;
+  }
+  #ac-list a:hover { text-decoration: none; }
+  #ac-list li[aria-selected="true"] a { background: var(--surface); }
+  .ac-main { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .ac-title { color: var(--text-primary); font-weight: 500; }
+  .ac-type {
+    color: var(--text-muted);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .hint { color: var(--text-muted); font-size: 13px; margin: 12px 0 0; }
+  .chip-btn {
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    border-radius: 999px;
+    padding: 3px 11px;
+    margin-right: 4px;
+    cursor: pointer;
+  }
+  .chip-btn:hover { border-color: var(--series-1); color: var(--series-1); }
+
+  @media (max-width: 520px) {
+    .search input { font-size: 16px; padding: 15px 0; }
+    #ac-list a { flex-direction: column; align-items: flex-start; gap: 5px; }
+  }
+</style>

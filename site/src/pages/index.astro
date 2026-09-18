@@ -1,20 +1,17 @@
 ---
 /**
- * Home. The job is to get someone to the page that answers their question in one
- * step, so the search box is the page rather than an ornament on it.
+ * Home. The job is one step to the page that answers the question, so the search
+ * is the page rather than an ornament on it.
  *
- * The search filters a list rendered at build time. Without JavaScript the full
- * list is still there and still browsable — the script only hides rows.
+ * Colour here is carrying information, not decorating: every chip is a
+ * reliability band from `pipeline/summaries/rules.py`, the same thresholds that
+ * phrase the summary sentence. The number is always shown beside it, so nothing
+ * depends on distinguishing the hues.
  */
 import Base from "../layouts/Base.astro";
-import {
-  readManifest,
-  readPage,
-  pageTitle,
-  formatPercent,
-  formatPeriod,
-  type PageType,
-} from "../lib/pages";
+import SearchBox from "../components/SearchBox.astro";
+import ReliabilityChip from "../components/ReliabilityChip.astro";
+import { readManifest, readPage, pageTitle, formatPeriod, type PageType } from "../lib/pages";
 
 const manifest = readManifest();
 
@@ -22,7 +19,8 @@ interface Entry {
   url: string;
   title: string;
   type: PageType;
-  onTime: number | null;
+  band: string | null;
+  rate: number | null;
   ops: number;
   haystack: string;
 }
@@ -35,63 +33,68 @@ if (manifest) {
       url: item.url,
       title: pageTitle(doc),
       type: item.page_type,
-      onTime: doc.headline_stats.on_time_rate,
+      band: doc.summary?.band ?? null,
+      rate: doc.headline_stats.on_time_rate,
       ops: doc.headline_stats.ops_scheduled,
       haystack: [pageTitle(doc), ...Object.values(doc.key)].join(" ").toLowerCase(),
     });
   }
 }
 
-const routes = entries.filter((e) => e.type === "route");
-const airports = entries.filter((e) => e.type === "airport");
-const airlines = entries.filter((e) => e.type === "airline");
-const flights = entries.filter((e) => e.type === "flight");
+const of = (type: PageType) => entries.filter((e) => e.type === type);
+const byRate = (list: Entry[]) => [...list].sort((a, b) => (b.rate ?? 0) - (a.rate ?? 0));
 
-const byReliability = [...routes].sort((a, b) => (b.onTime ?? 0) - (a.onTime ?? 0));
-const worstRoutes = [...byReliability].reverse().slice(0, 5);
-const bestRoutes = byReliability.slice(0, 5);
-const busiest = [...airports].sort((a, b) => b.ops - a.ops).slice(0, 6);
+const routes = of("route");
+const bestRoutes = byRate(routes).slice(0, 6);
+const worstRoutes = byRate(routes).reverse().slice(0, 6);
+const airports = [...of("airport")].sort((a, b) => b.ops - a.ops);
+const airlines = byRate(of("airline"));
+
+// A count per band, so the hero can say something true about the whole dataset
+// rather than just how many pages there are.
+const bandCounts = routes.reduce<Record<string, number>>((acc, e) => {
+  if (e.band) acc[e.band] = (acc[e.band] ?? 0) + 1;
+  return acc;
+}, {});
+const roughRoutes = (bandCounts.serious ?? 0) + (bandCounts.critical ?? 0);
 ---
 
 <Base
   title="Usually Late — is your flight usually late?"
   description="How reliable each U.S. flight, route, airport and airline has been, from Department of Transportation on-time performance data."
   demoNotice={manifest?.demo_notice ?? null}
-  compactHeader={false}
+  wide={true}
 >
   <section class="hero">
-    <h1>Is your flight usually late?</h1>
-    <p class="lede">
-      Look up any U.S. flight, route, airport or airline and see how often it has actually arrived
-      on time — from the Department of Transportation's own records, not an estimate.
-    </p>
+    <div class="hero-inner">
+      <h1>Is your flight <span class="accent">usually late</span>?</h1>
+      <p class="lede">
+        Look up any U.S. flight, route, airport or airline and see how often it has actually
+        arrived on time — from the Department of Transportation's own records, not an estimate.
+      </p>
 
-    {
-      entries.length > 0 && (
-        <form class="search" role="search" onsubmit="return false">
-          <label class="sr-only" for="q">
-            Search flights, routes, airports and airlines
-          </label>
-          <svg viewBox="0 0 20 20" width="17" height="17" aria-hidden="true">
-            <circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.8" />
-            <path d="M13.5 13.5L17 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-          </svg>
-          <input
-            id="q"
-            type="search"
-            placeholder="Try a route (BOS ORD), an airport, an airline, or a flight number"
-            autocomplete="off"
-          />
-        </form>
-      )
-    }
-    <p class="counts">
+      {entries.length > 0 && <SearchBox entries={entries} />}
+
       {
-        manifest
-          ? `${entries.length.toLocaleString("en-US")} pages · ${flights.length.toLocaleString("en-US")} flights · ${routes.length} routes · ${airports.length} airports · ${formatPeriod(manifest.data_period)}`
-          : "No pages exported yet."
+        manifest && (
+          <p class="counts">
+            <strong>{entries.length.toLocaleString("en-US")}</strong> pages ·
+            <strong>{of("flight").length.toLocaleString("en-US")}</strong> flights ·
+            <strong>{routes.length}</strong> routes ·
+            <strong>{airports.length}</strong> airports ·{" "}
+            {formatPeriod(manifest.data_period)}
+            {roughRoutes > 0 && (
+              <>
+                {" "}·{" "}
+                <span class="nowrap">
+                  <strong>{roughRoutes}</strong> routes often run late
+                </span>
+              </>
+            )}
+          </p>
+        )
       }
-    </p>
+    </div>
   </section>
 
   {
@@ -108,23 +111,15 @@ const busiest = [...airports].sort((a, b) => b.ops - a.ops).slice(0, 6);
       </div>
     ) : (
       <>
-        <div id="results" hidden>
-          <h2>Results</h2>
-          <ul class="links" id="results-list" />
-          <p class="muted" id="no-results" hidden>
-            Nothing matched. Try an airport code like <code>ORD</code>.
-          </p>
-        </div>
-
-        <div id="browse">
+        <div class="columns">
           <section>
-            <h2>Most reliable routes</h2>
-            <ul class="links">
+            <h2><span class="dot dot-good" aria-hidden="true" />Most reliable routes</h2>
+            <ul class="cards">
               {bestRoutes.map((e) => (
                 <li>
                   <a href={e.url}>
                     <span class="t">{e.title}</span>
-                    <span class="s">{formatPercent(e.onTime, 0)} on time</span>
+                    <ReliabilityChip rate={e.rate} band={e.band} />
                   </a>
                 </li>
               ))}
@@ -132,141 +127,139 @@ const busiest = [...airports].sort((a, b) => b.ops - a.ops).slice(0, 6);
           </section>
 
           <section>
-            <h2>Least reliable routes</h2>
-            <ul class="links">
+            <h2><span class="dot dot-critical" aria-hidden="true" />Least reliable routes</h2>
+            <ul class="cards">
               {worstRoutes.map((e) => (
                 <li>
                   <a href={e.url}>
                     <span class="t">{e.title}</span>
-                    <span class="s">{formatPercent(e.onTime, 0)} on time</span>
+                    <ReliabilityChip rate={e.rate} band={e.band} />
                   </a>
                 </li>
               ))}
             </ul>
-          </section>
-
-          <section>
-            <h2>Airports</h2>
-            <ul class="links">
-              {busiest.map((e) => (
-                <li>
-                  <a href={e.url}>
-                    <span class="t">{e.title}</span>
-                    <span class="s">
-                      {formatPercent(e.onTime, 0)} on time · {e.ops.toLocaleString("en-US")} flights
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section>
-            <h2>Airlines</h2>
-            <ul class="links">
-              {airlines.map((e) => (
-                <li>
-                  <a href={e.url}>
-                    <span class="t">{e.title}</span>
-                    <span class="s">{formatPercent(e.onTime, 0)} on time</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section class="how">
-            <h2>How this works</h2>
-            <ol>
-              <li>
-                <strong>On time means under 15 minutes late.</strong> That is the Department of
-                Transportation's own threshold, measured on arrival, among flights that actually
-                operated.
-              </li>
-              <li>
-                <strong>Cancellations are counted separately.</strong> A cancelled flight is not a
-                late flight — it is a worse outcome, so it never quietly improves an on-time rate.
-              </li>
-              <li>
-                <strong>Small samples are labelled, not hidden.</strong> Every figure shows how many
-                flights it is based on, and pages with too little history are held back.
-              </li>
-            </ol>
           </section>
         </div>
+
+        <section>
+          <h2>Airports</h2>
+          <ul class="cards grid">
+            {airports.map((e) => (
+              <li>
+                <a href={e.url}>
+                  <span class="t">
+                    {e.title}
+                    <span class="s">{e.ops.toLocaleString("en-US")} departures</span>
+                  </span>
+                  <ReliabilityChip rate={e.rate} band={e.band} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section>
+          <h2>Airlines</h2>
+          <ul class="cards grid">
+            {airlines.map((e) => (
+              <li>
+                <a href={e.url}>
+                  <span class="t">{e.title}</span>
+                  <ReliabilityChip rate={e.rate} band={e.band} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section class="how">
+          <h2>How this works</h2>
+          <div class="how-grid">
+            <div>
+              <h3><span class="dot dot-good" aria-hidden="true" />On time means under 15 minutes late</h3>
+              <p>
+                The Department of Transportation's own threshold, measured on arrival, among
+                flights that actually operated.
+              </p>
+            </div>
+            <div>
+              <h3><span class="dot dot-serious" aria-hidden="true" />Cancellations count separately</h3>
+              <p>
+                A cancelled flight is not a late flight — it is a worse outcome, so it never
+                quietly improves an on-time rate.
+              </p>
+            </div>
+            <div>
+              <h3><span class="dot dot-warning" aria-hidden="true" />Small samples are labelled</h3>
+              <p>
+                Every figure shows how many flights it is based on, and pages with too little
+                history are held back rather than published thin.
+              </p>
+            </div>
+          </div>
+        </section>
       </>
     )
   }
 </Base>
 
-<script is:inline define:vars={{ index: entries.map((e) => [e.haystack, e.url, e.title, e.type]) }}>
-  const input = document.getElementById("q");
-  const results = document.getElementById("results");
-  const list = document.getElementById("results-list");
-  const empty = document.getElementById("no-results");
-  const browse = document.getElementById("browse");
-
-  const LABEL = { flight: "Flight", route: "Route", airport: "Airport", airline: "Airline" };
-
-  function render(query) {
-    const q = query.trim().toLowerCase();
-    if (!q) {
-      results.hidden = true;
-      browse.hidden = false;
-      return;
-    }
-    // Every whitespace-separated term must appear, so "bos ord" finds the route
-    // whichever order it is typed in.
-    const terms = q.split(/\s+/);
-    const hits = index.filter(([hay]) => terms.every((t) => hay.includes(t))).slice(0, 40);
-
-    list.innerHTML = hits
-      .map(
-        ([, url, title, type]) =>
-          `<li><a href="${url}"><span class="t">${title}</span><span class="s">${LABEL[type]}</span></a></li>`,
-      )
-      .join("");
-    empty.hidden = hits.length > 0;
-    results.hidden = false;
-    browse.hidden = true;
-  }
-
-  input?.addEventListener("input", (event) => render(event.target.value));
-</script>
-
 <style>
-  .hero { padding: 16px 0 4px; }
-  .hero h1 { font-size: clamp(26px, 5.5vw, 38px); line-height: 1.15; margin-bottom: 10px; }
-  .lede { font-size: 17px; color: var(--text-secondary); max-width: 58ch; margin: 0 0 20px; }
-  .search {
+  .hero {
+    background: linear-gradient(135deg, var(--hero-from), var(--hero-to));
+    border: 1px solid var(--hero-edge);
+    border-radius: 16px;
+    margin: 4px 0 36px;
+    padding: 36px 28px 30px;
+  }
+  .hero-inner { max-width: 660px; }
+  .hero h1 {
+    font-size: clamp(28px, 5.2vw, 42px);
+    line-height: 1.12;
+    margin: 0 0 12px;
+    letter-spacing: -0.025em;
+  }
+  .accent {
+    background: linear-gradient(transparent 62%, color-mix(in srgb, var(--series-1) 30%, transparent) 62%);
+    padding: 0 2px;
+  }
+  .lede { font-size: 17px; color: var(--text-secondary); margin: 0 0 22px; max-width: 56ch; }
+  .counts { color: var(--text-muted); font-size: 13px; margin: 18px 0 0; line-height: 1.6; }
+  .counts strong { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .counts .nowrap { white-space: nowrap; }
+
+  .columns { display: grid; gap: 8px 32px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+
+  h2 { display: flex; align-items: center; gap: 8px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; border: 1px solid currentColor; }
+  .dot-good { background: var(--band-good-bg); color: var(--band-good-fg); }
+  .dot-warning { background: var(--band-warning-bg); color: var(--band-warning-fg); }
+  .dot-serious { background: var(--band-serious-bg); color: var(--band-serious-fg); }
+  .dot-critical { background: var(--band-critical-bg); color: var(--band-critical-fg); }
+
+  ul.cards { list-style: none; padding: 0; margin: 0; display: grid; gap: 7px; }
+  ul.cards.grid { grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+  ul.cards a {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between;
+    gap: 12px;
     background: var(--surface-raised);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 0 14px;
-    max-width: 560px;
-    color: var(--text-muted);
+    padding: 11px 13px;
+    text-decoration: none;
+    transition: border-color 0.12s, transform 0.12s;
   }
-  .search:focus-within { border-color: var(--link); color: var(--link); }
-  .search input {
-    flex: 1;
-    border: 0;
-    background: transparent;
-    padding: 13px 0;
-    font: inherit;
-    font-size: 15px;
-    color: var(--text-primary);
-    outline: none;
-    min-width: 0;
+  ul.cards a:hover { border-color: var(--series-1); transform: translateY(-1px); }
+  ul.cards .t { color: var(--text-primary); font-weight: 500; display: flex; flex-direction: column; gap: 2px; }
+  ul.cards .s { color: var(--text-muted); font-size: 12px; font-weight: 400; }
+
+  .how { margin-top: 44px; }
+  .how-grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .how h3 { display: flex; align-items: center; gap: 7px; margin: 0 0 6px; font-size: 14.5px; }
+  .how p { color: var(--text-secondary); font-size: 14px; margin: 0; }
+
+  @media (max-width: 560px) {
+    .hero { padding: 26px 18px 22px; border-radius: 14px; }
   }
-  .counts { color: var(--text-muted); font-size: 13px; margin: 12px 0 0; }
-  .sr-only {
-    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
-  }
-  .how ol { max-width: 66ch; padding-left: 20px; color: var(--text-secondary); font-size: 14.5px; }
-  .how li { margin-bottom: 10px; }
-  .how strong { color: var(--text-primary); }
 </style>

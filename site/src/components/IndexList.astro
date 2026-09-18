@@ -4,11 +4,13 @@
  * time. Shared by /routes, /airports and /airlines so the three cannot drift.
  */
 import { formatPercent } from "../lib/pages";
+import ReliabilityChip from "./ReliabilityChip.astro";
 
 interface Row {
   url: string;
   title: string;
   onTime: number | null;
+  band: string | null;
   cancelled: number | null;
   ops: number;
 }
@@ -45,7 +47,7 @@ const best = Math.max(...rows.map((r) => r.onTime ?? 0), 0.0001);
                 preserveAspectRatio="none"
                 role="img"
                 aria-label={`${formatPercent(r.onTime, 0)} on time`}
-                style="width:80px;height:10px"
+                style="width:74px;height:10px"
               >
                 <rect x="0" y="0" width="100" height="10" rx="4" fill="var(--grid)" />
                 <rect
@@ -57,7 +59,7 @@ const best = Math.max(...rows.map((r) => r.onTime ?? 0), 0.0001);
                   fill="var(--series-1)"
                 />
               </svg>
-              <strong>{formatPercent(r.onTime, 0)}</strong>
+              <ReliabilityChip rate={r.onTime} band={r.band} />
             </span>
           </td>
           <td class="num">{formatPercent(r.cancelled, 1)}</td>
@@ -70,7 +72,6 @@ const best = Math.max(...rows.map((r) => r.onTime ?? 0), 0.0001);
 
 <style>
   .rate { display: flex; align-items: center; gap: 9px; }
-  .rate strong { font-variant-numeric: tabular-nums; min-width: 34px; }
   @media (max-width: 560px) {
     th:nth-child(3), td:nth-child(3) { display: none; }
     .rate svg { width: 44px !important; }

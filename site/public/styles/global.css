@@ -27,6 +27,21 @@
 
   --grid: #e8e7e3;
 
+  /* Reliability bands. The thresholds live in pipeline/summaries/rules.py — the
+     site only maps a band name to a colour, it never decides where a band starts.
+     Text-on-chip contrast is >= 5.8:1 in light and >= 7:1 in dark (checked, not
+     eyeballed); every chip also carries a 1px border in its own ink so it stays
+     visible against any surface. */
+  --band-good-bg: #e2f4e6;      --band-good-fg: #0a6b23;
+  --band-warning-bg: #faeaca;   --band-warning-fg: #7a5200;
+  --band-serious-bg: #fdeae0;   --band-serious-fg: #b0490a;
+  --band-critical-bg: #fbe8e7;  --band-critical-fg: #a32420;
+
+  /* Hero. A tinted band rather than flat surface, so the page opens with colour. */
+  --hero-from: #d3e5fc;
+  --hero-to: #d4eedd;
+  --hero-edge: #b6d2f1;
+
   /* Mockup banner. Deliberately unlike anything else on the page. */
   --demo-bg: #fdf2dc;
   --demo-text: #6b3f00;
@@ -62,6 +77,15 @@
     --demo-bg: #3a2c10;
     --demo-text: #f6d79b;
     --demo-border: #5c4718;
+
+    --band-good-bg: #12301c;      --band-good-fg: #7ddba1;
+    --band-warning-bg: #33270f;   --band-warning-fg: #f0c274;
+    --band-serious-bg: #3a2417;   --band-serious-fg: #f0a882;
+    --band-critical-bg: #41201d;  --band-critical-fg: #f2a099;
+
+    --hero-from: #17273f;
+    --hero-to: #152e20;
+    --hero-edge: #2b3f5b;
   }
 }
 
@@ -76,6 +100,32 @@ body {
 }
 
 .wrap { max-width: 880px; margin: 0 auto; padding: 24px 16px 40px; }
+.wrap.wide { max-width: 960px; }
+
+/* Reliability chip: tinted fill, own-ink border, own-ink text. */
+.band {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+  line-height: 1.35;
+}
+.band .band-value { font-variant-numeric: tabular-nums; }
+.band .band-label { font-weight: 500; opacity: 0.88; font-size: 11.5px; }
+/* Rank is carried by the number of filled segments, so it survives any colour. */
+.band .meter { flex: 0 0 auto; display: block; }
+.band-unknown .meter { opacity: 0.5; }
+.band-good     { background: var(--band-good-bg);     color: var(--band-good-fg); }
+.band-warning  { background: var(--band-warning-bg);  color: var(--band-warning-fg); }
+.band-serious  { background: var(--band-serious-bg);  color: var(--band-serious-fg); }
+.band-critical { background: var(--band-critical-bg); color: var(--band-critical-fg); }
+.band-unknown  { background: var(--surface); color: var(--text-muted); }
 
 a { color: var(--link); }
 a:hover { text-decoration-thickness: 2px; }
@@ -126,3 +176,12 @@ ul.links .s { display: block; color: var(--text-muted); font-size: 12.5px; margi
 
 footer.source { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; }
 footer.source p { max-width: var(--measure); margin: 0 0 6px; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Page heading with its band chip alongside. */
+.title-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.title-row h1 { margin-bottom: 0; }

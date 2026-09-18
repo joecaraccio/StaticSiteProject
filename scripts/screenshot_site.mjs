@@ -108,6 +108,17 @@ const targets = [
   { name: "05-airline", url: findFirst(/^\/airlines\/[A-Z0-9]{2}$/), label: "Airline page" },
   { name: "06-routes-index", url: "/routes", label: "Routes index" },
   { name: "07-connections", url: "/connections", label: "Connection checker" },
+  // The search dropdown is an interaction, not a page, so it needs driving.
+  {
+    name: "08-search",
+    url: "/",
+    label: "Search autocomplete",
+    async prepare(page) {
+      await page.fill("#q", "ord");
+      await page.waitForSelector("#ac-list li", { timeout: 3000 });
+    },
+    clip: true,
+  },
 ].filter((t) => t.url);
 
 const browser = await launchChromium();
@@ -132,8 +143,11 @@ for (const variant of [
       () => document.documentElement.scrollWidth > window.innerWidth + 1,
     );
     if (overflow) console.warn(`  ! horizontal overflow: ${target.url} (${variant.suffix})`);
+    if (target.prepare) await target.prepare(page);
     const file = path.join(outDir, `${target.name}-${variant.suffix}.png`);
-    await page.screenshot({ path: file, fullPage: true });
+    // An open dropdown is clipped to the viewport: a full-page capture would
+    // stretch past it and shrink the thing being shown.
+    await page.screenshot({ path: file, fullPage: !target.clip });
     written.push(path.relative(repo, file));
   }
   await context.close();

@@ -12,6 +12,7 @@ import DelayDistribution from "../components/DelayDistribution.astro";
 import DelayCauses from "../components/DelayCauses.astro";
 import SourceNote from "../components/SourceNote.astro";
 import SummaryBlock from "../components/SummaryBlock.astro";
+import ReliabilityChip from "../components/ReliabilityChip.astro";
 import AlternativesTable from "../components/AlternativesTable.astro";
 import {
   readManifest,
@@ -80,7 +81,10 @@ const description =
     <a href="/">Home</a> / <span>{doc.page_type}</span>
   </nav>
 
-  <h1>{title}</h1>
+  <div class="title-row">
+    <h1>{title}</h1>
+    <ReliabilityChip rate={stats.on_time_rate} band={doc.summary?.band ?? null} label={true} />
+  </div>
   <p class="period">Trailing 12 months of {formatPeriod(doc.data_period)}</p>
 
   <SummaryBlock summary={doc.summary} />

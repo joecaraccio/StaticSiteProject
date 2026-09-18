@@ -2,7 +2,36 @@
 
 Update at the end of each working session.
 
-## 2026-09-17 (latest) — launcher scripts, committed mockup, reproducible exports
+## 2026-09-18 — homepage colour and search autocomplete
+
+**Done**
+
+- **Reliability bands are now a pipeline concept.** `BANDS` in
+  `pipeline/summaries/rules.py` is used both to phrase the headline sentence and
+  to set `summary.band` in the page JSON, so the colour on a card and the words on
+  the page can never disagree. A test pins that.
+- **Homepage rebuilt with colour that carries information.** Gradient hero, band
+  chips on every card, section index tables and the page heading. Nothing is
+  decorative: each chip is a band from the rule engine with the number beside it.
+- **Search with autocomplete.** Large input, listbox dropdown, full keyboard
+  support (arrows with wrap, Enter, Escape, `/` to focus), results ranked by page
+  type, clear button, example chips. Progressive enhancement — the whole directory
+  still renders below with JavaScript off. 11 browser-driven assertions cover it.
+- Two bugs found and fixed along the way: Astro's scoped styles never reached the
+  dropdown items (they are injected via `innerHTML`, so they carry no scoping
+  attribute — the styles had to be `is:global`), and `astro check` caught the
+  missing `band` field on the page type before it reached a template.
+- **Colour choices were measured, not eyeballed.** The first four band colours had
+  an adjacent pair at ΔE 0.8, indistinguishable with full colour vision. Rather
+  than ship it or fake a fix, the chip now carries a four-segment meter so rank is
+  countable and colour is redundant. Reasoning is in DECISIONS.md.
+- 24 screenshots regenerated, including the open dropdown.
+
+**Next**
+
+Unchanged: `make verify-source MONTH=2025-01` from a machine that can reach BTS.
+
+## 2026-09-17 — launcher scripts, committed mockup, reproducible exports
 
 **Done**
 

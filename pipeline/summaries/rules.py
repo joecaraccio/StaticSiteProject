@@ -40,6 +40,38 @@ class SummaryContext:
     best_alternative: tuple[str, float] | None = None
 
 
+#: The on-time bands, worst threshold last. Each is (minimum rate, name, phrase).
+#:
+#: These exist in one place because they are used twice: the headline sentence
+#: phrases them, and the site colours by them. A template that picked its own
+#: thresholds would be making a judgement about the data, which is this layer's
+#: job. The names match the reserved status roles so the site never has to
+#: invent a mapping.
+BANDS: tuple[tuple[float, str, str], ...] = (
+    (0.85, "good", "is usually on time"),
+    (0.75, "warning", "is on time more often than not"),
+    (0.60, "serious", "runs late often enough to plan around"),
+    (0.00, "critical", "is usually late"),
+)
+
+
+def reliability_band(on_time_rate: float | None) -> str | None:
+    """Which band a rate falls in, or None when there is no rate to judge."""
+    if on_time_rate is None:
+        return None
+    for minimum, name, _ in BANDS:
+        if on_time_rate >= minimum:
+            return name
+    return BANDS[-1][1]
+
+
+def _band_phrase(on_time_rate: float) -> str:
+    for minimum, _, phrase in BANDS:
+        if on_time_rate >= minimum:
+            return phrase
+    return BANDS[-1][2]
+
+
 #: Below this many operations, figures are shown with a caveat.
 SMALL_SAMPLE = 60
 #: A difference smaller than this is noise, not a finding.
@@ -81,16 +113,8 @@ def headline(c: SummaryContext) -> str | None:
     if c.on_time_rate is None or c.ops_measurable == 0:
         return None
     rate = c.on_time_rate
-    if rate >= 0.85:
-        verdict = "is usually on time"
-    elif rate >= 0.75:
-        verdict = "is on time more often than not"
-    elif rate >= 0.60:
-        verdict = "runs late often enough to plan around"
-    else:
-        verdict = "is usually late"
     return (
-        f"{c.subject} {verdict}: {_pct(rate)} of flights arrived within 15 minutes "
+        f"{c.subject} {_band_phrase(rate)}: {_pct(rate)} of flights arrived within 15 minutes "
         f"of schedule, across {c.ops_measurable:,} flights that operated."
     )
 
@@ -192,6 +216,9 @@ RULES: tuple[Callable[[SummaryContext], str | None], ...] = (
 class Summary:
     sentences: list[str] = field(default_factory=list)
     matched_rules: list[str] = field(default_factory=list)
+    #: The on-time band, so the site can colour by it without re-deciding where
+    #: the thresholds are. None when there is no rate to judge.
+    band: str | None = None
 
     def __len__(self) -> int:
         return len(self.sentences)
@@ -199,7 +226,7 @@ class Summary:
 
 def summarize(context: SummaryContext) -> Summary:
     """Run every rule in order and collect the sentences that matched."""
-    summary = Summary()
+    summary = Summary(band=reliability_band(context.on_time_rate))
     for rule in RULES:
         sentence = rule(context)
         if sentence:

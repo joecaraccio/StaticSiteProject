@@ -66,7 +66,7 @@ export interface PageDocument {
     shares: Record<string, number> | null;
   };
   alternatives: Alternative[];
-  summary: { sentences: string[]; matched_rules: string[] } | null;
+  summary: { sentences: string[]; matched_rules: string[]; band: string | null } | null;
   demo_notice: string | null;
   gate: {
     outcome: "publish" | "noindex";

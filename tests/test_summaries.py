@@ -160,3 +160,47 @@ def test_an_empty_page_matches_no_rules_so_the_gate_can_drop_it():
         share_3h_plus=None,
     )
     assert len(summarize(empty)) == 0
+
+
+# --- bands -----------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "rate,band",
+    [
+        (1.00, "good"),
+        (0.85, "good"),
+        (0.8499, "warning"),
+        (0.75, "warning"),
+        (0.7499, "serious"),
+        (0.60, "serious"),
+        (0.5999, "critical"),
+        (0.00, "critical"),
+    ],
+)
+def test_band_boundaries(rate, band):
+    from pipeline.summaries.rules import reliability_band
+
+    assert reliability_band(rate) == band
+
+
+def test_no_band_without_a_rate():
+    from pipeline.summaries.rules import reliability_band
+
+    assert reliability_band(None) is None
+
+
+def test_summary_carries_its_band():
+    assert summarize(ctx(on_time_rate=0.91)).band == "good"
+    assert summarize(ctx(on_time_rate=0.42)).band == "critical"
+
+
+def test_the_band_and_the_headline_sentence_never_disagree():
+    """Both come from BANDS, so a threshold change moves them together."""
+    from pipeline.summaries.rules import BANDS, reliability_band
+
+    for minimum, name, phrase in BANDS:
+        result = summarize(ctx(on_time_rate=minimum))
+        assert result.band == name
+        assert phrase in result.sentences[0]
+        assert reliability_band(minimum) == name

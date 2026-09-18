@@ -1,0 +1,61 @@
+---
+/**
+ * On-time rate as a chip: a meter, a number, and a colour.
+ *
+ * The band comes from `pipeline/summaries/rules.py`, which is also what phrases
+ * the headline sentence, so the colour and the words can never disagree and a
+ * threshold change moves both.
+ *
+ * Why a meter rather than colour alone: four ordered severity colours cannot be
+ * separated far enough by hue once they are dark enough to use as text — checked
+ * with the palette validator, the best adjacent pair still came in at ΔE 13.7,
+ * under the 15 floor. So rank is carried by how many segments are filled, which
+ * is countable and unambiguous, the number carries the exact value, and colour
+ * is a third redundant channel rather than the one doing the work.
+ */
+import { formatPercent } from "../lib/pages";
+
+interface Props {
+  rate: number | null;
+  band: string | null;
+  /** Show the band name beside the number. Off in dense tables. */
+  label?: boolean;
+}
+
+const { rate, band, label = false } = Astro.props as Props;
+
+/** Segments filled, worst to best. Mirrors the order of BANDS in the pipeline. */
+const FILLED: Record<string, number> = { critical: 1, serious: 2, warning: 3, good: 4 };
+const WORDS: Record<string, string> = {
+  good: "usually on time",
+  warning: "mostly on time",
+  serious: "often late",
+  critical: "usually late",
+};
+
+const filled = band ? (FILLED[band] ?? 0) : 0;
+const known = Boolean(band && WORDS[band]);
+const cls = known ? `band-${band}` : "band-unknown";
+const words = known ? WORDS[band!] : "not enough data";
+---
+
+<span class={`band ${cls}`} title={`${formatPercent(rate, 0)} on time — ${words}`}>
+  <svg class="meter" viewBox="0 0 22 10" width="22" height="10" aria-hidden="true">
+    {
+      [0, 1, 2, 3].map((i) => (
+        <rect
+          x={i * 5.5}
+          y={i < filled ? 0 : 3}
+          width="3.6"
+          height={i < filled ? 10 : 4}
+          rx="1.4"
+          fill="currentColor"
+          opacity={i < filled ? 1 : 0.28}
+        />
+      ))
+    }
+  </svg>
+  <span class="band-value">{formatPercent(rate, 0)}</span>
+  {label && <span class="band-label">{words}</span>}
+  {!label && <span class="sr-only">on time — {words}</span>}
+</span>

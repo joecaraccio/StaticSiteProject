@@ -390,6 +390,7 @@ def export_all(
                 document["summary"] = {
                     "sentences": summary.sentences,
                     "matched_rules": summary.matched_rules,
+                    "band": summary.band,
                 }
 
                 candidate = PageCandidate(

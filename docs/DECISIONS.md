@@ -12,6 +12,21 @@ Record meaningful choices here, newest first.
 
 ---
 
+### 2026-09-18 · Reliability bands live in the rule engine, not in CSS
+- **Decision:** `pipeline/summaries/rules.py` owns a `BANDS` table (good / warning / serious / critical) used both to phrase the headline sentence and to set `summary.band` in the page JSON. The site maps a band name to a colour and never decides where a band starts.
+- **Why:** A colour-coded verdict is a verdict. CLAUDE.md puts verdict language in `pipeline/summaries/`, and the engine already had these exact thresholds hardcoded inside the headline rule. Had the site picked its own, a page could have said "usually on time" beside an amber chip. A test asserts the band and the sentence never disagree.
+- **Alternatives considered:** Thresholds in CSS or in the template (two sources of truth); a continuous colour scale (no phrasing to match, and it implies a precision the sample sizes do not support).
+- **Revisit if:** the bands need to differ by page type, e.g. a good airport rate is not a good flight rate.
+
+### 2026-09-18 · Rank is carried by a meter, not by hue
+- **Decision:** The reliability chip shows a four-segment meter (filled segments = band rank), the percentage, and a band colour. Colour is the third channel, not the first.
+- **Why:** Four ordered severity colours cannot be separated far enough by hue once they are dark enough to use as text. Measured with the palette validator, the original set had an adjacent pair at ΔE 0.8 — indistinguishable with full colour vision — and the best re-stepped set, including one with a neutral mid-tone, still only reached 13.7 against a floor of 15. Darkening warm hues converges them on brown; that is a property of the colour space, not a tuning problem.
+- **Why not just add labels:** The validator is explicit that a normal-vision ΔE below 15 is a hard fail that secondary encoding does not excuse — *when colour carries identity*. The meter moves identity off colour entirely: segment count is countable and exact, the number is always present, and the chip carries a `title`. Colour then reinforces rather than informs, which is the case the rule is protecting.
+- **Alternatives considered:** Three bands instead of four (hides a real distinction the engine makes); a single-hue sequential ramp (loses the good/bad reading that makes the chip worth having); colour plus label only (does not clear the hard floor).
+- **Revisit if:** the band count changes, or the chip is ever used somewhere the number cannot be shown.
+
+---
+
 ### 2026-09-17 · The synthetic export is committed; the derived binaries are not
 - **Decision:** `data/mockup/export/` (103 JSON files, ~1.2 MB) is in git. `data/mockup/clean/` (Parquet, DuckDB) and `data/mockup/raw/` (the zip) are not.
 - **Why:** The export is diffable text, so a template or schema change shows up in a PR as a content diff — it doubles as a snapshot test of the whole chain. It also means someone with only Node can build the full site without installing Python or running the pipeline. The Parquet and DuckDB files are binary, rewritten wholesale on every regeneration, and rebuilt in seconds; the raw zip embeds timestamps so it churns even when its contents do not.

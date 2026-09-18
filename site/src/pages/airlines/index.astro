@@ -12,6 +12,7 @@ const rows = (manifest?.pages ?? [])
       url: p.url,
       title: pageTitle(doc),
       onTime: doc.headline_stats.on_time_rate,
+      band: doc.summary?.band ?? null,
       cancelled: doc.headline_stats.cancellation_rate,
       ops: doc.headline_stats.ops_scheduled,
     };
