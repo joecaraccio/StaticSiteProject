@@ -50,6 +50,8 @@ const blockIndexing = noindex || Boolean(demoNotice);
   <body>
     {demoNotice && <DemoBanner notice={demoNotice} />}
     <SiteHeader compact={compactHeader} />
+    {/* Full-bleed band, outside the measure, for a hero that runs edge to edge. */}
+    <slot name="hero" />
     <main class={wide ? "wrap wide" : "wrap"}>
       <slot />
     </main>

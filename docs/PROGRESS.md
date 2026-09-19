@@ -2,7 +2,37 @@
 
 Update at the end of each working session.
 
-## 2026-09-18 (later) — three colour schemes
+## 2026-09-19 — reworked to a booking-site layout
+
+**Done**
+
+- **New default scheme `voyager`** and, more importantly, a structural rework to
+  the online-travel-agency idiom: navy sticky header and footer, a hero band with
+  the search lifted onto a card over its lower edge, white cards on a soft canvas,
+  dense result rows with a right-aligned figure and chevron, and detail pages as a
+  stack of panels.
+- Added a canvas/surface split to the tokens (`--canvas`, `--surface`,
+  `--surface-sunken`), elevation (`--shadow-1`, `--shadow-2`), brand and primary
+  hues, and a button layer. The old single-surface model could not express
+  "cards on a page".
+- A flight-path motif fills the hero's right side, which avoids needing licensed
+  photography for the look.
+- `paper` was dropped; the schemes are now `voyager`, `ocean` and `harbor`.
+- Nothing was copied from any company: no name, logo or brand colours. The layout
+  conventions are the category's shared vocabulary; the palette is ours and was
+  validated separately. Noted in DECISIONS.md.
+
+**Bugs caught while building**
+
+- `overflow: hidden` on the hero (added to clip the motif) also clipped the search
+  card lifted onto its edge, and would have clipped the autocomplete dropdown. The
+  clip now lives on a wrapper around the motif.
+
+**Next**
+
+Unchanged: `make verify-source MONTH=2025-01` from a machine that can reach BTS.
+
+## 2026-09-18 — three colour schemes
 
 **Done**
 

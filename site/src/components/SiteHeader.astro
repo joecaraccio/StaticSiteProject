@@ -1,4 +1,8 @@
 ---
+/**
+ * Navy chrome bar. Sticky, because on a long results page the way back to
+ * search should never be a scroll away.
+ */
 interface Props {
   compact?: boolean;
 }
@@ -15,9 +19,9 @@ const path = Astro.url.pathname;
 <header class="site-header">
   <div class="inner">
     <a class="wordmark" href="/">
-      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
-        <circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6" />
-        <path d="M10 5.2V10l3.1 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+        <circle cx="11" cy="11" r="9.2" fill="none" stroke="currentColor" stroke-width="1.8" />
+        <path d="M11 5.6V11l3.4 2.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
       </svg>
       <span>Usually&nbsp;Late</span>
     </a>
@@ -37,14 +41,17 @@ const path = Astro.url.pathname;
 
 <style>
   .site-header {
-    border-bottom: 1px solid var(--border);
-    background: var(--surface-raised);
+    background: var(--brand);
+    color: var(--brand-ink);
+    position: sticky;
+    top: 0;
+    z-index: 30;
   }
   .inner {
-    max-width: 960px;
+    max-width: 1040px;
     margin: 0 auto;
     padding: 0 16px;
-    height: 54px;
+    height: 58px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -53,35 +60,26 @@ const path = Astro.url.pathname;
   .wordmark {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-weight: 650;
-    font-size: 15.5px;
-    letter-spacing: -0.015em;
-    color: var(--text-primary);
+    gap: 9px;
+    font-weight: 700;
+    font-size: 16.5px;
+    letter-spacing: -0.02em;
+    color: var(--brand-ink);
     text-decoration: none;
   }
-  nav {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-  }
+  nav { display: flex; gap: 2px; flex-wrap: wrap; }
   nav a {
-    color: var(--text-secondary);
+    color: var(--brand-dim);
     text-decoration: none;
-    font-size: 14px;
-    padding: 5px 10px;
-    border-radius: 6px;
+    font-size: 14.5px;
+    font-weight: 500;
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
   }
-  nav a:hover {
-    background: var(--surface);
-    color: var(--text-primary);
-  }
-  nav a[aria-current="page"] {
-    color: var(--text-primary);
-    font-weight: 600;
-  }
-  @media (max-width: 520px) {
+  nav a:hover { background: rgb(255 255 255 / 0.12); color: var(--brand-ink); }
+  nav a[aria-current="page"] { color: var(--brand-ink); font-weight: 650; }
+  @media (max-width: 560px) {
     .inner { height: auto; padding: 10px 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
-    nav a { padding: 4px 8px; }
+    nav a { padding: 5px 9px; font-size: 14px; }
   }
 </style>

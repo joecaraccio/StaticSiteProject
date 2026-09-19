@@ -38,9 +38,9 @@ build/
 node_modules/
 site/dist/
 site/dist-mockup/
+site/dist-voyager/
 site/dist-ocean/
 site/dist-harbor/
-site/dist-paper/
 site/.astro/
 .npm/
 

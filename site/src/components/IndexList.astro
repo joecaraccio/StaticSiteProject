@@ -24,7 +24,8 @@ const { rows, unit } = Astro.props as Props;
 const best = Math.max(...rows.map((r) => r.onTime ?? 0), 0.0001);
 ---
 
-<table>
+<div class="card table-card">
+  <table>
   <thead>
     <tr>
       <th>{unit}</th>
@@ -69,8 +70,10 @@ const best = Math.max(...rows.map((r) => r.onTime ?? 0), 0.0001);
     }
   </tbody>
 </table>
+</div>
 
 <style>
+  .table-card { overflow: hidden; padding: 4px 8px 6px; }
   .rate { display: flex; align-items: center; gap: 9px; }
   @media (max-width: 560px) {
     th:nth-child(3), td:nth-child(3) { display: none; }

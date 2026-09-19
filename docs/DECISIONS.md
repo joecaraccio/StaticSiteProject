@@ -12,6 +12,15 @@ Record meaningful choices here, newest first.
 
 ---
 
+### 2026-09-19 · The layout follows the online-travel-agency idiom
+- **Decision:** Reworked the chrome and page structure to the pattern travel booking sites use: a navy sticky header, a coloured hero band with the search lifted onto a card over its lower edge, white cards on a soft canvas, dense result rows with the figure right-aligned and a chevron, and detail pages as a stack of panels. The new `voyager` scheme is the default.
+- **Why:** The owner asked for the feel of a booking site. That feel is mostly structural rather than chromatic — elevation, density, and search-first hierarchy — so changing tokens alone would not have got there.
+- **What was deliberately not copied:** no other company's name, logo, wordmark or brand colours. The palette is our own and validated independently; the layout conventions are the shared vocabulary of the category, which is fair to use. Building something that could pass for another company's site would not be.
+- **Alternatives considered:** Recolouring only (does not change the feel); a photographic hero (needs licensed imagery, and a flight-path motif carries the same weight without it).
+- **Revisit if:** the site gains a booking or affiliate flow, where the resemblance could start to imply an affiliation that does not exist.
+
+---
+
 ### 2026-09-18 · Themes may change surfaces and hue; status colours are fixed
 - **Decision:** `SITE_THEME` selects a colour scheme at build time (`ocean`, `harbor`, `paper`). A theme owns surfaces, text, borders, the primary hue, the delay-severity ramp and the hero gradient. It does **not** own the status roles: on-time green, cancelled neutral, and the four reliability band colours are declared once, outside every theme block.
 - **Why:** A red chip has to mean the same thing whatever the site looks like. Letting a theme re-colour the bands would make the meaning of a colour depend on a build flag, and the bands are already tied to thresholds in `pipeline/summaries/rules.py`. This also matches the dataviz guidance that a status palette is fixed and never themed.

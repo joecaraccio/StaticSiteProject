@@ -118,14 +118,14 @@ mockup-site: ## Rebuild the mockup site from existing synthetic data
 	cd site && SITE_THEME=$(THEME) PAGES_DIR=$(CURDIR)/data/mockup/export OUT_DIR=dist-mockup npm run build
 
 # Colour scheme. See the header of site/public/styles/global.css for the list.
-THEME ?= ocean
+THEME ?= voyager
 
 themes: ## Build the mockup in every colour scheme, into site/dist-<theme>/
-	@for t in ocean harbor paper; do \
+	@for t in voyager ocean harbor; do \
 	  echo "building $$t..."; \
 	  (cd site && SITE_THEME=$$t PAGES_DIR=$(CURDIR)/data/mockup/export OUT_DIR=dist-$$t npm run build >/dev/null) || exit 1; \
 	done
-	@echo "Compare: site/dist-ocean, site/dist-harbor, site/dist-paper"
+	@echo "Compare: site/dist-voyager, site/dist-ocean, site/dist-harbor"
 
 screenshots: ## Screenshot the mockup into docs/screenshots
 	node scripts/screenshot_site.mjs

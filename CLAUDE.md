@@ -110,7 +110,7 @@ make themes          # build the mockup in every colour scheme, side by side
 make mockup-site THEME=harbor   # one scheme
 ```
 
-Colour schemes are `ocean` (default), `harbor` and `paper`, selected with
+Colour schemes are `voyager` (default), `ocean` and `harbor`, selected with
 `SITE_THEME` at build time. The list and what each one changes is documented at
 the head of `site/public/styles/global.css`.
 

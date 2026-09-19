@@ -1,12 +1,12 @@
 ---
 /**
- * Home. The job is one step to the page that answers the question, so the search
- * is the page rather than an ornament on it.
+ * Home, laid out the way a travel booking site is: a coloured band with the
+ * search lifted onto a card over its edge, then results as dense rows on a soft
+ * canvas.
  *
- * Colour here is carrying information, not decorating: every chip is a
- * reliability band from `pipeline/summaries/rules.py`, the same thresholds that
- * phrase the summary sentence. The number is always shown beside it, so nothing
- * depends on distinguishing the hues.
+ * Colour carries information rather than decorating. Every chip is a reliability
+ * band from `pipeline/summaries/rules.py`, the same thresholds that phrase the
+ * summary sentence, with the number always beside it.
  */
 import Base from "../layouts/Base.astro";
 import SearchBox from "../components/SearchBox.astro";
@@ -50,13 +50,13 @@ const worstRoutes = byRate(routes).reverse().slice(0, 6);
 const airports = [...of("airport")].sort((a, b) => b.ops - a.ops);
 const airlines = byRate(of("airline"));
 
-// A count per band, so the hero can say something true about the whole dataset
-// rather than just how many pages there are.
 const bandCounts = routes.reduce<Record<string, number>>((acc, e) => {
   if (e.band) acc[e.band] = (acc[e.band] ?? 0) + 1;
   return acc;
 }, {});
 const roughRoutes = (bandCounts.serious ?? 0) + (bandCounts.critical ?? 0);
+
+const Chevron = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 ---
 
 <Base
@@ -65,37 +65,65 @@ const roughRoutes = (bandCounts.serious ?? 0) + (bandCounts.critical ?? 0);
   demoNotice={manifest?.demo_notice ?? null}
   wide={true}
 >
-  <section class="hero">
-    <div class="hero-inner">
-      <h1>Is your flight <span class="accent">usually late</span>?</h1>
-      <p class="lede">
-        Look up any U.S. flight, route, airport or airline and see how often it has actually
-        arrived on time — from the Department of Transportation's own records, not an estimate.
-      </p>
-
-      {entries.length > 0 && <SearchBox entries={entries} />}
-
-      {
-        manifest && (
-          <p class="counts">
-            <strong>{entries.length.toLocaleString("en-US")}</strong> pages ·
-            <strong>{of("flight").length.toLocaleString("en-US")}</strong> flights ·
-            <strong>{routes.length}</strong> routes ·
-            <strong>{airports.length}</strong> airports ·{" "}
-            {formatPeriod(manifest.data_period)}
-            {roughRoutes > 0 && (
-              <>
-                {" "}·{" "}
-                <span class="nowrap">
-                  <strong>{roughRoutes}</strong> routes often run late
-                </span>
-              </>
-            )}
-          </p>
-        )
-      }
+  <section class="hero" slot="hero">
+    {/* Flight-path motif: fills the band without competing with the words. The
+        clip lives on this wrapper, not on .hero — clipping the band itself would
+        cut off the search card lifted onto its edge, and the dropdown under it. */}
+    <div class="hero-art-clip" aria-hidden="true">
+    <svg class="hero-art" viewBox="0 0 420 300" preserveAspectRatio="xMaxYMid slice">
+      <g fill="none" stroke="currentColor" stroke-linecap="round">
+        <path d="M-20 250 Q 150 40 420 120" stroke-width="1.5" opacity="0.38" />
+        <path d="M-20 290 Q 180 110 420 176" stroke-width="1.5" opacity="0.26" />
+        <path d="M-20 200 Q 120 10 420 62" stroke-width="1.5" opacity="0.2" />
+        <path
+          d="M40 268 Q 200 70 400 138"
+          stroke-width="1.5"
+          stroke-dasharray="5 9"
+          opacity="0.5"
+        />
+      </g>
+      <g fill="currentColor">
+        <circle cx="400" cy="138" r="4.5" opacity="0.9" />
+        <circle cx="40" cy="268" r="3.5" opacity="0.6" />
+        <circle cx="420" cy="120" r="3" opacity="0.45" />
+      </g>
+    </svg>
     </div>
+    <div class="hero-inner">
+      <h1>Is your flight usually late?</h1>
+      <p class="lede">
+        Check how often any U.S. flight, route, airport or airline has actually arrived on time —
+        from the Department of Transportation's own records, not an estimate.
+      </p>
+    </div>
+    {
+      entries.length > 0 && (
+        <div class="search-card">
+          <SearchBox entries={entries} />
+        </div>
+      )
+    }
   </section>
+
+  {
+    manifest && (
+      <p class="counts">
+        <strong>{entries.length.toLocaleString("en-US")}</strong> pages ·
+        <strong>{of("flight").length.toLocaleString("en-US")}</strong> flights ·
+        <strong>{routes.length}</strong> routes ·
+        <strong>{airports.length}</strong> airports ·{" "}
+        {formatPeriod(manifest.data_period)}
+        {roughRoutes > 0 && (
+          <>
+            {" "}·{" "}
+            <span class="nowrap">
+              <strong>{roughRoutes}</strong> routes often run late
+            </span>
+          </>
+        )}
+      </p>
+    )
+  }
 
   {
     !manifest ? (
@@ -113,84 +141,108 @@ const roughRoutes = (bandCounts.serious ?? 0) + (bandCounts.critical ?? 0);
       <>
         <div class="columns">
           <section>
-            <h2><span class="dot dot-good" aria-hidden="true" />Most reliable routes</h2>
-            <ul class="cards">
-              {bestRoutes.map((e) => (
-                <li>
-                  <a href={e.url}>
-                    <span class="t">{e.title}</span>
-                    <ReliabilityChip rate={e.rate} band={e.band} />
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <div class="section-head">
+              <h2>Most reliable routes</h2>
+              <a class="see-all" href="/routes">See all {routes.length}</a>
+            </div>
+            <div class="card">
+              <ul class="rows">
+                {bestRoutes.map((e) => (
+                  <li>
+                    <a href={e.url}>
+                      <span>
+                        <span class="t">{e.title}</span>
+                        <span class="s">{e.ops.toLocaleString("en-US")} flights</span>
+                      </span>
+                      <span class="right">
+                        <ReliabilityChip rate={e.rate} band={e.band} />
+                        <span class="chev" set:html={Chevron} />
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </section>
 
           <section>
-            <h2><span class="dot dot-critical" aria-hidden="true" />Least reliable routes</h2>
-            <ul class="cards">
-              {worstRoutes.map((e) => (
-                <li>
-                  <a href={e.url}>
-                    <span class="t">{e.title}</span>
-                    <ReliabilityChip rate={e.rate} band={e.band} />
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <div class="section-head">
+              <h2>Least reliable routes</h2>
+              <a class="see-all" href="/routes">See all {routes.length}</a>
+            </div>
+            <div class="card">
+              <ul class="rows">
+                {worstRoutes.map((e) => (
+                  <li>
+                    <a href={e.url}>
+                      <span>
+                        <span class="t">{e.title}</span>
+                        <span class="s">{e.ops.toLocaleString("en-US")} flights</span>
+                      </span>
+                      <span class="right">
+                        <ReliabilityChip rate={e.rate} band={e.band} />
+                        <span class="chev" set:html={Chevron} />
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </section>
         </div>
 
-        <section>
+        <div class="section-head">
           <h2>Airports</h2>
-          <ul class="cards grid">
-            {airports.map((e) => (
-              <li>
-                <a href={e.url}>
-                  <span class="t">
-                    {e.title}
-                    <span class="s">{e.ops.toLocaleString("en-US")} departures</span>
-                  </span>
-                  <ReliabilityChip rate={e.rate} band={e.band} />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section>
-          <h2>Airlines</h2>
-          <ul class="cards grid">
-            {airlines.map((e) => (
-              <li>
-                <a href={e.url}>
+          <a class="see-all" href="/airports">See all {airports.length}</a>
+        </div>
+        <ul class="tiles">
+          {airports.map((e) => (
+            <li>
+              <a href={e.url}>
+                <span>
                   <span class="t">{e.title}</span>
-                  <ReliabilityChip rate={e.rate} band={e.band} />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
+                  <span class="s">{e.ops.toLocaleString("en-US")} departures</span>
+                </span>
+                <ReliabilityChip rate={e.rate} band={e.band} />
+              </a>
+            </li>
+          ))}
+        </ul>
 
-        <section class="how">
+        <div class="section-head">
+          <h2>Airlines</h2>
+          <a class="see-all" href="/airlines">See all {airlines.length}</a>
+        </div>
+        <ul class="tiles">
+          {airlines.map((e) => (
+            <li>
+              <a href={e.url}>
+                <span class="t">{e.title}</span>
+                <ReliabilityChip rate={e.rate} band={e.band} />
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <section class="how panel">
           <h2>How this works</h2>
           <div class="how-grid">
             <div>
-              <h3><span class="dot dot-good" aria-hidden="true" />On time means under 15 minutes late</h3>
+              <h3>On time means under 15 minutes late</h3>
               <p>
                 The Department of Transportation's own threshold, measured on arrival, among
                 flights that actually operated.
               </p>
             </div>
             <div>
-              <h3><span class="dot dot-serious" aria-hidden="true" />Cancellations count separately</h3>
+              <h3>Cancellations count separately</h3>
               <p>
                 A cancelled flight is not a late flight — it is a worse outcome, so it never
                 quietly improves an on-time rate.
               </p>
             </div>
             <div>
-              <h3><span class="dot dot-warning" aria-hidden="true" />Small samples are labelled</h3>
+              <h3>Small samples are labelled</h3>
               <p>
                 Every figure shows how many flights it is based on, and pages with too little
                 history are held back rather than published thin.
@@ -204,62 +256,85 @@ const roughRoutes = (bandCounts.serious ?? 0) + (bandCounts.critical ?? 0);
 </Base>
 
 <style>
+  /* The band runs edge to edge; the search card is lifted onto its lower edge,
+     which is the move that makes a travel site read as search-first. */
   .hero {
-    background: linear-gradient(135deg, var(--hero-from), var(--hero-to));
-    border: 1px solid var(--hero-edge);
-    border-radius: 16px;
-    margin: 4px 0 36px;
-    padding: 36px 28px 30px;
+    position: relative;
+    background: linear-gradient(160deg, var(--hero-from), var(--hero-to));
+    color: var(--hero-ink);
+    padding: 44px 16px 0;
   }
-  .hero-inner { max-width: 660px; }
+  .hero-art-clip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .hero-art {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: min(46%, 520px);
+    color: var(--hero-ink);
+  }
+  .hero-inner { max-width: 1008px; margin: 0 auto; position: relative; }
   .hero h1 {
-    font-size: clamp(28px, 5.2vw, 42px);
-    line-height: 1.12;
+    color: var(--hero-ink);
+    font-size: clamp(27px, 4.6vw, 40px);
+    line-height: 1.14;
+    letter-spacing: -0.03em;
     margin: 0 0 12px;
-    letter-spacing: -0.025em;
+    max-width: 18ch;
   }
-  .accent {
-    background: linear-gradient(transparent 62%, color-mix(in srgb, var(--series-1) 30%, transparent) 62%);
-    padding: 0 2px;
+  .lede { color: var(--hero-dim); font-size: 17px; margin: 0 0 30px; max-width: 58ch; }
+
+  .search-card {
+    position: relative;
+    max-width: 1008px;
+    margin: 0 auto;
+    transform: translateY(32px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-2);
+    padding: 18px 20px;
   }
-  .lede { font-size: 17px; color: var(--text-secondary); margin: 0 0 22px; max-width: 56ch; }
-  .counts { color: var(--text-muted); font-size: 13px; margin: 18px 0 0; line-height: 1.6; }
+
+  /* Clears the lifted card. */
+  .counts {
+    margin: 48px 0 8px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.6;
+    max-width: none;
+  }
   .counts strong { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
   .counts .nowrap { white-space: nowrap; }
 
-  .columns { display: grid; gap: 8px 32px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .columns { display: grid; gap: 4px 28px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
 
-  h2 { display: flex; align-items: center; gap: 8px; }
-  .dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; border: 1px solid currentColor; }
-  .dot-good { background: var(--band-good-bg); color: var(--band-good-fg); }
-  .dot-warning { background: var(--band-warning-bg); color: var(--band-warning-fg); }
-  .dot-serious { background: var(--band-serious-bg); color: var(--band-serious-fg); }
-  .dot-critical { background: var(--band-critical-bg); color: var(--band-critical-fg); }
-
-  ul.cards { list-style: none; padding: 0; margin: 0; display: grid; gap: 7px; }
-  ul.cards.grid { grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
-  ul.cards a {
+  .section-head {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: space-between;
     gap: 12px;
-    background: var(--surface-raised);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 11px 13px;
-    text-decoration: none;
-    transition: border-color 0.12s, transform 0.12s;
+    margin: 30px 0 12px;
   }
-  ul.cards a:hover { border-color: var(--series-1); transform: translateY(-1px); }
-  ul.cards .t { color: var(--text-primary); font-weight: 500; display: flex; flex-direction: column; gap: 2px; }
-  ul.cards .s { color: var(--text-muted); font-size: 12px; font-weight: 400; }
+  .section-head h2 { margin: 0; }
+  .see-all { font-size: 13.5px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+  .see-all:hover { text-decoration: underline; }
 
-  .how { margin-top: 44px; }
+  .how { margin-top: 38px; }
+  .how h2 { margin-top: 0; }
   .how-grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
-  .how h3 { display: flex; align-items: center; gap: 7px; margin: 0 0 6px; font-size: 14.5px; }
+  .how h3 { margin: 0 0 6px; font-size: 14.5px; }
   .how p { color: var(--text-secondary); font-size: 14px; margin: 0; }
 
-  @media (max-width: 560px) {
-    .hero { padding: 26px 18px 22px; border-radius: 14px; }
+  @media (max-width: 620px) {
+    .hero { padding-top: 32px; }
+    .hero-art { opacity: 0.55; width: 64%; }
+    .search-card { padding: 14px; transform: translateY(24px); }
+    .counts { margin-top: 40px; }
   }
 </style>

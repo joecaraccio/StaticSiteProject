@@ -36,6 +36,8 @@ export async function getStaticPaths() {
 }
 
 const { doc, demoNotice } = Astro.props as { doc: PageDocument; demoNotice: string | null };
+
+const Chevron = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const stats = doc.headline_stats;
 const title = pageTitle(doc);
 
@@ -66,6 +68,14 @@ if (doc.page_type === "airline") related.push({ href: "/airlines", label: "All a
 if (doc.page_type === "airport") related.push({ href: "/airports", label: "All airports" });
 if (doc.page_type === "route") related.push({ href: "/routes", label: "All routes" });
 
+// Last breadcrumb: the entity itself, not the whole sentence in the <h1>.
+const crumb =
+  doc.page_type === "flight"
+    ? `${k.carrier} ${k.flight_number}`
+    : doc.page_type === "route"
+      ? `${k.origin}–${k.dest}`
+      : String(k.airport ?? k.carrier);
+
 const description =
   `${title}: ${formatPercent(stats.on_time_rate)} of flights arrived on time across ` +
   `${formatCount(stats.ops_scheduled)} scheduled flights, ${formatPeriod(doc.data_period)}.`;
@@ -78,7 +88,8 @@ const description =
   demoNotice={demoNotice}
 >
   <nav class="crumbs">
-    <a href="/">Home</a> / <span>{doc.page_type}</span>
+    <a href="/">Home</a> / <a href={`/${doc.page_type}s`}>{doc.page_type}s</a> /{" "}
+    <span>{crumb}</span>
   </nav>
 
   <div class="title-row">
@@ -143,52 +154,61 @@ const description =
 
   {
     doc.alternatives.length > 0 && (
-      <>
+      <section class="panel">
         <h2>Should you book a different flight?</h2>
         <AlternativesTable
           alternatives={doc.alternatives}
           origin={String(k.origin)}
           dest={String(k.dest)}
         />
-      </>
+      </section>
     )
   }
 
-  <h2>On-time rate by month</h2>
-  <MonthlyChart
-    series={doc.monthly_series}
-    field="on_time_rate"
-    title="On-time rate"
-    caption="Each point is one month of scheduled service. Hover a point for the sample size."
-  />
+  <section class="panel">
+    <h2>On-time rate by month</h2>
+    <MonthlyChart
+      series={doc.monthly_series}
+      field="on_time_rate"
+      title="On-time rate"
+      caption="Each point is one month of scheduled service. Hover a point for the sample size."
+    />
+  </section>
 
-  <h2>Cancellations by month</h2>
-  <MonthlyChart
-    series={doc.monthly_series}
-    field="cancellation_rate"
-    title="Cancellation rate"
-    caption="Shown as its own chart: cancellation rates are far smaller than on-time rates, and squeezing both onto one axis would hide the shape of this one."
-  />
+  <section class="panel">
+    <h2>Cancellations by month</h2>
+    <MonthlyChart
+      series={doc.monthly_series}
+      field="cancellation_rate"
+      title="Cancellation rate"
+      caption="Shown as its own chart: cancellation rates are far smaller than on-time rates, and squeezing both onto one axis would hide the shape of this one."
+    />
+  </section>
 
-  <h2>How late, when late</h2>
-  <DelayDistribution counts={doc.delay_distribution.counts} shares={doc.delay_distribution.shares} />
+  <section class="panel">
+    <h2>How late, when late</h2>
+    <DelayDistribution counts={doc.delay_distribution.counts} shares={doc.delay_distribution.shares} />
+  </section>
 
-  <h2>What caused the delays</h2>
-  <DelayCauses
-    minutes={doc.delay_causes.minutes}
-    shares={doc.delay_causes.shares}
-    totalMinutes={doc.delay_causes.total_minutes}
-  />
+  <section class="panel">
+    <h2>What caused the delays</h2>
+    <DelayCauses
+      minutes={doc.delay_causes.minutes}
+      shares={doc.delay_causes.shares}
+      totalMinutes={doc.delay_causes.total_minutes}
+    />
+  </section>
 
   {
     related.length > 0 && (
       <>
         <h2>Related</h2>
-        <ul class="links">
+        <ul class="tiles">
           {related.map((r) => (
             <li>
               <a href={r.href}>
                 <span class="t">{r.label}</span>
+                <span class="chev" set:html={Chevron} />
               </a>
             </li>
           ))}

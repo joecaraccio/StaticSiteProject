@@ -199,24 +199,24 @@ const index = entries.map((e) => [e.haystack, e.url, e.title, e.type, e.band ?? 
      innerHTML, so they never get Astro's scoping attribute and scoped rules
      would not reach them. Every selector here is under .search-shell or
      #ac-list, both unique to this component. */
-  .search-shell { position: relative; max-width: 640px; }
+  .search-shell { position: relative; }
 
   .search {
     display: flex;
     align-items: center;
     gap: 12px;
-    background: var(--surface-raised);
+    background: var(--surface-sunken);
     border: 2px solid var(--border);
-    border-radius: 14px;
+    border-radius: var(--radius-sm);
     padding: 0 16px;
     color: var(--text-muted);
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
     transition: border-color 0.12s, box-shadow 0.12s;
   }
   .search:focus-within {
-    border-color: var(--series-1);
-    color: var(--series-1);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--series-1) 18%, transparent);
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--surface);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 18%, transparent);
   }
   .search input {
     flex: 1;
@@ -238,20 +238,20 @@ const index = entries.map((e) => [e.haystack, e.url, e.title, e.type, e.band ?? 
     display: flex;
     border-radius: 6px;
   }
-  .search button:hover { color: var(--text-primary); background: var(--surface); }
+  .search button:hover { color: var(--text-primary); background: var(--border); }
 
   #ac-list {
     position: absolute;
-    z-index: 20;
+    z-index: 40;
     left: 0;
     right: 0;
     margin: 6px 0 0;
     padding: 5px;
     list-style: none;
-    background: var(--surface-raised);
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    box-shadow: 0 10px 28px rgb(0 0 0 / 0.13);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-2);
     max-height: 60vh;
     overflow-y: auto;
   }
@@ -267,7 +267,7 @@ const index = entries.map((e) => [e.haystack, e.url, e.title, e.type, e.band ?? 
     color: inherit;
   }
   #ac-list a:hover { text-decoration: none; }
-  #ac-list li[aria-selected="true"] a { background: var(--surface); }
+  #ac-list li[aria-selected="true"] a { background: var(--primary-soft); }
   .ac-main { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
   .ac-title { color: var(--text-primary); font-weight: 500; }
   .ac-type {
@@ -282,15 +282,15 @@ const index = entries.map((e) => [e.haystack, e.url, e.title, e.type, e.band ?? 
     font: inherit;
     font-size: 12.5px;
     font-weight: 500;
-    background: var(--surface-raised);
+    background: var(--surface);
     border: 1px solid var(--border);
     color: var(--text-secondary);
-    border-radius: 999px;
-    padding: 3px 11px;
+    border-radius: var(--radius-pill);
+    padding: 4px 12px;
     margin-right: 4px;
     cursor: pointer;
   }
-  .chip-btn:hover { border-color: var(--series-1); color: var(--series-1); }
+  .chip-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); }
 
   @media (max-width: 520px) {
     .search input { font-size: 16px; padding: 15px 0; }
