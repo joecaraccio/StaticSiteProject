@@ -2,7 +2,32 @@
 
 Update at the end of each working session.
 
-## 2026-09-19 (later) — logo and favicon
+## 2026-09-19 (latest) — flight-tracker hero backdrop
+
+**Done**
+
+- Replaced the hero's flight-path motif with a **flight-tracker backdrop**:
+  graticule, great-circle tracks with the flown portion solid and the remainder
+  dashed, plane glyphs with a heading, waypoints and range rings.
+  `site/src/components/HeroBackdrop.astro`.
+- **It deliberately carries no positions, flight numbers or route codes.** Live
+  tracking is out of scope (PLAN.md §1), so a backdrop that looked like live
+  aircraft would imply a capability the site does not have — and a map with real
+  airport codes on invented coordinates would be inventing data in the place a
+  reader is most likely to take it literally. Recorded in DECISIONS.md, with a
+  note that a real route map becomes possible once M2 lands the BTS airport
+  lookup table with verified coordinates.
+- The mask that keeps the art off the text is set from contrast arithmetic, not
+  by eye: white art at ~24% over the navy band puts white text near 3.4:1,
+  under the floor. Two earlier attempts let a track graze the lede. Below 760px
+  the text wraps full-width and a horizontal mask cannot help, so the whole
+  backdrop dims instead.
+
+**Next**
+
+Unchanged: `make verify-source MONTH=2025-01` from a machine that can reach BTS.
+
+## 2026-09-19 — logo and favicon
 
 **Done**
 

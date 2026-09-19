@@ -12,6 +12,20 @@ Record meaningful choices here, newest first.
 
 ---
 
+### 2026-09-19 · The hero backdrop is a tracker, but carries no positions
+- **Decision:** The hero shows flight-tracker chrome — a graticule, great-circle tracks with the flown portion solid and the remainder dashed, plane glyphs with a heading, waypoints and range rings. It has no basemap, no flight numbers, no route codes and no labels.
+- **Why:** The look was asked for and it suits the subject. The omissions are the point: this site is historical planning data, and live tracking is explicitly out of scope (PLAN.md §1). A backdrop showing labelled aircraft at positions would imply a capability the site does not have, and a decorative map with real airport codes on invented coordinates would be inventing data in the one place a reader is most likely to take it literally. Decoration may be decorative; it may not look like data.
+- **Alternatives considered:** A stylised map with real route arcs (needs airport coordinates we have not sourced, and the arcs would be read as real); tracker labels using genuine route codes from the manifest (the positions would still be fiction); licensed photography (cost, and it says nothing).
+- **Revisit if:** the BTS airport lookup table lands in M2, which would give verified coordinates — a real route map then becomes possible and honest.
+
+### 2026-09-19 · The backdrop mask is set by contrast, not by taste
+- **Decision:** The gradient mask holds the backdrop at under 10% opacity anywhere text sits, and the whole backdrop dims to 45% below 760px where the text wraps full-width and a horizontal mask stops helping.
+- **Why:** White art at around 24% over the navy band puts white text near 3.4:1, under the 4.5:1 floor. A 2px track crossing a glyph is exactly the kind of thing that is easy to wave away, and the first two attempts did let a track graze the lede. Setting the stops from the contrast arithmetic rather than from how it looked is what fixed it.
+- **Alternatives considered:** Lower global opacity (kills the art everywhere to solve it in one place); moving the tracks off the text (fragile — it breaks at the next copy change).
+- **Revisit if:** the hero copy gets longer or the band gets shorter; both move where the text column ends.
+
+---
+
 ### 2026-09-19 · The mark is a dial with a plane climbing out of it
 - **Decision:** `site/src/components/Logo.astro` holds the single definition of the mark: an open clock dial with a gap, and a plane climbing out through it. `public/favicon.svg` is the same shape with a heavier arc.
 - **Why:** It carries both halves of the name in one shape, and it was the only one of five candidates still legible at 22px. The ones that layered a plane over clock hands turned into a smudge; a plane outside the dial read as a stray antenna; dial ticks plus a plane read as a crosshair. Rendering the candidates at real size and looking at them decided it, which is faster and more honest than arguing about it at 200%.

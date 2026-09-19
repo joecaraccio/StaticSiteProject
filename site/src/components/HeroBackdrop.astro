@@ -1,0 +1,118 @@
+---
+/**
+ * Flight-tracker backdrop for the hero.
+ *
+ * Deliberately abstract: a graticule, great-circle arcs, plane glyphs with a
+ * heading, waypoints and range rings — the visual language of a tracker, with no
+ * geography and no labels.
+ *
+ * It carries no flight numbers, route codes or positions on purpose. This site
+ * is historical planning data, not live tracking (docs/PLAN.md §1), and a
+ * backdrop that looked like live positions would imply a capability the site
+ * does not have. Decoration is allowed to be decorative; it is not allowed to
+ * look like data.
+ *
+ * Masked to fade out across the text column. The stops are set so that anything
+ * reaching the text is under 10% opacity: white art at ~24% over the navy band
+ * lands around 3.4:1 against white text, which is below the 4.5:1 floor, and a
+ * 2px track crossing a glyph is exactly the case that is easy to wave away and
+ * should not be. On narrow viewports the text wraps full-width and a horizontal
+ * mask cannot help, so the whole backdrop dims instead.
+ */
+interface Props {
+  /** Unique per instance: SVG ids are document-global. */
+  id?: string;
+}
+const { id = "hero" } = Astro.props as Props;
+
+const fade = `${id}-fade`;
+const mask = `${id}-mask`;
+
+// One plane silhouette, reused at three headings. Same shape as the logo mark.
+const PLANE =
+  "M12.55 5.6a.9.9 0 0 0-1.7.35l.08 4-4.3 2.55v1.35l4.3-1.35.08 2.3-1.6 1.25.08 1.1 " +
+  "2.2-.72 2.2.72.08-1.1-1.6-1.25.08-2.3 4.3 1.35v-1.35l-4.3-2.55Z";
+
+/** Place a plane: translate to (x, y), scale, and point it along its track. */
+const plane = (x: number, y: number, scale: number, heading: number) =>
+  `translate(${x} ${y}) rotate(${heading}) scale(${scale}) translate(-12 -12)`;
+---
+
+<svg
+  class="backdrop"
+  viewBox="0 0 1200 460"
+  preserveAspectRatio="xMidYMid slice"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <linearGradient id={fade} x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#000" />
+      <stop offset="58%" stop-color="#000" />
+      <stop offset="80%" stop-color="#fff" />
+      <stop offset="100%" stop-color="#fff" />
+    </linearGradient>
+    <mask id={mask}>
+      <rect width="1200" height="460" fill={`url(#${fade})`} />
+    </mask>
+  </defs>
+
+  <g mask={`url(#${mask})`} fill="none" stroke="currentColor">
+    {/* Graticule: curved meridians and parallels, enough to read as a projection. */}
+    <g opacity="0.26" stroke-width="1.1">
+      <path d="M150 -60 Q 40 180 150 420" />
+      <path d="M330 -60 Q 250 180 330 420" />
+      <path d="M510 -60 Q 470 180 510 420" />
+      <path d="M690 -60 Q 690 180 690 420" />
+      <path d="M870 -60 Q 910 180 870 420" />
+      <path d="M1050 -60 Q 1130 180 1050 420" />
+      <path d="M-40 40 Q 600 -10 1240 40" />
+      <path d="M-40 130 Q 600 90 1240 130" />
+      <path d="M-40 220 Q 600 190 1240 220" />
+      <path d="M-40 310 Q 600 300 1240 310" />
+    </g>
+
+    {/* Range rings around one node, the way a tracker shows a terminal area. */}
+    <g opacity="0.34" stroke-width="1.2">
+      <circle cx="860" cy="196" r="46" />
+      <circle cx="860" cy="196" r="86" />
+      <circle cx="860" cy="196" r="130" stroke-dasharray="3 7" />
+    </g>
+
+    {/* Tracks: a solid flown portion, a dashed portion still to go. */}
+    <g stroke-linecap="round">
+      <path d="M150 340 Q 520 260 860 196" opacity="0.72" stroke-width="2.4" />
+      <path d="M860 196 Q 1030 160 1230 210" opacity="0.4" stroke-width="2.4" stroke-dasharray="7 10" />
+
+      <path d="M110 120 Q 420 26 680 86" opacity="0.5" stroke-width="2" />
+      <path d="M680 86 Q 930 140 1230 60" opacity="0.28" stroke-width="2" stroke-dasharray="7 10" />
+
+      <path d="M240 330 Q 660 330 1060 288" opacity="0.34" stroke-width="1.8" stroke-dasharray="5 9" />
+    </g>
+
+    {/* Waypoints. */}
+    <g opacity="0.6" stroke-width="1.8">
+      <circle cx="150" cy="340" r="5" />
+      <circle cx="680" cy="86" r="4.5" />
+      <circle cx="860" cy="196" r="5.5" fill="currentColor" />
+    </g>
+  </g>
+
+  {/* Planes sit above the mask so the lead aircraft stays crisp. */}
+  <g fill="currentColor" stroke="none">
+    <path d={PLANE} transform={plane(860, 196, 2.7, 102)} opacity="0.95" />
+    <path d={PLANE} transform={plane(680, 86, 1.5, 78)} opacity="0.55" />
+    <path d={PLANE} transform={plane(1060, 288, 1.2, 96)} opacity="0.34" />
+  </g>
+</svg>
+
+<style>
+  .backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--hero-ink);
+    pointer-events: none;
+  }
+</style>

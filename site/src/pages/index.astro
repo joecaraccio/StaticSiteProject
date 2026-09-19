@@ -10,6 +10,7 @@
  */
 import Base from "../layouts/Base.astro";
 import SearchBox from "../components/SearchBox.astro";
+import HeroBackdrop from "../components/HeroBackdrop.astro";
 import ReliabilityChip from "../components/ReliabilityChip.astro";
 import { readManifest, readPage, pageTitle, formatPeriod, type PageType } from "../lib/pages";
 
@@ -66,28 +67,8 @@ const Chevron = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="tr
   wide={true}
 >
   <section class="hero" slot="hero">
-    {/* Flight-path motif: fills the band without competing with the words. The
-        clip lives on this wrapper, not on .hero — clipping the band itself would
-        cut off the search card lifted onto its edge, and the dropdown under it. */}
-    <div class="hero-art-clip" aria-hidden="true">
-    <svg class="hero-art" viewBox="0 0 420 300" preserveAspectRatio="xMaxYMid slice">
-      <g fill="none" stroke="currentColor" stroke-linecap="round">
-        <path d="M-20 250 Q 150 40 420 120" stroke-width="1.5" opacity="0.38" />
-        <path d="M-20 290 Q 180 110 420 176" stroke-width="1.5" opacity="0.26" />
-        <path d="M-20 200 Q 120 10 420 62" stroke-width="1.5" opacity="0.2" />
-        <path
-          d="M40 268 Q 200 70 400 138"
-          stroke-width="1.5"
-          stroke-dasharray="5 9"
-          opacity="0.5"
-        />
-      </g>
-      <g fill="currentColor">
-        <circle cx="400" cy="138" r="4.5" opacity="0.9" />
-        <circle cx="40" cy="268" r="3.5" opacity="0.6" />
-        <circle cx="420" cy="120" r="3" opacity="0.45" />
-      </g>
-    </svg>
+    <div class="hero-art-clip">
+      <HeroBackdrop id="home" />
     </div>
     <div class="hero-inner">
       <h1>Is your flight usually late?</h1>
@@ -270,14 +251,7 @@ const Chevron = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="tr
     overflow: hidden;
     pointer-events: none;
   }
-  .hero-art {
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    width: min(46%, 520px);
-    color: var(--hero-ink);
-  }
+
   .hero-inner { max-width: 1008px; margin: 0 auto; position: relative; }
   .hero h1 {
     color: var(--hero-ink);
@@ -331,9 +305,14 @@ const Chevron = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="tr
   .how h3 { margin: 0 0 6px; font-size: 14.5px; }
   .how p { color: var(--text-secondary); font-size: 14px; margin: 0; }
 
+  @media (max-width: 760px) {
+    /* The mask fades horizontally, which only works while the text has a column
+       to itself. Once it wraps full-width, dim the whole backdrop instead. */
+    .hero-art-clip { opacity: 0.45; }
+  }
+
   @media (max-width: 620px) {
     .hero { padding-top: 32px; }
-    .hero-art { opacity: 0.55; width: 64%; }
     .search-card { padding: 14px; transform: translateY(24px); }
     .counts { margin-top: 40px; }
   }
