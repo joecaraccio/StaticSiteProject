@@ -1,0 +1,43 @@
+---
+/**
+ * The Usually Late mark: a clock dial with a gap, and a plane climbing out of it.
+ *
+ * Both halves of the name in one shape — the dial is the "late", the plane is
+ * the subject. Drawn to survive 16px: a single stroke weight for the arc, one
+ * solid silhouette for the plane, and no detail that closes up when it shrinks.
+ * Four other combinations were tried first; the ones that layered a plane over
+ * clock hands turned to mush at header size.
+ *
+ * Inherits `currentColor`, so it works on the navy bar and on a light surface
+ * without a second copy.
+ */
+interface Props {
+  size?: number;
+  /** Heavier strokes for favicon sizes, where hairlines disappear. */
+  compact?: boolean;
+}
+const { size = 22, compact = false } = Astro.props as Props;
+const stroke = compact ? 2.1 : 1.7;
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path
+    d="M17.9 5.2A9.6 9.6 0 1 0 20.6 14"
+    stroke="currentColor"
+    stroke-width={stroke}
+    stroke-linecap="round"
+  />
+  <g transform="rotate(42 12 12)">
+    <path
+      d="M12.55 5.6a.9.9 0 0 0-1.7.35l.08 4-4.3 2.55v1.35l4.3-1.35.08 2.3-1.6 1.25.08 1.1 2.2-.72 2.2.72.08-1.1-1.6-1.25.08-2.3 4.3 1.35v-1.35l-4.3-2.55Z"
+      fill="currentColor"
+    />
+  </g>
+</svg>

@@ -2,6 +2,28 @@
 
 Update at the end of each working session.
 
+## 2026-09-19 (later) — logo and favicon
+
+**Done**
+
+- **The mark now has a plane in it:** an open clock dial with a gap, and a plane
+  climbing out through it. Both halves of the name in one shape.
+- Five candidates were drawn and rendered at 22/32/48px before choosing. The ones
+  layering a plane over clock hands turned to mush at header size; a plane outside
+  the rim read as a stray antenna; dial ticks plus a plane read as a crosshair.
+- **Extracted to `site/src/components/Logo.astro`** — one definition, used by the
+  header and now the footer, inheriting `currentColor` so it works on navy and on
+  a light surface without a second copy.
+- **Added `public/favicon.svg`** (the site had none) with a heavier arc for small
+  sizes and a dark-mode variant. Verified legible at 16px.
+
+**Bug caught by rendering**
+
+The first favicon was a solid blue disc at every size. An SVG favicon cannot
+inherit `currentColor`, so its colours live in an internal stylesheet — and a CSS
+`fill` overrides the `fill="none"` presentation attribute, filling the arc.
+Stroke and fill are now separate classes. Nothing in the source looked wrong.
+
 ## 2026-09-19 — reworked to a booking-site layout
 
 **Done**

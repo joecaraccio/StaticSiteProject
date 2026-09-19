@@ -12,6 +12,20 @@ Record meaningful choices here, newest first.
 
 ---
 
+### 2026-09-19 · The mark is a dial with a plane climbing out of it
+- **Decision:** `site/src/components/Logo.astro` holds the single definition of the mark: an open clock dial with a gap, and a plane climbing out through it. `public/favicon.svg` is the same shape with a heavier arc.
+- **Why:** It carries both halves of the name in one shape, and it was the only one of five candidates still legible at 22px. The ones that layered a plane over clock hands turned into a smudge; a plane outside the dial read as a stray antenna; dial ticks plus a plane read as a crosshair. Rendering the candidates at real size and looking at them decided it, which is faster and more honest than arguing about it at 200%.
+- **Alternatives considered:** plane as the minute hand; plane leaving the rim; plane in a full dial with tick marks; plane plus a single clock hand. All rendered, all rejected on legibility.
+- **Revisit if:** the brand name changes, or the mark needs to work in one colour at favicon size on a busy background.
+
+### 2026-09-19 · SVG favicons need stroke and fill on separate classes
+- **Decision:** `favicon.svg` declares `.arc { fill: none; stroke: … }` and `.plane { fill: …; stroke: none }` rather than one class setting both.
+- **Why:** A favicon cannot inherit `currentColor`, so its colours are declared in an internal stylesheet — and a CSS `fill` beats the `fill="none"` presentation attribute on the element. One combined class filled the arc as well as stroking it and the mark rendered as a solid disc at every size. Caught by rendering it at 16/24/32/48px; it would not have been visible in the source.
+- **Alternatives considered:** Presentation attributes only (no dark-mode variant); a PNG favicon (no dark-mode variant either, and more files).
+- **Revisit if:** more colour-scheme-aware SVG assets are added — the same trap applies to each.
+
+---
+
 ### 2026-09-19 · The layout follows the online-travel-agency idiom
 - **Decision:** Reworked the chrome and page structure to the pattern travel booking sites use: a navy sticky header, a coloured hero band with the search lifted onto a card over its lower edge, white cards on a soft canvas, dense result rows with the figure right-aligned and a chevron, and detail pages as a stack of panels. The new `voyager` scheme is the default.
 - **Why:** The owner asked for the feel of a booking site. That feel is mostly structural rather than chromatic — elevation, density, and search-first hierarchy — so changing tokens alone would not have got there.

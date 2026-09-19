@@ -6,6 +6,8 @@
 interface Props {
   compact?: boolean;
 }
+import Logo from "./Logo.astro";
+
 const { compact = false } = Astro.props as Props;
 const nav = [
   { href: "/routes", label: "Routes" },
@@ -19,10 +21,7 @@ const path = Astro.url.pathname;
 <header class="site-header">
   <div class="inner">
     <a class="wordmark" href="/">
-      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
-        <circle cx="11" cy="11" r="9.2" fill="none" stroke="currentColor" stroke-width="1.8" />
-        <path d="M11 5.6V11l3.4 2.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-      </svg>
+      <Logo size={22} />
       <span>Usually&nbsp;Late</span>
     </a>
     {

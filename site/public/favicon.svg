@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
+  <!--
+    Same mark as src/components/Logo.astro, with a heavier arc: a 1.7 hairline
+    disappears at 16px. An SVG favicon cannot inherit currentColor, so both
+    colour schemes are declared here.
+
+    Stroke and fill are separate classes on purpose. A single class setting both
+    would fill the arc as well as stroke it — CSS beats the `fill="none"`
+    presentation attribute — and the whole mark renders as a solid disc.
+  -->
+  <style>
+    .arc { fill: none; stroke: #113a68; }
+    .plane { fill: #113a68; stroke: none; }
+    @media (prefers-color-scheme: dark) {
+      .arc { stroke: #8ab6e8; }
+      .plane { fill: #8ab6e8; }
+    }
+  </style>
+  <path class="arc" d="M17.9 5.2A9.6 9.6 0 1 0 20.6 14" stroke-width="2.2" stroke-linecap="round" />
+  <g transform="rotate(42 12 12)">
+    <path
+      class="plane"
+      d="M12.55 5.6a.9.9 0 0 0-1.7.35l.08 4-4.3 2.55v1.35l4.3-1.35.08 2.3-1.6 1.25.08 1.1 2.2-.72 2.2.72.08-1.1-1.6-1.25.08-2.3 4.3 1.35v-1.35l-4.3-2.55Z"
+    />
+  </g>
+</svg>
