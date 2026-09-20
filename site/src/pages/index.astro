@@ -12,7 +12,7 @@ import Base from "../layouts/Base.astro";
 import SearchBox from "../components/SearchBox.astro";
 import HeroBackdrop from "../components/HeroBackdrop.astro";
 import ReliabilityChip from "../components/ReliabilityChip.astro";
-import { readManifest, readPage, pageTitle, formatPeriod, type PageType } from "../lib/pages";
+import { readManifest, readPage, pageTitle, type PageType } from "../lib/pages";
 
 const manifest = readManifest();
 
@@ -51,11 +51,6 @@ const worstRoutes = byRate(routes).reverse().slice(0, 6);
 const airports = [...of("airport")].sort((a, b) => b.ops - a.ops);
 const airlines = byRate(of("airline"));
 
-const bandCounts = routes.reduce<Record<string, number>>((acc, e) => {
-  if (e.band) acc[e.band] = (acc[e.band] ?? 0) + 1;
-  return acc;
-}, {});
-const roughRoutes = (bandCounts.serious ?? 0) + (bandCounts.critical ?? 0);
 
 const Chevron = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 ---
@@ -85,26 +80,6 @@ const Chevron = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="tr
       )
     }
   </section>
-
-  {
-    manifest && (
-      <p class="counts">
-        <strong>{entries.length.toLocaleString("en-US")}</strong> pages ·
-        <strong>{of("flight").length.toLocaleString("en-US")}</strong> flights ·
-        <strong>{routes.length}</strong> routes ·
-        <strong>{airports.length}</strong> airports ·{" "}
-        {formatPeriod(manifest.data_period)}
-        {roughRoutes > 0 && (
-          <>
-            {" "}·{" "}
-            <span class="nowrap">
-              <strong>{roughRoutes}</strong> routes often run late
-            </span>
-          </>
-        )}
-      </p>
-    )
-  }
 
   {
     !manifest ? (
@@ -241,6 +216,9 @@ const Chevron = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="tr
      which is the move that makes a travel site read as search-first. */
   .hero {
     position: relative;
+    /* The search card is lifted 32px past the band's edge, so the band carries
+       the matching margin — otherwise the first section slides under it. */
+    margin-bottom: 30px;
     background: linear-gradient(160deg, var(--hero-from), var(--hero-to));
     color: var(--hero-ink);
     padding: 44px 16px 0;
@@ -275,16 +253,6 @@ const Chevron = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="tr
     padding: 18px 20px;
   }
 
-  /* Clears the lifted card. */
-  .counts {
-    margin: 48px 0 8px;
-    color: var(--text-muted);
-    font-size: 13px;
-    line-height: 1.6;
-    max-width: none;
-  }
-  .counts strong { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-  .counts .nowrap { white-space: nowrap; }
 
   .columns { display: grid; gap: 4px 28px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
 
@@ -314,6 +282,5 @@ const Chevron = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="tr
   @media (max-width: 620px) {
     .hero { padding-top: 32px; }
     .search-card { padding: 14px; transform: translateY(24px); }
-    .counts { margin-top: 40px; }
   }
 </style>

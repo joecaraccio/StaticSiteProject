@@ -1,6 +1,17 @@
 ---
 import Logo from "./Logo.astro";
-/** Site-wide footer. The per-page source credit is SourceNote.astro. */
+import { readManifest, formatPeriod } from "../lib/pages";
+
+/**
+ * Site-wide footer.
+ *
+ * Carries the source credit and the data period, which CLAUDE.md requires on
+ * every page. Detail pages state their own period again near the figures, where
+ * it is doing real work; here it is the backstop that covers the homepage and
+ * the connection checker.
+ */
+const manifest = readManifest();
+const period = manifest ? formatPeriod(manifest.data_period) : null;
 ---
 
 <footer class="site-footer">
@@ -9,8 +20,8 @@ import Logo from "./Logo.astro";
     <p>Historical U.S. flight reliability, built from public Department of Transportation records.</p>
     <p class="fine">
       Source: U.S. Department of Transportation, Bureau of Transportation Statistics, Airline
-      On-Time Performance. Figures describe how flights have behaved in the past; they are not
-      predictions and not affiliated with any airline.
+      On-Time Performance{period ? `, ${period}` : ""}. Figures describe how flights have behaved
+      in the past; they are not predictions and not affiliated with any airline.
     </p>
   </div>
 </footer>

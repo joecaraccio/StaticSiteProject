@@ -2,7 +2,20 @@
 
 Update at the end of each working session.
 
-## 2026-09-19 (latest) — flight-tracker hero backdrop
+## 2026-09-20 — homepage tidy
+
+**Done**
+
+- Removed the page-count strip under the search bar (pages / flights / routes /
+  airports / period / "routes often run late").
+- It was the only place the homepage carried the **data period**, which CLAUDE.md
+  requires on every page, so the period moved to the site footer beside the
+  source credit. That also fixes `/connections`, which showed the source but not
+  the period.
+- The hero band now carries the 30px bottom margin that the lifted search card
+  needs; the removed strip's top margin had been doing that job by accident.
+
+## 2026-09-19 — flight-tracker hero backdrop
 
 **Done**
 
