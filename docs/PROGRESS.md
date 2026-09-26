@@ -2,6 +2,25 @@
 
 Update at the end of each working session.
 
+## 2026-09-26 — carrier decision
+
+**Done**
+
+- Decided flight identity: flight pages are keyed by the **marketing** carrier and
+  flight number (what is on the ticket) and show the operating carrier; airline
+  stats stay on the **reporting** carrier so they can be checked against BTS.
+  Logged in DECISIONS.md; CLAUDE.md's domain definition updated.
+- Decision only, no code change: the marketing carrier table's columns are
+  unverified, so the schema still maps the reporting-carrier table alone.
+
+**Next**
+
+- `make verify-source MONTH=2025-01` from a machine that can reach BTS (this
+  environment's proxy still denies transtats.bts.gov).
+- Extend `verify-source` to probe the marketing carrier table too, then add it as
+  a source and join it to the reporting table.
+- Unblocked here meanwhile: the M6 similarity gate.
+
 ## 2026-09-20 — homepage tidy
 
 **Done**

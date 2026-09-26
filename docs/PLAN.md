@@ -187,7 +187,8 @@ Check tasks off here as they're completed.
 
 ### M1 · Source discovery and single-month ingest
 - [ ] Find and document the current BTS download method for on-time data (see DATA_NOTES.md checklist)
-- [ ] Resolve the reporting vs marketing carrier question and log the decision
+- [x] Resolve the reporting vs marketing carrier question and log the decision (marketing carrier for flight identity, reporting carrier for airline stats; conditional on verifying the marketing table — see DECISIONS.md 2026-09-26)
+- [ ] Verify the marketing carrier table's download method and columns, and add it as a source
 - [x] Source adapter: download one month, save raw with checksum and timestamp, skip unchanged files
 - [x] Parse to Parquet with explicit column types
 - [ ] Record the verified schema in DATA_NOTES.md
@@ -259,7 +260,6 @@ Check tasks off here as they're completed.
 
 ## 13. Open questions
 
-- Reporting carrier vs marketing carrier table for flight identity (see DATA_NOTES.md)
 - How to handle codeshare flight numbers travelers search for
 - MCT defaults per hub
 - Final brand name and domain

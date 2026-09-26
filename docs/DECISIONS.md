@@ -12,6 +12,15 @@ Record meaningful choices here, newest first.
 
 ---
 
+### 2026-09-26 · Flight pages are named by the marketing carrier; airline stats use the reporting carrier
+- **Decision:** A flight page's identity is the **marketing** carrier + marketing flight number + origin + destination — the code and number on the traveler's ticket — and the page states who operates it ("operated by SkyWest"). Airline-level statistics stay on the **reporting (operating)** carrier.
+- **Why:** Travelers search for the number on their booking. On regional flights sold under a mainline brand, the reporting-carrier table files the flight under the regional operator, so a flight page keyed on it would not be found by the person holding the ticket. Airline stats stay on the reporting carrier because that is what BTS publishes and what M2 has to reproduce; mixing the two in one aggregate risks double-counting or dropping flights.
+- **Conditional on verification.** This rests on BTS's description of the marketing carrier table, not on its columns, which have not been seen yet. The canonical schema still maps the reporting-carrier table only, and nothing changes in code until `verify-source` confirms the marketing table's download method and that each row carries both the marketing and the operating carrier and flight number.
+- **Alternatives considered:** Reporting carrier throughout (simplest, matches BTS headline figures, but regional flights appear under a code the traveler never sees); marketing carrier throughout (airline pages would stop matching published BTS numbers); one page per operated flight listing every codeshare number (the table is not known to carry all codeshare partners, and it multiplies near-duplicate pages).
+- **Revisit if:** the marketing table does not carry the operating carrier per row, lacks flight numbers, or covers a shorter period than the 36 months M2 needs.
+
+---
+
 ### 2026-09-19 · The hero backdrop is a tracker, but carries no positions
 - **Decision:** The hero shows flight-tracker chrome — a graticule, great-circle tracks with the flown portion solid and the remainder dashed, plane glyphs with a heading, waypoints and range rings. It has no basemap, no flight numbers, no route codes and no labels.
 - **Why:** The look was asked for and it suits the subject. The omissions are the point: this site is historical planning data, and live tracking is explicitly out of scope (PLAN.md §1). A backdrop showing labelled aircraft at positions would imply a capability the site does not have, and a decorative map with real airport codes on invented coordinates would be inventing data in the one place a reader is most likely to take it literally. Decoration may be decorative; it may not look like data.

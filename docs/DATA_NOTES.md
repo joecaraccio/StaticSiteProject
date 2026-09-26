@@ -58,7 +58,7 @@ replaces.
 - [ ] Meaning of time fields (local time, `hhmm` format, handling of `2400`)
 - [ ] How cancelled and diverted flights populate delay fields
 - [ ] When delay-cause columns are populated
-- [ ] Reporting vs marketing carrier: which one carries the flight number a traveler would search (for example, a regional flight sold under a mainline code)
+- [ ] Reporting vs marketing carrier: which one carries the flight number a traveler would search (for example, a regional flight sold under a mainline code). *Decided 2026-09-26: flight pages use the marketing carrier, airline stats the reporting carrier (DECISIONS.md). Still to confirm from the live source: that the marketing table has the marketing and operating carrier and flight number on each row.*
 - [ ] BTS unique carrier identifiers and how code reuse is handled (BTS notes that carrier codes and names can change or be reused, and provides unique IDs for that reason)
 - [ ] Lookup tables for airports and carriers, and where to download them
 - [ ] A published monthly on-time figure to reproduce for validation (M2)

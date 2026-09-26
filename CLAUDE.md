@@ -145,7 +145,7 @@ Screenshots need Chromium once: `cd site && npx playwright install chromium`.
 - **Operated flight:** not cancelled and not diverted.
 - **Cancellation rate:** cancelled flights ÷ scheduled flights.
 - **Trailing 12 months:** the 12 most recent months available in the data, not the 12 months before today.
-- **Flight identity:** carrier + flight number + origin + destination. See `docs/DATA_NOTES.md` for the open question on reporting vs marketing carrier.
+- **Flight identity:** marketing carrier + marketing flight number + origin + destination (the code and number on the ticket), with the operating carrier shown on the page. Airline-level stats use the reporting (operating) carrier. Decided 2026-09-26, pending verification of the marketing carrier table — see `docs/DECISIONS.md`.
 
 If a definition needs to change, update it here and log it in `docs/DECISIONS.md`.
 
