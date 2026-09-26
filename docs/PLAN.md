@@ -188,15 +188,15 @@ Check tasks off here as they're completed.
 ### M1 · Source discovery and single-month ingest
 - [x] Find and document the current BTS download method for on-time data (see DATA_NOTES.md checklist)
 - [x] Resolve the reporting vs marketing carrier question and log the decision (marketing carrier for flight identity, reporting carrier for airline stats; conditional on verifying the marketing table — see DECISIONS.md 2026-09-26)
-- [ ] Verify the marketing carrier table's download method and columns, and add it as a source
+- [x] Verify the marketing carrier table's download method and columns, and add it as a source
 - [x] Source adapter: download one month, save raw with checksum and timestamp, skip unchanged files
 - [x] Parse to Parquet with explicit column types
 - [x] Record the verified schema in DATA_NOTES.md
 - **Done when:** one month loads reproducibly and row count matches the source.
-- *2026-09-26:* the reporting table is verified and 2025-01 loads with a row count matching the source. Open: the marketing table turned out to be a superset of the reporting table (DATA_NOTES.md), so how it joins in needs deciding before it becomes a source.
+- *2026-09-26:* both tables verified; 2025-01 loads with row counts matching the source. The marketing table is a superset of the reporting one, so they are ingested side by side rather than joined (DECISIONS.md).
 
 ### M2 · Multi-year load and validation
-- [ ] Load 36+ months
+- [x] Load 36+ months (2023-08 .. 2026-07, both tables, 2026-09-26)
 - [ ] Load BTS lookup tables for airlines and airports
 - [ ] Validation checks: row counts vs prior year, value ranges, required fields, duplicate detection
 - [ ] Reproduce a published BTS monthly on-time figure within a small tolerance and document the method

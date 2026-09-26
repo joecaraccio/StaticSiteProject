@@ -53,10 +53,16 @@ Field meanings, from the bundled `readme.html` and checked against the 2025-01 r
 
 2025-01 has 14 reporting carriers: AA AS B6 DL F9 G4 HA MQ NK OH OO UA WN YX.
 
-### Marketing carrier table (observed 2026-09-26, not yet a source)
+### Verified 2026-09-26 · bts_ontime_marketing_carrier
 
-Seen on the PREZIP listing and inspected by hand for 2025-01. `verify-source`
-does not probe it yet, so nothing in code depends on it.
+Verified by `verify-source --month 2025-01 --source bts_ontime_marketing_carrier`;
+the record is `data/verification/bts_ontime_marketing_carrier.json`. 27 columns
+mapped, none missing. The canonical schema (`MARKETING_FIELDS` in
+`pipeline/models/schema.py`) is the reporting one with `carrier`, `carrier_id` and
+`flight_number` taken from the marketing columns, plus `operating_carrier`,
+`operating_carrier_id` and `operating_flight_number`. It feeds flight, route and
+airport pages; the reporting table feeds airline pages only (DECISIONS.md
+2026-09-26).
 
 - **URL pattern:** `https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_{year}_{month}.zip`, months 2018-01 .. 2026-07. 2025-01 is 31,599,374 bytes.
 - **CSV member:** `On_Time_Marketing_Carrier_On_Time_Performance_(Beginning_January_2018)_2025_1.csv`, plus `readme.html`. 119 named columns and a trailing comma (DuckDB reports an empty 120th, `column119`).
@@ -81,13 +87,35 @@ does not probe it yet, so nothing in code depends on it.
 - [x] Meaning of time fields (local time, `hhmm` format, handling of `2400`)
 - [x] How cancelled and diverted flights populate delay fields
 - [x] When delay-cause columns are populated
-- [ ] Reporting vs marketing carrier: which one carries the flight number a traveler would search (for example, a regional flight sold under a mainline code). *Decided 2026-09-26: flight pages use the marketing carrier, airline stats the reporting carrier (DECISIONS.md). Confirmed 2026-09-26 that each marketing-table row carries both, but the table is a superset of the reporting table (see above).*
+- [x] Reporting vs marketing carrier: which one carries the flight number a traveler would search (for example, a regional flight sold under a mainline code). *Decided 2026-09-26: flight pages use the marketing carrier, airline stats the reporting carrier (DECISIONS.md). Confirmed 2026-09-26 that each marketing-table row carries both, but the table is a superset of the reporting table (see above).*
 - [ ] BTS unique carrier identifiers and how code reuse is handled (BTS notes that carrier codes and names can change or be reused, and provides unique IDs for that reason)
 - [ ] Lookup tables for airports and carriers, and where to download them
 - [ ] A published monthly on-time figure to reproduce for validation (M2)
 - [ ] Rate or usage guidance for automated downloads
 
+### Loaded: 2023-08 .. 2026-07 (36 months, both tables, 2026-09-26)
+
+- 22,924,918 marketing rows; 500k-630k reporting rows a month. Nothing failed;
+  every month's Parquet row count equals its CSV row count.
+- 2.2 GB of raw zips (about 27 MB + 32 MB a month) and 410 MB of Parquet.
+- The marketing table's surplus grows from about 6% (2023-24) to about 10%
+  (2025 on), because the set of reporting carriers shrank. Observed, with the
+  cause not checked against BTS:
+
+| Year | Reporting carriers | Operators in the marketing table that do not report |
+|---|---|---|
+| 2023, 2024 | 9E AA AS B6 DL F9 G4 HA MQ NK OH OO UA WN YX | C5 G7 PT QX YV ZW |
+| 2025 | the same, less 9E (last reporting day 2024-12-31) | 9E C5 G7 PT QX YV ZW |
+| 2026 (to July) | the same, less HA | 9E C5 G7 PT QX YV |
+
+- **HA disappears from both tables after 2025-12-31**, as a marketing brand and
+  as an operator. **ZW has no 2026 flights** in either. Why is not recorded
+  here; check BTS before writing anything about it on a page.
+
 ### Field mapping (verified 2026-09-26 against 2025-01)
+
+This table is the reporting carrier mapping. The marketing mapping differs only in
+flight identity; see the marketing table section above and `MARKETING_FIELDS`.
 
 This is the hypothesis `verify-source` tests, mirroring
 `pipeline/models/schema.py`. A required column that turns out not to exist fails

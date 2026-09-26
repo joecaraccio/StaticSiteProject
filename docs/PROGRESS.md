@@ -2,39 +2,71 @@
 
 Update at the end of each working session.
 
-## 2026-09-26 — source verified, first real month loaded
+## 2026-09-26 — both BTS tables verified, 36 months loaded
 
 **Done**
 
-- **The BTS source is verified.** `verify-source --month 2025-01` ran from the
-  owner's machine (via Docker; the host has no `uv` or `make`). The first
-  candidate URL is correct and all 24 mapped columns exist under the expected
-  names. The site root times out, but `/PREZIP/` answers, and it lists 1987-10 ..
-  2026-07.
-- **2025-01 ingested:** 539,747 rows, equal to the CSV row count and to
-  `sum(Flights)`. The second ingest reused the raw file rather than downloading it
-  again.
-- **Field meanings settled** from BTS's bundled `readme.html` plus queries on the
-  real rows: local zero-padded `hhmm`; `2400` appears in actual times only; cancelled
-  and diverted rows have null `ArrDel15`; delay causes exist exactly on operated
-  flights 15+ min late and sum to their arrival delay. The two metrics-layer
-  assumptions still marked "to verify" are now verified. DATA_NOTES.md has the
-  details.
-- **Inspected the marketing carrier table** (2018-01 onward, same PREZIP
-  directory). Each row has the marketing and operating carrier and flight number,
-  as the carrier decision required.
+- **The BTS source is verified.** `verify-source` ran from the owner's machine
+  (via Docker; the host has no `uv` or `make`). The site root times out, but
+  `/PREZIP/` answers and lists both tables through 2026-07. Field meanings are
+  settled from BTS's bundled `readme.html` and the real rows, and the two
+  metrics-layer assumptions marked "to verify" are now verified (DATA_NOTES.md).
+- **Decided the table split** (owner approved). The marketing carrier table is
+  a *superset* of the reporting one: for 2025-01, 599,013 rows vs 539,747. The
+  extra ~10% are flights by regional operators that don't report to BTS
+  themselves, sold as Delta, American, United and Alaska. Joining the tables would
+  have dropped them. So the marketing table feeds flight, route and airport pages,
+  and the reporting table feeds airline pages only. See DECISIONS.md and CLAUDE.md.
+  (A first comparison claimed ~1,000 unexplained mismatches; that was an addition
+  error. The real residue is 23 + 16 flights out of ~540k.)
+- **Both tables are sources now.** Each has its own mapping, verification record,
+  raw directory and `data/clean/<source>/` Parquet. `ingest` refuses until both
+  are verified. `verify-source` and `normalize` take `--source`.
+- **Views:** `operations` reads the marketing table and `operations_reporting`
+  the reporting table. `airline_metrics` and `airline_by_month` read the latter.
+  A new `flight_operator` view names who flies each marketed flight, with ties
+  broken deterministically.
+- **Page JSON:** flight pages gain `operated_by` (carrier, flight number, share),
+  alternatives gain `operating_carrier`, and `source.table` names the table a page
+  was computed from. The change is additive, so the schema version is unchanged.
+  The regenerated mockup export differs only by those fields.
+- **Headers are matched trimmed.** BTS ships `"Operating_Airline "` with a
+  trailing space. The test fixture reproduces it.
+- **Loaded 2023-08 .. 2026-07** for both tables: 22.9M marketing rows, 2.2 GB
+  raw, 410 MB Parquet, and `build` succeeds. Spot checks: airline totals equal the
+  reporting table exactly, and DL 3860 ATL-MGM resolves to SkyWest (OO), 96% of
+  flights.
 
-- **Decided the table split** (owner approved): the marketing table is a
-  **superset** of the reporting table, 599,013 rows vs 539,747 for 2025-01. The
-  extra ~10% are flights by seven regional operators that don't report to BTS
-  themselves (9E, PT, QX, YV, C5, G7, ZW), sold as Delta, American, United and
-  Alaska. Joining it onto the reporting table, as first planned, would have
-  dropped them all. So the marketing table feeds flight, route and airport pages,
-  and the reporting table feeds airline pages only. DECISIONS.md 2026-09-26;
-  CLAUDE.md's domain definitions updated.
-- A first pass at the comparison reported ~1,000 unexplained mismatches; that
-  was an addition error. The real residue is 23 marketing-only and 16
-  reporting-only flights out of ~540k.
+**Found**
+
+- **Export does not scale.** It runs several queries per candidate page against
+  views that re-aggregate the whole Parquet set each time. On real data that is
+  about 13 pages a minute across 222,261 candidate flights (128,420 with 10+
+  flights), roughly 12 days. It was stopped, and `data/export/` is empty. The
+  mockup's 48k rows hid this.
+- **Carriers change under us.** 9E stopped reporting after 2024. HA is absent
+  from *both* tables after 2025-12-31, and ZW has no 2026 flights. The flight gate
+  already noindexes stale flights, but the airline gate publishes every reporting
+  carrier unconditionally, so HA would get a live page with 5 of its 12 months.
+
+**Next**
+
+1. Make export scale: materialize the grouped views as tables in `build`, and
+   read each page type's series and alternatives in one ordered query each rather
+   than once per page. Gate on volume *before* building a document.
+2. The site doesn't render `operated_by` yet ("Operated by SkyWest as 3860").
+   That's waiting on the search work in `site/` from the parallel session.
+3. Decide the airline gate for carriers that stopped reporting partway through
+   the trailing 12 months (HA).
+4. M2: BTS lookup tables (carrier and airport names), validation checks, and
+   reproducing a published BTS on-time figure.
+
+**Open questions**
+
+- v1 aims at 500-1,000 pages, but there are ~128k flights with 10+ flights in
+  the trailing 12 months. The wave-1 selection rule needs deciding.
+- Disk: 17 GB free on C: (99% used). Each further year of both tables is about
+  0.7 GB raw plus 0.15 GB Parquet.
 
 ## 2026-09-26 — carrier decision
 
