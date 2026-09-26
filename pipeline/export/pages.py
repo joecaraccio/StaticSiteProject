@@ -21,6 +21,7 @@ import duckdb
 from pipeline import config
 from pipeline.gates.rules import Decision, Outcome, PageCandidate, evaluate, report_rows, summarize
 from pipeline.metrics import build
+from pipeline.sources import bts_ontime
 from pipeline.summaries.rules import SummaryContext
 from pipeline.summaries.rules import summarize as summarize_page
 
@@ -115,11 +116,14 @@ def _alternatives(
 
     cursor = con.execute(
         """
-        SELECT carrier, flight_number, typical_sched_dep, ops_scheduled,
-               on_time_rate, cancellation_rate, avg_arr_delay_when_late_min
-        FROM flight_metrics
-        WHERE origin = ? AND dest = ?
-        ORDER BY on_time_rate DESC NULLS LAST, ops_scheduled DESC
+        SELECT m.carrier, m.flight_number, o.operating_carrier, m.typical_sched_dep,
+               m.ops_scheduled, m.on_time_rate, m.cancellation_rate,
+               m.avg_arr_delay_when_late_min
+        FROM flight_metrics m
+        JOIN flight_operator o USING (carrier, flight_number, origin, dest)
+        WHERE m.origin = ? AND m.dest = ?
+        ORDER BY m.on_time_rate DESC NULLS LAST, m.ops_scheduled DESC,
+                 m.carrier, m.flight_number
         LIMIT ?
         """,
         [keys["origin"], keys["dest"], MAX_ALTERNATIVES],
@@ -204,6 +208,18 @@ def _route_rates(con: duckdb.DuckDBPyConnection) -> dict[tuple[str, str], float]
     }
 
 
+def _operators(con: duckdb.DuckDBPyConnection) -> dict[tuple, dict[str, Any]]:
+    """Who flies each marketed flight, keyed like a flight page."""
+    cursor = con.execute(
+        "SELECT carrier, flight_number, origin, dest, operating_carrier, "
+        "operating_flight_number, operating_share FROM flight_operator"
+    )
+    return {
+        (c, n, o, d): {"carrier": oc, "flight_number": ofn, "share": share}
+        for c, n, o, d, oc, ofn, share in cursor.fetchall()
+    }
+
+
 def _delay_causes(row: dict[str, Any]) -> dict[str, Any]:
     """Cause shares, as a fraction of *attributed* minutes.
 
@@ -274,7 +290,11 @@ def _build_document(
     alternatives: list[dict[str, Any]],
     period: tuple[date, date],
     generated_at: datetime,
+    operated_by: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    # Airline pages read the reporting carrier table, everything else the
+    # marketing carrier table (DECISIONS.md 2026-09-26).
+    table = bts_ontime.REPORTING if page_type == "airline" else bts_ontime.MARKETING
     return {
         "schema_version": SCHEMA_VERSION,
         "page_type": page_type,
@@ -283,7 +303,7 @@ def _build_document(
         "data_period": {"start": period[0].isoformat(), "end": period[1].isoformat()},
         "source": {
             "attribution": ATTRIBUTION,
-            "table": "Airline On-Time Performance (reporting carrier)",
+            "table": table.title,
         },
         "generated_at": generated_at.isoformat(timespec="seconds"),
         "headline_stats": {
@@ -303,6 +323,9 @@ def _build_document(
             "last_seen": row["last_seen"].isoformat() if row.get("last_seen") else None,
             "months_covered": row.get("months_covered"),
         },
+        # Flight pages only: the operator that flew most of the trailing 12
+        # months, its own flight number, and the share of flights it flew.
+        "operated_by": operated_by,
         "monthly_series": monthly,
         "alternatives": alternatives,
         "delay_causes": _delay_causes(row),
@@ -352,6 +375,7 @@ def export_all(
         if period[0] is None:
             raise build.NoDataError("No operations in the database; run ingest first.")
         route_rates = _route_rates(con)
+        operators = _operators(con)
         stamp = generated_at or datetime.now().astimezone()
 
         decisions: dict[str, Decision] = {}
@@ -371,8 +395,9 @@ def export_all(
                 url = url_pattern.format(**{k: str(v) for k, v in keys.items()})
                 monthly = _monthly_series(con, MONTHLY_VIEW[page_type], keys)
                 alternatives = _alternatives(con, page_type, keys)
+                operated_by = operators.get(tuple(keys.values())) if page_type == "flight" else None
                 document = _build_document(
-                    page_type, row, keys, url, monthly, alternatives, period, stamp
+                    page_type, row, keys, url, monthly, alternatives, period, stamp, operated_by
                 )
                 if demo_notice:
                     document["demo_notice"] = demo_notice

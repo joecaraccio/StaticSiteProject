@@ -14,7 +14,7 @@
   },
   "source": {
     "attribution": "U.S. Department of Transportation, Bureau of Transportation Statistics",
-    "table": "Airline On-Time Performance (reporting carrier)"
+    "table": "Marketing Carrier On-Time Performance (Beginning January 2018)"
   },
   "generated_at": "2026-09-17T00:00:00+00:00",
   "headline_stats": {
@@ -33,6 +33,11 @@
     "first_seen": "2025-08-01",
     "last_seen": "2026-07-31",
     "months_covered": 12
+  },
+  "operated_by": {
+    "carrier": "B6",
+    "flight_number": "1484",
+    "share": 1.0
   },
   "monthly_series": [
     {
@@ -208,6 +213,7 @@
     {
       "carrier": "B6",
       "flight_number": "1484",
+      "operating_carrier": "B6",
       "typical_sched_dep": "0740",
       "ops_scheduled": 365,
       "on_time_rate": 0.8777777777777778,
@@ -219,6 +225,7 @@
     {
       "carrier": "UA",
       "flight_number": "1777",
+      "operating_carrier": "UA",
       "typical_sched_dep": "1030",
       "ops_scheduled": 365,
       "on_time_rate": 0.7784090909090909,
@@ -230,6 +237,7 @@
     {
       "carrier": "WN",
       "flight_number": "2791",
+      "operating_carrier": "WN",
       "typical_sched_dep": "1630",
       "ops_scheduled": 261,
       "on_time_rate": 0.6186770428015564,
@@ -241,6 +249,7 @@
     {
       "carrier": "B6",
       "flight_number": "796",
+      "operating_carrier": "B6",
       "typical_sched_dep": "2105",
       "ops_scheduled": 313,
       "on_time_rate": 0.4967741935483871,

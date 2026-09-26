@@ -12,7 +12,7 @@
   },
   "source": {
     "attribution": "U.S. Department of Transportation, Bureau of Transportation Statistics",
-    "table": "Airline On-Time Performance (reporting carrier)"
+    "table": "Marketing Carrier On-Time Performance (Beginning January 2018)"
   },
   "generated_at": "2026-09-17T00:00:00+00:00",
   "headline_stats": {
@@ -32,6 +32,7 @@
     "last_seen": "2026-07-31",
     "months_covered": 12
   },
+  "operated_by": null,
   "monthly_series": [
     {
       "month": "2024-08",
@@ -206,6 +207,7 @@
     {
       "carrier": "AA",
       "flight_number": "637",
+      "operating_carrier": "AA",
       "typical_sched_dep": "1030",
       "ops_scheduled": 261,
       "on_time_rate": 0.8047808764940239,
@@ -217,6 +219,7 @@
     {
       "carrier": "UA",
       "flight_number": "2995",
+      "operating_carrier": "UA",
       "typical_sched_dep": "1705",
       "ops_scheduled": 261,
       "on_time_rate": 0.6039215686274509,
@@ -228,6 +231,7 @@
     {
       "carrier": "B6",
       "flight_number": "2220",
+      "operating_carrier": "B6",
       "typical_sched_dep": "1900",
       "ops_scheduled": 365,
       "on_time_rate": 0.5235457063711911,
@@ -239,6 +243,7 @@
     {
       "carrier": "AA",
       "flight_number": "692",
+      "operating_carrier": "AA",
       "typical_sched_dep": "2145",
       "ops_scheduled": 365,
       "on_time_rate": 0.4444444444444444,

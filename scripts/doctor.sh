@@ -121,13 +121,13 @@ fi
 
 section "Project state"
 
-if [ -f data/verification/bts_ontime_reporting_carrier.json ]; then
-  ok "BTS source is verified"
+if [ -f data/verification/bts_ontime_reporting_carrier.json ]    && [ -f data/verification/bts_ontime_marketing_carrier.json ]; then
+  ok "both BTS tables are verified"
 else
   warn "BTS source is NOT verified" "Nothing can be ingested until: make verify-source MONTH=2025-01"
 fi
 
-MONTHS=$(find data/clean/operations -name 'operations_*.parquet' 2>/dev/null | wc -l | tr -d ' ')
+MONTHS=$(find data/clean/bts_ontime_marketing_carrier -name 'operations_*.parquet' 2>/dev/null | wc -l | tr -d ' ')
 if [ "$MONTHS" -gt 0 ]; then
   ok "$MONTHS month(s) of real data normalized"
 else

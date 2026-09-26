@@ -13,14 +13,17 @@ Definitions follow CLAUDE.md exactly:
 
 from __future__ import annotations
 
-# --- Base view -------------------------------------------------------------
+# --- Base views ------------------------------------------------------------
 #
-# `sched_dep_hour` interprets the reported hhmm string. BTS reports midnight at
-# the end of a day as 2400, which is hour 0 of the following clock cycle; we map
-# it to 0 so hour-of-day buckets stay in 0-23. This is an assumption recorded in
-# DECISIONS.md and flagged in DATA_NOTES.md, not a verified source statement.
+# Formatted once per source: `operations` over the marketing carrier table (flight,
+# route and airport pages) and `operations_reporting` over the reporting carrier
+# table (airline pages). Both canonical schemas share every column used here.
+#
+# `sched_dep_hour` interprets the reported hhmm string. Scheduled times are
+# zero-padded and run 0001-2359 (verified 2026-09-26, DATA_NOTES.md); the `% 24`
+# only guards against a 2400 turning up later.
 BASE_VIEW = """
-CREATE OR REPLACE VIEW operations AS
+CREATE OR REPLACE VIEW {view} AS
 SELECT
     *,
     (cancelled = 0 AND diverted = 0)                         AS operated,
@@ -110,12 +113,45 @@ METRIC_EXPRESSIONS: tuple[tuple[str, str], ...] = (
     ("months_covered", "count(DISTINCT flight_month)"),
 )
 
-#: Grouped entity views: view name -> key columns.
-GROUPINGS: dict[str, tuple[str, ...]] = {
-    "flight_metrics": ("carrier", "flight_number", "origin", "dest"),
-    "route_metrics": ("origin", "dest"),
-    "airline_metrics": ("carrier",),
+#: Grouped entity views: view name -> (key columns, source view).
+#:
+#: Airline figures come from the reporting carrier table and everything else from
+#: the marketing carrier table (DECISIONS.md 2026-09-26), so `carrier` on a flight
+#: is the brand on the ticket and `carrier` on an airline page is the reporting
+#: carrier.
+GROUPINGS: dict[str, tuple[tuple[str, ...], str]] = {
+    "flight_metrics": (("carrier", "flight_number", "origin", "dest"), "operations_t12"),
+    "route_metrics": (("origin", "dest"), "operations_t12"),
+    "airline_metrics": (("carrier",), "operations_reporting_t12"),
 }
+
+#: Who flies each marketed flight. A flight can change operator (or operating
+#: flight number) mid-year, so this names the most common pairing over the
+#: trailing 12 months and the share of the schedule it flew. Ties break on the
+#: codes themselves, so the choice is deterministic and exports stay reproducible.
+FLIGHT_OPERATOR_VIEW = """
+CREATE OR REPLACE VIEW flight_operator AS
+WITH pairs AS (
+    SELECT carrier, flight_number, origin, dest,
+           operating_carrier, operating_flight_number, count(*) AS n
+    FROM operations_t12
+    GROUP BY ALL
+),
+ranked AS (
+    SELECT *,
+           sum(n) OVER (PARTITION BY carrier, flight_number, origin, dest) AS total,
+           row_number() OVER (
+               PARTITION BY carrier, flight_number, origin, dest
+               ORDER BY n DESC, operating_carrier, operating_flight_number
+           ) AS rank
+    FROM pairs
+)
+SELECT carrier, flight_number, origin, dest,
+       operating_carrier, operating_flight_number,
+       n::DOUBLE / total AS operating_share
+FROM ranked
+WHERE rank = 1
+"""
 
 #: Seasonality and breakdown views.
 #: view name -> (key columns, dimension columns, source view)
@@ -130,7 +166,7 @@ SEASONALITY: dict[str, tuple[tuple[str, ...], tuple[str, ...], str]] = {
         "operations",
     ),
     "route_by_month": (("origin", "dest"), ("flight_month",), "operations"),
-    "airline_by_month": (("carrier",), ("flight_month",), "operations"),
+    "airline_by_month": (("carrier",), ("flight_month",), "operations_reporting"),
     "airport_by_month": (("airport", "role"), ("flight_month",), "airport_operations"),
     "route_by_dow": (("origin", "dest"), ("day_of_week",), "operations_t12"),
     "route_by_dep_hour": (("origin", "dest"), ("sched_dep_hour",), "operations_t12"),

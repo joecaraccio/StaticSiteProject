@@ -14,7 +14,7 @@
   },
   "source": {
     "attribution": "U.S. Department of Transportation, Bureau of Transportation Statistics",
-    "table": "Airline On-Time Performance (reporting carrier)"
+    "table": "Marketing Carrier On-Time Performance (Beginning January 2018)"
   },
   "generated_at": "2026-09-17T00:00:00+00:00",
   "headline_stats": {
@@ -33,6 +33,11 @@
     "first_seen": "2025-08-01",
     "last_seen": "2026-07-31",
     "months_covered": 12
+  },
+  "operated_by": {
+    "carrier": "AA",
+    "flight_number": "2372",
+    "share": 1.0
   },
   "monthly_series": [
     {
@@ -208,6 +213,7 @@
     {
       "carrier": "AA",
       "flight_number": "2372",
+      "operating_carrier": "AA",
       "typical_sched_dep": "0720",
       "ops_scheduled": 365,
       "on_time_rate": 0.847887323943662,
@@ -219,6 +225,7 @@
     {
       "carrier": "WN",
       "flight_number": "388",
+      "operating_carrier": "WN",
       "typical_sched_dep": "1920",
       "ops_scheduled": 313,
       "on_time_rate": 0.6302250803858521,
@@ -230,6 +237,7 @@
     {
       "carrier": "DL",
       "flight_number": "2990",
+      "operating_carrier": "DL",
       "typical_sched_dep": "1705",
       "ops_scheduled": 365,
       "on_time_rate": 0.6143250688705234,
@@ -241,6 +249,7 @@
     {
       "carrier": "AA",
       "flight_number": "366",
+      "operating_carrier": "AA",
       "typical_sched_dep": "2120",
       "ops_scheduled": 365,
       "on_time_rate": 0.4619718309859155,

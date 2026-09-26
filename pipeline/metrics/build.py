@@ -1,7 +1,7 @@
 """Create the DuckDB views that the export layer reads.
 
-Nothing is materialized: the views sit on top of `data/clean/**.parquet`, so a
-rebuild is just re-running this. `pipeline build` persists them into
+Nothing is materialized: the views sit on top of `data/clean/<source>/*.parquet`,
+so a rebuild is just re-running this. `pipeline build` persists them into
 data/clean/usually_late.duckdb, which is also what the DuckDB web UI opens.
 """
 
@@ -9,21 +9,25 @@ from __future__ import annotations
 
 import duckdb
 
-from pipeline import config
+from pipeline import config, normalize
 from pipeline.metrics.definitions import (
     BASE_VIEW,
+    FLIGHT_OPERATOR_VIEW,
     GROUPINGS,
     SEASONALITY,
     metric_select,
 )
+from pipeline.sources import bts_ontime
+
+#: Base view name -> the source it reads. See DECISIONS.md 2026-09-26.
+BASE_VIEWS: dict[str, bts_ontime.Source] = {
+    "operations": bts_ontime.MARKETING,
+    "operations_reporting": bts_ontime.REPORTING,
+}
 
 
 class NoDataError(RuntimeError):
     """No normalized Parquet found; run ingest first."""
-
-
-def parquet_glob() -> str:
-    return (config.PATHS.clean / "operations" / "operations_*.parquet").as_posix()
 
 
 def _grouped_view(name: str, keys: tuple[str, ...], source: str) -> str:
@@ -40,12 +44,14 @@ GROUP BY {key_list}
 
 def build_views(con: duckdb.DuckDBPyConnection) -> list[str]:
     """Create every view, in dependency order. Returns the view names created."""
-    glob = parquet_glob()
-    con.execute(BASE_VIEW.format(parquet_glob=glob))
-    created = ["operations"]
+    created: list[str] = []
+    for view, source in BASE_VIEWS.items():
+        con.execute(BASE_VIEW.format(view=view, parquet_glob=normalize.parquet_glob(source)))
+        created.append(view)
 
     # Trailing 12 months = the 12 most recent months present in the data, not the
-    # 12 months before today (CLAUDE.md).
+    # 12 months before today (CLAUDE.md). One window for both tables, taken from
+    # the one flight pages read, so every page states the same period.
     con.execute(
         """
         CREATE OR REPLACE VIEW t12_window AS
@@ -55,15 +61,17 @@ def build_views(con: duckdb.DuckDBPyConnection) -> list[str]:
         FROM operations
         """
     )
-    con.execute(
-        """
-        CREATE OR REPLACE VIEW operations_t12 AS
-        SELECT o.*
-        FROM operations o, t12_window w
-        WHERE o.flight_month BETWEEN w.earliest_month AND w.latest_month
-        """
-    )
-    created += ["t12_window", "operations_t12"]
+    created.append("t12_window")
+    for view in BASE_VIEWS:
+        con.execute(
+            f"""
+            CREATE OR REPLACE VIEW {view}_t12 AS
+            SELECT o.*
+            FROM {view} o, t12_window w
+            WHERE o.flight_month BETWEEN w.earliest_month AND w.latest_month
+            """
+        )
+        created.append(f"{view}_t12")
 
     # Airport pages care about both directions, so each flight appears twice:
     # once as a departure from its origin, once as an arrival at its dest.
@@ -81,9 +89,12 @@ def build_views(con: duckdb.DuckDBPyConnection) -> list[str]:
         )
         created.append(dst)
 
-    for name, keys in GROUPINGS.items():
-        con.execute(_grouped_view(name, keys, "operations_t12"))
+    for name, (keys, source) in GROUPINGS.items():
+        con.execute(_grouped_view(name, keys, source))
         created.append(name)
+
+    con.execute(FLIGHT_OPERATOR_VIEW)
+    created.append("flight_operator")
 
     con.execute(_grouped_view("airport_metrics", ("airport", "role"), "airport_operations_t12"))
     created.append("airport_metrics")
@@ -102,11 +113,10 @@ def connect(read_only: bool = False) -> duckdb.DuckDBPyConnection:
 
 def rebuild_database() -> tuple[list[str], dict]:
     """Rebuild the persistent DuckDB file's views and return a small summary."""
-    if not list((config.PATHS.clean / "operations").glob("operations_*.parquet")):
-        raise NoDataError(
-            f"No Parquet under {config.PATHS.clean / 'operations'}.\n"
-            "Run `pipeline ingest --months YYYY-MM` first."
-        )
+    missing = [s for s in BASE_VIEWS.values() if not normalize.available_months(s)]
+    if missing:
+        where = ", ".join(f"{s.id} (under {normalize.clean_dir(s)})" for s in missing)
+        raise NoDataError(f"No Parquet for {where}.\nRun `pipeline ingest --months YYYY-MM` first.")
     con = connect()
     try:
         views = build_views(con)

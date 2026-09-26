@@ -1,13 +1,16 @@
-"""Adapter for the BTS Airline On-Time Performance table (reporting carrier).
+"""Adapter for the BTS Airline On-Time Performance tables.
+
+Two tables, one download mechanism: both are published as monthly zips in the
+same PREZIP directory, so a `Source` value says which table, and every function
+here takes one. See DECISIONS.md 2026-09-26 for why both are ingested.
 
 Raw data is immutable (CLAUDE.md): a download is written once, with a sidecar
 `.meta.json` carrying the URL, sha256, byte count, fetch timestamp and validator
 headers. If BTS later revises a month, the previous bytes are archived beside the
 new file rather than overwritten, so nothing is silently lost.
 
-The URL templates below are CANDIDATES, not verified facts. Nothing in the
-pipeline downloads or parses against them until `pipeline verify-source` has
-confirmed one against the live site and written a verification record.
+Nothing downloads against a URL template until `pipeline verify-source` has
+confirmed it against the live site and written a verification record.
 """
 
 from __future__ import annotations
@@ -18,17 +21,54 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from pipeline import config
+from pipeline.models import schema
 from pipeline.sources import http
 
-SOURCE_ID = "bts_ontime_reporting_carrier"
 
-#: Candidate monthly bulk-download URL templates, in the order they are tried.
-#: `{year}` is 4-digit, `{month}` is 1-12 with no zero padding.
-#: STATUS: unverified. Confirm with `pipeline verify-source` before relying on these.
-URL_CANDIDATES: tuple[str, ...] = (
-    "https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_{year}_{month}.zip",
-    "https://transtats.bts.gov/PREZIP/On_Time_On_Time_Performance_{year}_{month}.zip",
+@dataclass(frozen=True)
+class Source:
+    """One BTS table: where it is published and how its columns map.
+
+    `url_candidates` are tried in order by `verify-source`; `{year}` is 4-digit,
+    `{month}` is 1-12 with no zero padding.
+    """
+
+    id: str
+    title: str
+    url_candidates: tuple[str, ...]
+    fields: tuple[schema.Field, ...]
+
+
+#: Flight, route and airport pages. Every flight, including those by regional
+#: operators that do not report to BTS themselves. Verified 2026-09-26.
+MARKETING = Source(
+    id="bts_ontime_marketing_carrier",
+    title="Marketing Carrier On-Time Performance (Beginning January 2018)",
+    url_candidates=(
+        "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_{year}_{month}.zip",
+    ),
+    fields=schema.MARKETING_FIELDS,
 )
+
+#: Airline pages only: BTS's official record per reporting carrier. Verified 2026-09-26.
+REPORTING = Source(
+    id="bts_ontime_reporting_carrier",
+    title="Reporting Carrier On-Time Performance (1987-present)",
+    url_candidates=(
+        "https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_{year}_{month}.zip",
+        "https://transtats.bts.gov/PREZIP/On_Time_On_Time_Performance_{year}_{month}.zip",
+    ),
+    fields=schema.REPORTING_FIELDS,
+)
+
+SOURCES: tuple[Source, ...] = (MARKETING, REPORTING)
+
+
+def source_by_id(source_id: str) -> Source:
+    for source in SOURCES:
+        if source.id == source_id:
+            return source
+    raise KeyError(f"Unknown source {source_id!r}; known: {', '.join(s.id for s in SOURCES)}")
 
 
 @dataclass(frozen=True)
@@ -68,26 +108,26 @@ def parse_month(label: str) -> tuple[int, int]:
     return year, month
 
 
-def raw_dir(year: int) -> Path:
-    return config.PATHS.raw / SOURCE_ID / f"{year:04d}"
+def raw_dir(source: Source, year: int) -> Path:
+    return config.PATHS.raw / source.id / f"{year:04d}"
 
 
-def raw_path(year: int, month: int) -> Path:
-    return raw_dir(year) / f"{SOURCE_ID}_{month_label(year, month)}.zip"
+def raw_path(source: Source, year: int, month: int) -> Path:
+    return raw_dir(source, year) / f"{source.id}_{month_label(year, month)}.zip"
 
 
-def meta_path(year: int, month: int) -> Path:
-    return raw_path(year, month).with_suffix(".meta.json")
+def meta_path(source: Source, year: int, month: int) -> Path:
+    return raw_path(source, year, month).with_suffix(".meta.json")
 
 
-def load_meta(year: int, month: int) -> dict | None:
-    path = meta_path(year, month)
+def load_meta(source: Source, year: int, month: int) -> dict | None:
+    path = meta_path(source, year, month)
     if not path.exists():
         return None
     return json.loads(path.read_text())
 
 
-def _write_meta(record: RawRecord, previous: dict | None) -> None:
+def _write_meta(source: Source, record: RawRecord, previous: dict | None) -> None:
     payload = asdict(record)
     history = list(previous.get("history", [])) if previous else []
     if previous and previous.get("sha256") and previous["sha256"] != record.sha256:
@@ -100,17 +140,18 @@ def _write_meta(record: RawRecord, previous: dict | None) -> None:
             }
         )
     payload["history"] = history
-    meta_path(record.year, record.month).write_text(json.dumps(payload, indent=2) + "\n")
+    meta_path(source, record.year, record.month).write_text(json.dumps(payload, indent=2) + "\n")
 
 
 def fetch_month(
+    source: Source,
     year: int,
     month: int,
     *,
     url_template: str,
     force: bool = False,
 ) -> RawRecord:
-    """Download one month of on-time data, skipping work when nothing changed.
+    """Download one month of one table, skipping work when nothing changed.
 
     Uses a conditional GET against the stored ETag/Last-Modified, and also
     compares checksums, so an unchanged file is neither re-downloaded nor
@@ -118,8 +159,8 @@ def fetch_month(
     """
     config.PATHS.ensure()
     url = url_template.format(year=year, month=month)
-    dest = raw_path(year, month)
-    previous = None if force else load_meta(year, month)
+    dest = raw_path(source, year, month)
+    previous = None if force else load_meta(source, year, month)
 
     if previous and dest.exists() and not force:
         try:
@@ -131,7 +172,7 @@ def fetch_month(
             )
         except http.NotModified:
             return RawRecord(
-                source_id=SOURCE_ID,
+                source_id=source.id,
                 year=year,
                 month=month,
                 url=url,
@@ -148,7 +189,7 @@ def fetch_month(
         if digest == previous["sha256"]:
             candidate.unlink(missing_ok=True)
             return RawRecord(
-                source_id=SOURCE_ID,
+                source_id=source.id,
                 year=year,
                 month=month,
                 url=url,
@@ -167,7 +208,7 @@ def fetch_month(
         previous = {**previous, "archived_path": str(archived)}
         candidate.replace(dest)
         record = RawRecord(
-            source_id=SOURCE_ID,
+            source_id=source.id,
             year=year,
             month=month,
             url=url,
@@ -179,12 +220,12 @@ def fetch_month(
             last_modified=response.headers.get("Last-Modified"),
             outcome="revised",
         )
-        _write_meta(record, previous)
+        _write_meta(source, record, previous)
         return record
 
     response = http.download(url, dest)
     record = RawRecord(
-        source_id=SOURCE_ID,
+        source_id=source.id,
         year=year,
         month=month,
         url=url,
@@ -196,5 +237,5 @@ def fetch_month(
         last_modified=response.headers.get("Last-Modified"),
         outcome="downloaded",
     )
-    _write_meta(record, previous)
+    _write_meta(source, record, previous)
     return record

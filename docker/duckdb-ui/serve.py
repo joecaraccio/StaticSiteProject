@@ -18,8 +18,9 @@ from pathlib import Path
 
 import duckdb
 
-from pipeline import config
+from pipeline import config, normalize
 from pipeline.metrics import build
+from pipeline.sources import bts_ontime
 
 PORT = int(os.environ.get("DUCKDB_UI_INTERNAL_PORT", "4212"))
 
@@ -34,13 +35,13 @@ def main() -> int:
         Path(extension_dir).mkdir(parents=True, exist_ok=True)
         con.execute(f"SET extension_directory = '{extension_dir}'")
 
-    parquet = sorted((config.PATHS.clean / "operations").glob("operations_*.parquet"))
-    if parquet:
+    months = [normalize.available_months(s) for s in bts_ontime.SOURCES]
+    if all(months):
         views = build.build_views(con)
-        print(f"duckdb-ui: {len(views)} views over {len(parquet)} month(s) of Parquet", flush=True)
+        print(f"duckdb-ui: {len(views)} views over {len(months[0])} month(s) of Parquet", flush=True)
     else:
         print(
-            "duckdb-ui: no Parquet under /data/clean/operations yet, so no views were "
+            "duckdb-ui: Parquet for both BTS tables is not there yet, so no views were "
             "created. Run an ingest, then restart this service.",
             flush=True,
         )

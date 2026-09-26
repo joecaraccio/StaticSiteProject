@@ -48,7 +48,7 @@ def test_status_runs_on_an_empty_tree(data_root, capsys):
     assert cli.main(["status"]) == 0
     out = capsys.readouterr().out
     assert "NOT VERIFIED" in out
-    assert "clean:     0 months" in out
+    assert out.count("clean:   0 months") == 2  # one line per source
 
 
 def test_build_and_query_over_the_fixture(normalized, capsys):

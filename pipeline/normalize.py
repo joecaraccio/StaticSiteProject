@@ -3,10 +3,12 @@
 All transformation happens here, downstream of immutable raw storage. DuckDB does
 the CSV reading and Parquet writing natively, so there is no pandas/pyarrow step.
 
-Times are stored as reported (trimmed strings, e.g. "800", "2400"). Interpreting
-hhmm is deliberately left to the metrics layer: the meaning of those fields is
-still an open item on the DATA_NOTES.md verification checklist, and guessing here
-would bake an assumption into storage.
+Each source gets its own directory, `data/clean/<source id>/`, because the two
+tables mean different things by `carrier` and must never be read as one.
+
+Times are stored as reported (zero-padded hhmm strings, "2400" possible in actual
+times). Interpreting them is left to the metrics layer, so storage never bakes in
+an interpretation.
 """
 
 from __future__ import annotations
@@ -26,6 +28,7 @@ from pipeline.sources import bts_ontime
 
 @dataclass(frozen=True)
 class NormalizeResult:
+    source_id: str
     month: str
     parquet_path: str
     source_rows: int
@@ -33,12 +36,16 @@ class NormalizeResult:
     columns: int
 
 
-def parquet_path(year: int, month: int) -> Path:
-    return (
-        config.PATHS.clean
-        / "operations"
-        / f"operations_{bts_ontime.month_label(year, month)}.parquet"
-    )
+def clean_dir(source: bts_ontime.Source) -> Path:
+    return config.PATHS.clean / source.id
+
+
+def parquet_glob(source: bts_ontime.Source) -> str:
+    return (clean_dir(source) / "operations_*.parquet").as_posix()
+
+
+def parquet_path(source: bts_ontime.Source, year: int, month: int) -> Path:
+    return clean_dir(source) / f"operations_{bts_ontime.month_label(year, month)}.parquet"
 
 
 def _sql_literal(value: str) -> str:
@@ -46,37 +53,47 @@ def _sql_literal(value: str) -> str:
     return "'" + value.replace("'", "''") + "'"
 
 
-def _select_expression(header: list[str]) -> str:
+def _select_expression(fields: tuple[schema.Field, ...], header: list[str]) -> str:
     """Build the canonical SELECT list against the columns actually present.
 
+    Header names are matched after trimming, because BTS ships at least one with
+    a trailing space (`"Operating_Airline "`); the verifier matches the same way.
     A required column that is absent is a hard error: the caller has already
     checked the verification record, so reaching here means the source changed.
     """
-    present = set(header)
+    actual = {h.strip(): h for h in header}
     parts: list[str] = []
-    for f in schema.OPERATIONS_FIELDS:
-        if f.source not in present:
+    for f in fields:
+        column = actual.get(f.source)
+        if column is None:
             if f.required:
                 raise ValueError(f"Required source column {f.source!r} not in file header")
             parts.append(f"CAST(NULL AS {f.sql_type}) AS {f.name}")
             continue
+        quoted = '"' + column.replace('"', '""') + '"'
         if f.sql_type == "VARCHAR":
             # NULLIF collapses the empty strings BTS uses for absent values.
-            parts.append(f"NULLIF(TRIM(CAST(\"{f.source}\" AS VARCHAR)), '') AS {f.name}")
+            parts.append(f"NULLIF(TRIM(CAST({quoted} AS VARCHAR)), '') AS {f.name}")
         else:
-            parts.append(f'TRY_CAST("{f.source}" AS {f.sql_type}) AS {f.name}')
+            parts.append(f"TRY_CAST({quoted} AS {f.sql_type}) AS {f.name}")
     return ",\n    ".join(parts)
 
 
 def normalize_month(
-    year: int, month: int, *, con: duckdb.DuckDBPyConnection | None = None
+    source: bts_ontime.Source,
+    year: int,
+    month: int,
+    *,
+    con: duckdb.DuckDBPyConnection | None = None,
 ) -> NormalizeResult:
     """Extract the CSV from the month's raw zip and write canonical Parquet."""
-    raw = bts_ontime.raw_path(year, month)
+    raw = bts_ontime.raw_path(source, year, month)
     if not raw.exists():
-        raise FileNotFoundError(f"No raw file for {bts_ontime.month_label(year, month)}: {raw}")
+        raise FileNotFoundError(
+            f"No raw {source.id} file for {bts_ontime.month_label(year, month)}: {raw}"
+        )
 
-    out = parquet_path(year, month)
+    out = parquet_path(source, year, month)
     out.parent.mkdir(parents=True, exist_ok=True)
     owns_connection = con is None
     con = con or duckdb.connect()
@@ -88,7 +105,7 @@ def normalize_month(
                 raise ValueError(f"No .csv member in {raw}")
             with tempfile.TemporaryDirectory(prefix="usually-late-") as tmpdir:
                 csv_path = Path(zf.extract(members[0], path=tmpdir))
-                return _write_parquet(con, csv_path, out, year, month, raw.name)
+                return _write_parquet(con, source, csv_path, out, year, month, raw.name)
     finally:
         if owns_connection:
             con.close()
@@ -96,6 +113,7 @@ def normalize_month(
 
 def _write_parquet(
     con: duckdb.DuckDBPyConnection,
+    source: bts_ontime.Source,
     csv_path: Path,
     out: Path,
     year: int,
@@ -118,7 +136,7 @@ def _write_parquet(
         f"""
         COPY (
             SELECT
-                {_select_expression(header)},
+                {_select_expression(source.fields, header)},
                 ? AS source_file,
                 ? AS ingested_at
             FROM src
@@ -130,20 +148,20 @@ def _write_parquet(
         0
     ]
     return NormalizeResult(
+        source_id=source.id,
         month=bts_ontime.month_label(year, month),
         parquet_path=str(out),
         source_rows=source_rows,
         written_rows=written_rows,
-        columns=len(schema.canonical_columns()),
+        columns=len(schema.canonical_columns(source.fields)),
     )
 
 
-def available_months() -> list[str]:
-    """Months present in data/clean, oldest first."""
-    directory = config.PATHS.clean / "operations"
+def available_months(source: bts_ontime.Source) -> list[str]:
+    """Months present in data/clean for one source, oldest first."""
+    directory = clean_dir(source)
     if not directory.exists():
         return []
-    months = []
-    for path in directory.glob("operations_*.parquet"):
-        months.append(path.stem.removeprefix("operations_"))
-    return sorted(months)
+    return sorted(
+        p.stem.removeprefix("operations_") for p in directory.glob("operations_*.parquet")
+    )

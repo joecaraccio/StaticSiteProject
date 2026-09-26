@@ -1,13 +1,23 @@
-"""Canonical schema for the `operations` table, and the *candidate* mapping onto
-BTS source columns.
+"""Canonical schemas for the two BTS on-time tables, and their mapping onto source
+columns.
 
-Why "candidate": CLAUDE.md requires download URLs, file formats and column names
-to be confirmed against the live source before code depends on them. The names
-below come from prior familiarity with the BTS On-Time Performance table and are
-NOT confirmed. `pipeline.sources.verify` checks them against the real CSV header
-and records the result; `ingest` refuses to run until that record exists.
+Both tables describe the same kind of event, one row per scheduled flight, and
+share every column except flight identity:
 
-So this module is a hypothesis the verifier proves, not a statement of fact.
+* the **reporting carrier** table names the airline that filed the record
+  (`Reporting_Airline`) — BTS's official carrier record, used for airline pages;
+* the **marketing carrier** table names the brand the flight was sold under
+  (`Marketing_Airline_Network`) and carries the operator alongside it — the
+  source for flight, route and airport pages. See DECISIONS.md 2026-09-26.
+
+So both canonical schemas have `carrier` and `flight_number`, meaning the
+reporting carrier in one and the marketing carrier in the other, and the
+marketing schema adds the operating carrier. The metric SQL runs unchanged over
+either.
+
+Every mapping here was checked against the live source by
+`pipeline.sources.verify` (2026-09-26, month 2025-01). Editing a mapping changes
+its fingerprint and forces a re-check before `ingest` will run again.
 """
 
 from __future__ import annotations
@@ -20,7 +30,7 @@ class Field:
     """One canonical column.
 
     name:        canonical name used everywhere downstream
-    source:      candidate BTS column name (verified at ingest time)
+    source:      BTS column name (verified at ingest time)
     sql_type:    DuckDB type the normalizer casts to
     required:    normalization fails if the column is missing from the source
     note:        anything a reader needs to know about the semantics
@@ -33,17 +43,8 @@ class Field:
     note: str = ""
 
 
-# Ordered: this is also the column order of data/clean/operations/*.parquet.
-OPERATIONS_FIELDS: tuple[Field, ...] = (
-    Field("flight_date", "FlightDate", "DATE", note="Local date of scheduled departure"),
-    Field("carrier", "Reporting_Airline", "VARCHAR", note="Reporting (operating) carrier code"),
-    Field(
-        "carrier_id",
-        "DOT_ID_Reporting_Airline",
-        "INTEGER",
-        note="BTS unique carrier ID; stable across code reuse",
-    ),
-    Field("flight_number", "Flight_Number_Reporting_Airline", "VARCHAR"),
+# Everything after flight identity. Identical names in both tables.
+_SHARED_FIELDS: tuple[Field, ...] = (
     Field("origin", "Origin", "VARCHAR"),
     Field("origin_airport_id", "OriginAirportID", "INTEGER"),
     Field("dest", "Dest", "VARCHAR"),
@@ -78,6 +79,53 @@ OPERATIONS_FIELDS: tuple[Field, ...] = (
     Field("distance", "Distance", "DOUBLE", required=False),
 )
 
+# Ordered: this is also the column order of the source's Parquet files.
+REPORTING_FIELDS: tuple[Field, ...] = (
+    Field("flight_date", "FlightDate", "DATE", note="Local date of scheduled departure"),
+    Field("carrier", "Reporting_Airline", "VARCHAR", note="Reporting (operating) carrier code"),
+    Field(
+        "carrier_id",
+        "DOT_ID_Reporting_Airline",
+        "INTEGER",
+        note="BTS unique carrier ID; stable across code reuse",
+    ),
+    Field("flight_number", "Flight_Number_Reporting_Airline", "VARCHAR"),
+    *_SHARED_FIELDS,
+)
+
+MARKETING_FIELDS: tuple[Field, ...] = (
+    Field("flight_date", "FlightDate", "DATE", note="Local date of scheduled departure"),
+    Field(
+        "carrier",
+        "Marketing_Airline_Network",
+        "VARCHAR",
+        note="Marketing carrier: the brand on the ticket",
+    ),
+    Field("carrier_id", "DOT_ID_Marketing_Airline", "INTEGER", note="BTS unique carrier ID"),
+    Field(
+        "flight_number",
+        "Flight_Number_Marketing_Airline",
+        "VARCHAR",
+        note="The number on the ticket",
+    ),
+    Field(
+        "operating_carrier",
+        # BTS's header is "Operating_Airline " with a trailing space; headers are
+        # matched after trimming (see normalize and verify).
+        "Operating_Airline",
+        "VARCHAR",
+        note="Who flies it; may not report to BTS itself",
+    ),
+    Field("operating_carrier_id", "DOT_ID_Operating_Airline", "INTEGER"),
+    Field(
+        "operating_flight_number",
+        "Flight_Number_Operating_Airline",
+        "VARCHAR",
+        note="Can differ from the marketing number",
+    ),
+    *_SHARED_FIELDS,
+)
+
 # Lineage columns the normalizer adds; they have no source column.
 LINEAGE_COLUMNS: tuple[tuple[str, str], ...] = (
     ("source_file", "VARCHAR"),
@@ -85,13 +133,9 @@ LINEAGE_COLUMNS: tuple[tuple[str, str], ...] = (
 )
 
 
-def source_columns(required_only: bool = False) -> tuple[str, ...]:
-    return tuple(f.source for f in OPERATIONS_FIELDS if f.required or not required_only)
+def by_source_name(fields: tuple[Field, ...]) -> dict[str, Field]:
+    return {f.source: f for f in fields}
 
 
-def by_source_name() -> dict[str, Field]:
-    return {f.source: f for f in OPERATIONS_FIELDS}
-
-
-def canonical_columns() -> tuple[str, ...]:
-    return tuple(f.name for f in OPERATIONS_FIELDS) + tuple(n for n, _ in LINEAGE_COLUMNS)
+def canonical_columns(fields: tuple[Field, ...]) -> tuple[str, ...]:
+    return tuple(f.name for f in fields) + tuple(n for n, _ in LINEAGE_COLUMNS)

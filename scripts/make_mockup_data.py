@@ -18,7 +18,9 @@ Every *number* here is invented, and every page says so.
 
 The data is generated in the BTS source column layout and pushed through the real
 normalize -> build -> export path, so what you are looking at is the actual
-pipeline output, not a hand-drawn approximation of it.
+pipeline output, not a hand-drawn approximation of it. Both BTS tables are
+written: the marketing carrier table (flight, route and airport pages) as a twin
+of the reporting one, with every flight operated by the brand that sells it.
 
 Usage:
     uv run python scripts/make_mockup_data.py
@@ -263,11 +265,42 @@ def _operate(flight: dict, day: date, season: float, rng: random.Random) -> dict
     return {**base, "_date": day}
 
 
-def write_zip(rows: list[dict], destination: Path) -> None:
+#: Reporting column -> marketing column for the identity columns that differ.
+MARKETING_RENAMES = {
+    "Reporting_Airline": "Marketing_Airline_Network",
+    "DOT_ID_Reporting_Airline": "DOT_ID_Marketing_Airline",
+    "Flight_Number_Reporting_Airline": "Flight_Number_Marketing_Airline",
+}
+#: Operator columns, copied from the reporting identity. BTS's header really does
+#: carry a trailing space on the first one.
+OPERATING_COPIES = {
+    "Operating_Airline ": "Reporting_Airline",
+    "DOT_ID_Operating_Airline": "DOT_ID_Reporting_Airline",
+    "Flight_Number_Operating_Airline": "Flight_Number_Reporting_Airline",
+}
+MARKETING_COLUMNS = [MARKETING_RENAMES.get(c, c) for c in COLUMNS] + list(OPERATING_COPIES)
+
+
+def marketing_twin(rows: list[dict]) -> list[dict]:
+    """The same flights as marketing-table rows, each operated by its own brand."""
+    return [
+        {
+            **{MARKETING_RENAMES.get(k, k): v for k, v in row.items()},
+            **{new: row[old] for new, old in OPERATING_COPIES.items()},
+        }
+        for row in rows
+    ]
+
+
+def raw_zip_path(source_id: str, year: int, month_label: str) -> Path:
+    return MOCKUP_ROOT / "raw" / source_id / f"{year:04d}" / f"{source_id}_{month_label}.zip"
+
+
+def write_zip(rows: list[dict], destination: Path, columns: list[str]) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     csv_path = destination.with_suffix(".csv")
     with csv_path.open("w", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=COLUMNS, extrasaction="ignore")
+        writer = csv.DictWriter(fh, fieldnames=columns, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(rows)
     with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -317,12 +350,12 @@ def main() -> int:
         print(f"  {len(rows):,} rows, {first} to {last}")
         month_label = f"{last.year:04d}-{last.month:02d}"
         write_zip(
-            rows,
-            MOCKUP_ROOT
-            / "raw"
-            / "bts_ontime_reporting_carrier"
-            / f"{last.year:04d}"
-            / f"bts_ontime_reporting_carrier_{month_label}.zip",
+            rows, raw_zip_path("bts_ontime_reporting_carrier", last.year, month_label), COLUMNS
+        )
+        write_zip(
+            marketing_twin(rows),
+            raw_zip_path("bts_ontime_marketing_carrier", last.year, month_label),
+            MARKETING_COLUMNS,
         )
         run(["normalize", "--months", month_label], MOCKUP_ROOT)
 

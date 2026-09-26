@@ -47,62 +47,86 @@ def _expand_months(tokens: Sequence[str]) -> list[tuple[int, int]]:
 # --- commands --------------------------------------------------------------
 
 
+def _sources(names: Sequence[str] | None) -> tuple[bts_ontime.Source, ...]:
+    """The sources a command should act on: all of them unless told otherwise."""
+    if not names:
+        return bts_ontime.SOURCES
+    return tuple(bts_ontime.source_by_id(n) for n in names)
+
+
 def cmd_verify_source(args: argparse.Namespace) -> int:
-    try:
-        record = verify.verify(args.month, force_download=args.force)
-    except verify.NotVerified as exc:
-        print(f"Verification failed.\n\n{exc}", file=sys.stderr)
-        return 2
+    status = 0
+    for source in _sources(args.source):
+        try:
+            record = verify.verify(source, args.month, force_download=args.force)
+        except verify.NotVerified as exc:
+            print(f"Verification of {source.id} failed.\n\n{exc}", file=sys.stderr)
+            status = 2
+            continue
 
-    print(f"Source verified against {record.url}")
-    print(f"  CSV member:  {record.csv_member}")
-    print(f"  Delimiter:   {record.delimiter!r}   Encoding: {record.encoding}")
-    print(f"  Columns:     {len(record.header)} in source, {len(record.matched_columns)} mapped")
-    if record.missing_required:
-        print(f"  MISSING REQUIRED: {', '.join(record.missing_required)}")
-    if record.missing_optional:
-        print(f"  Missing optional: {', '.join(record.missing_optional)}")
-    print(f"  Record:      {verify.record_path()}")
+        print(f"{source.id}: verified against {record.url}")
+        print(f"  CSV member:  {record.csv_member}")
+        print(f"  Delimiter:   {record.delimiter!r}   Encoding: {record.encoding}")
+        print(
+            f"  Columns:     {len(record.header)} in source, {len(record.matched_columns)} mapped"
+        )
+        if record.missing_required:
+            print(f"  MISSING REQUIRED: {', '.join(record.missing_required)}")
+            status = max(status, 1)
+        if record.missing_optional:
+            print(f"  Missing optional: {', '.join(record.missing_optional)}")
+        print(f"  Record:      {verify.record_path(source)}")
 
-    notes = verify.as_markdown(record)
-    if args.write_notes:
-        with open(args.write_notes, "a") as fh:
-            fh.write("\n" + notes)
-        print(f"  Appended a DATA_NOTES block to {args.write_notes}")
-    else:
-        print("\n--- paste into docs/DATA_NOTES.md ---\n")
-        print(notes)
-    return 1 if record.missing_required else 0
+        notes = verify.as_markdown(source, record)
+        if args.write_notes:
+            with open(args.write_notes, "a") as fh:
+                fh.write("\n" + notes)
+            print(f"  Appended a DATA_NOTES block to {args.write_notes}")
+        else:
+            print("\n--- paste into docs/DATA_NOTES.md ---\n")
+            print(notes)
+    return status
 
 
 def cmd_ingest(args: argparse.Namespace) -> int:
-    try:
-        record = verify.require_verified()
-    except verify.NotVerified as exc:
-        print(f"Refusing to ingest an unverified source.\n\n{exc}", file=sys.stderr)
-        return 2
+    # Every source must be verified before any is downloaded: the pages read both,
+    # so a half-ingested month would publish flight pages without airline pages.
+    records = {}
+    for source in bts_ontime.SOURCES:
+        try:
+            records[source.id] = verify.require_verified(source)
+        except verify.NotVerified as exc:
+            print(f"Refusing to ingest an unverified source.\n\n{exc}", file=sys.stderr)
+            return 2
 
     for year, month in _expand_months(args.months):
         label = bts_ontime.month_label(year, month)
-        raw = bts_ontime.fetch_month(
-            year, month, url_template=record.url_template, force=args.force
-        )
-        print(f"{label}  {raw.outcome:<10} {raw.bytes:>12,} bytes  sha256 {raw.sha256[:12]}")
-        if raw.outcome == "unchanged" and normalize.parquet_path(year, month).exists():
-            print(f"{label}  parquet up to date, skipping normalize")
-            continue
-        result = normalize.normalize_month(year, month)
-        print(f"{label}  normalized {result.written_rows:,} rows -> {result.parquet_path}")
+        for source in bts_ontime.SOURCES:
+            tag = f"{label}  {source.id:<30}"
+            raw = bts_ontime.fetch_month(
+                source,
+                year,
+                month,
+                url_template=records[source.id].url_template,
+                force=args.force,
+            )
+            print(f"{tag} {raw.outcome:<10} {raw.bytes:>12,} bytes  sha256 {raw.sha256[:12]}")
+            if raw.outcome == "unchanged" and normalize.parquet_path(source, year, month).exists():
+                print(f"{tag} parquet up to date, skipping normalize")
+                continue
+            result = normalize.normalize_month(source, year, month)
+            print(f"{tag} normalized {result.written_rows:,} rows -> {result.parquet_path}")
     return 0
 
 
 def cmd_normalize(args: argparse.Namespace) -> int:
     for year, month in _expand_months(args.months):
-        result = normalize.normalize_month(year, month)
-        print(
-            f"{result.month}  {result.source_rows:,} source rows -> "
-            f"{result.written_rows:,} rows, {result.columns} columns"
-        )
+        for source in _sources(args.source):
+            result = normalize.normalize_month(source, year, month)
+            print(
+                f"{result.month}  {source.id:<30} {result.source_rows:,} source rows -> "
+                f"{result.written_rows:,} rows, {result.columns} columns"
+            )
     return 0
 
 
@@ -149,33 +173,36 @@ def cmd_status(args: argparse.Namespace) -> int:
     paths = config.PATHS
     print(f"data root: {paths.root}")
 
-    try:
-        record = verify.require_verified()
-        print(f"source:    verified {record.verified_at[:10]} against {record.url_template}")
-    except verify.NotVerified as exc:
-        print(f"source:    NOT VERIFIED - {str(exc).splitlines()[0]}")
-
-    raw_months = sorted(p.stem for p in paths.raw.rglob("*.zip") if ".meta" not in p.stem)
-    clean_months = normalize.available_months()
-    print(f"raw:       {len(raw_months)} archives under {paths.raw}")
-    print(
-        f"clean:     {len(clean_months)} months"
-        + (f" ({clean_months[0]} .. {clean_months[-1]})" if clean_months else "")
-    )
+    clean_by_source = {}
+    for source in bts_ontime.SOURCES:
+        try:
+            record = verify.require_verified(source)
+            state = f"verified {record.verified_at[:10]} against {record.url_template}"
+        except verify.NotVerified as exc:
+            state = f"NOT VERIFIED - {str(exc).splitlines()[0]}"
+        months = normalize.available_months(source)
+        clean_by_source[source.id] = months
+        raw = [p for p in (paths.raw / source.id).rglob("*.zip") if ".meta" not in p.stem]
+        span = f" ({months[0]} .. {months[-1]})" if months else ""
+        print(f"{source.id}:")
+        print(f"  source:  {state}")
+        print(f"  raw:     {len(raw)} archives")
+        print(f"  clean:   {len(months)} months{span}")
     print(
         f"duckdb:    {'present' if paths.duckdb_file.exists() else 'absent'} at {paths.duckdb_file}"
     )
 
-    missing = [m for m in clean_months if m not in raw_months and args.strict]
-    if missing:
-        print(f"warning:   clean months with no raw archive: {', '.join(missing)}")
+    if args.strict:
+        months = [set(m) for m in clean_by_source.values()]
+        uneven = sorted(set.union(*months) - set.intersection(*months))
+        if uneven:
+            print(f"warning: months loaded for only one source: {', '.join(uneven)}")
     if args.json:
         print(
             json.dumps(
                 {
                     "data_root": str(paths.root),
-                    "raw_archives": len(raw_months),
-                    "clean_months": clean_months,
+                    "clean_months": clean_by_source,
                     "duckdb_present": paths.duckdb_file.exists(),
                     "checked_at": date.today().isoformat(),
                 },
@@ -214,6 +241,15 @@ def cmd_query(args: argparse.Namespace) -> int:
 # --- wiring ----------------------------------------------------------------
 
 
+def _source_argument(p: argparse.ArgumentParser) -> None:
+    p.add_argument(
+        "--source",
+        action="append",
+        choices=[s.id for s in bts_ontime.SOURCES],
+        help="limit to one source (repeatable); default is every source",
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="pipeline", description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
@@ -222,6 +258,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--month", required=True, help="a month to check with, e.g. 2025-01")
     p.add_argument("--force", action="store_true", help="re-download even if cached")
     p.add_argument("--write-notes", metavar="PATH", help="append the result to a markdown file")
+    _source_argument(p)
     p.set_defaults(func=cmd_verify_source)
 
     p = sub.add_parser("ingest", help="download and normalize months")
@@ -233,6 +270,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("normalize", help="re-derive Parquet from raw already on disk")
     p.add_argument("--months", nargs="+", required=True, metavar="YYYY-MM")
+    _source_argument(p)
     p.set_defaults(func=cmd_normalize)
 
     p = sub.add_parser("build", help="(re)create the DuckDB metric views")
@@ -262,7 +300,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("status", help="what is on disk")
     p.add_argument("--json", action="store_true")
-    p.add_argument("--strict", action="store_true", help="warn about clean months with no raw file")
+    p.add_argument(
+        "--strict", action="store_true", help="warn about months loaded for only one source"
+    )
     p.set_defaults(func=cmd_status)
 
     p = sub.add_parser("query", help="run read-only SQL against the built database")
