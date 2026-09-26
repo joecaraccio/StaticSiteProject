@@ -2,6 +2,40 @@
 
 Update at the end of each working session.
 
+## 2026-09-26 — source verified, first real month loaded
+
+**Done**
+
+- **The BTS source is verified.** `verify-source --month 2025-01` ran from the
+  owner's machine (via Docker; the host has no `uv` or `make`). The first
+  candidate URL is correct and all 24 mapped columns exist under the expected
+  names. The site root times out, but `/PREZIP/` answers, and it lists 1987-10 ..
+  2026-07.
+- **2025-01 ingested:** 539,747 rows, equal to the CSV row count and to
+  `sum(Flights)`. The second ingest reused the raw file rather than downloading it
+  again.
+- **Field meanings settled** from BTS's bundled `readme.html` plus queries on the
+  real rows: local zero-padded `hhmm`; `2400` appears in actual times only; cancelled
+  and diverted rows have null `ArrDel15`; delay causes exist exactly on operated
+  flights 15+ min late and sum to their arrival delay. The two metrics-layer
+  assumptions still marked "to verify" are now verified. DATA_NOTES.md has the
+  details.
+- **Inspected the marketing carrier table** (2018-01 onward, same PREZIP
+  directory). Each row has the marketing and operating carrier and flight number,
+  as the carrier decision required.
+
+- **Decided the table split** (owner approved): the marketing table is a
+  **superset** of the reporting table, 599,013 rows vs 539,747 for 2025-01. The
+  extra ~10% are flights by seven regional operators that don't report to BTS
+  themselves (9E, PT, QX, YV, C5, G7, ZW), sold as Delta, American, United and
+  Alaska. Joining it onto the reporting table, as first planned, would have
+  dropped them all. So the marketing table feeds flight, route and airport pages,
+  and the reporting table feeds airline pages only. DECISIONS.md 2026-09-26;
+  CLAUDE.md's domain definitions updated.
+- A first pass at the comparison reported ~1,000 unexplained mismatches; that
+  was an addition error. The real residue is 23 marketing-only and 16
+  reporting-only flights out of ~540k.
+
 ## 2026-09-26 — carrier decision
 
 **Done**

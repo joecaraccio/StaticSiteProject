@@ -18,53 +18,76 @@ Status legend: **Verified** (checked against the live source, with date) · **To
 
 ### Verification status
 
-**The BTS source is NOT yet verified.** No code depends on an unverified fact: the
-pipeline's `verify-source` command must run and write
-`data/verification/bts_ontime_reporting_carrier.json` before `ingest` will do
-anything (see `pipeline/sources/verify.py`). Until then `pipeline status` reports
-`NOT VERIFIED` and ingest exits with an error.
+**Verified 2026-09-26** for the reporting carrier table, from the owner's machine,
+by `verify-source --month 2025-01`. The record is
+`data/verification/bts_ontime_reporting_carrier.json`; `ingest` now runs.
 
-Verification could not be completed in the session that wrote the adapter: the
-development environment's network policy denies `transtats.bts.gov`
-(`CONNECT` returned 403), and `extensions.duckdb.org` is likewise blocked. Run
-this from a machine that can reach BTS:
+Reachability note: `https://transtats.bts.gov/` (the site root) and
+`www.transtats.bts.gov` time out from here, and `www.bts.gov` returns 403 to curl,
+but `https://transtats.bts.gov/PREZIP/` answers normally and serves a plain
+directory listing. A timeout on the root does not mean the downloads are down.
 
-```
-make verify-source MONTH=2025-01        # or: uv run python -m pipeline verify-source --month 2025-01
-```
+### Verified 2026-09-26 · bts_ontime_reporting_carrier
 
-It probes the candidate URLs, downloads one month, reads the real CSV header out
-of the zip, diffs it against the candidate mapping below, and prints a markdown
-block to paste into this file. If a candidate URL 404s, it says so and tells you
-where to find the current link.
+- **URL template:** `https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_{year}_{month}.zip` (month not zero-padded). The second candidate in `URL_CANDIDATES` was never needed.
+- **Available months (PREZIP listing, 2026-09-26):** 1987-10 .. 2026-07.
+- **Checked with month:** 2025-01 (27,108,664 bytes, sha256 `868387dcedaef1b8…`, `Last-Modified: Thu, 08 May 2025`; an ETag is sent, so conditional GETs work)
+- **Archive members:** `On_Time_Reporting_Carrier_On_Time_Performance_(1987_present)_2025_1.csv`, `readme.html` (BTS's field glossary)
+- **Delimiter:** `,` · **Encoding:** `utf-8-sig` · **Columns in source:** 110
+- **Mapped:** 24 · **Missing required:** 0 · **Missing optional:** 0. Every column in the mapping below exists under exactly that name.
+- **Row count:** 539,747 CSV data rows = 539,747 Parquet rows = `sum(Flights)`. Re-normalizing the same raw file gives the same rows; the Parquet bytes differ only because `ingested_at` is stamped at normalize time (lineage, read by no export).
 
-### Candidate download URLs (unverified)
+Field meanings, from the bundled `readme.html` and checked against the 2025-01 rows:
 
-Tried in order by `verify-source`; see `URL_CANDIDATES` in
-`pipeline/sources/bts_ontime.py`.
+| Question | Answer | Evidence |
+|---|---|---|
+| Time fields | Local time, `hhmm` string, zero-padded to 4 characters (`0005`) | readme; min/max length 4 |
+| `2400` | Never in scheduled times (`CRSDepTime`/`CRSArrTime` run `0001`..`2359`); **does** occur in actual times (33 `DepTime`, 245 `ArrTime` in 2025-01) | data. Anything doing arithmetic on actual times (the M7 connection checker) must treat `2400` as midnight ending that day |
+| `DepDelayMinutes`, `ArrDelayMinutes` | Early is set to 0 | readme |
+| Cancelled flights | `ArrDel15`, `ArrTime`, `ArrDelayMinutes` and all cause columns null | data: 16,312 rows, none non-null |
+| Diverted flights | `ArrDel15`, `ArrDelayMinutes` and causes null; `ArrTime` populated on 898 of 1,166 (the readme says `ArrDelay` stays null for diversions and the scheduled-destination figure is in `DivArrDelay`) | data + readme |
+| Delay-cause columns | Populated exactly when an operated flight has `ArrDel15 = 1` (98,130 of 98,130), null otherwise; the five causes sum to `ArrDelayMinutes` on every such row | data |
+| `CancellationCode` | `A`..`D` present (A 1,635 · B 14,327 · C 342 · D 8). The readme says only "reason for cancellation"; the letter meanings come from BTS's lookup table, **not yet downloaded** | data |
+| `Reporting_Airline` | BTS's *unique* carrier code: when a code has had several holders, earlier ones get a suffix (`PA(1)`). Distinct from `IATA_CODE_Reporting_Airline` | readme |
+| `DOT_ID_Reporting_Airline` | One ID per DOT certificate, independent of code, name or holding company | readme |
 
-1. `https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_{year}_{month}.zip`
-2. `https://transtats.bts.gov/PREZIP/On_Time_On_Time_Performance_{year}_{month}.zip`
+2025-01 has 14 reporting carriers: AA AS B6 DL F9 G4 HA MQ NK OH OO UA WN YX.
 
-These come from prior familiarity with the dataset, not from checking the live
-site. Treat them as a starting guess that the verifier either confirms or
-replaces.
+### Marketing carrier table (observed 2026-09-26, not yet a source)
+
+Seen on the PREZIP listing and inspected by hand for 2025-01. `verify-source`
+does not probe it yet, so nothing in code depends on it.
+
+- **URL pattern:** `https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_{year}_{month}.zip`, months 2018-01 .. 2026-07. 2025-01 is 31,599,374 bytes.
+- **CSV member:** `On_Time_Marketing_Carrier_On_Time_Performance_(Beginning_January_2018)_2025_1.csv`, plus `readme.html`. 119 named columns and a trailing comma (DuckDB reports an empty 120th, `column119`).
+- **Header gotcha:** the operating carrier column is `"Operating_Airline "` **with a trailing space**. DuckDB trims it to `Operating_Airline`; Python's `csv` module does not.
+- **Per row:** `Marketing_Airline_Network`, `DOT_ID_Marketing_Airline`, `IATA_Code_Marketing_Airline`, `Flight_Number_Marketing_Airline`, `Operated_or_Branded_Code_Share_Partners`, `Operating_Airline`, `DOT_ID_Operating_Airline`, `IATA_Code_Operating_Airline`, `Flight_Number_Operating_Airline`, `Originally_Scheduled_Code_Share_Airline` (with its ID, IATA code and flight number), a `Duplicate` flag, and the same timing, status, delay-cause and distance columns as the reporting table.
+- **One marketing carrier per row.** It is the network brand (10 in 2025-01: AA AS B6 DL F9 G4 HA NK UA WN), not a list of every codeshare partner. A ticket sold under a foreign partner's code will not be found here.
+- **The marketing flight number equals the operating one** on 195,084 of the 195,119 rows where the two carriers differ; 35 differ.
+- **It is a superset of the reporting table, not a relabelling.** 599,013 rows vs 539,747, with no duplicates (`Duplicate = 'N'` on every row, and the operating-carrier key is unique). Joined on date + operating carrier + operating flight number + origin + dest + scheduled departure:
+  - 59,282 marketing rows have no reporting row. 59,259 of them (about 10% of all flights) are by seven regional operators that do not report to BTS themselves: 9E 18,279 · PT 10,621 · QX 7,754 · YV 6,628 · C5 6,612 · G7 5,575 · ZW 3,790. The other 23 are on reporting carriers (YX, MQ, OH, OO) and are **not explained**.
+  - 16 reporting rows have no marketing row, **not explained**.
+  - Scheduled departure never disagrees on a matched pair, so it adds nothing to the key.
+  - The two are separate filings: over the carriers both tables cover, cancellations are 16,296 (marketing) vs 16,312 (reporting) and `ArrDel15 = 1` is 98,144 vs 98,130.
+- **Codes:** `Marketing_Airline_Network` equals `IATA_Code_Marketing_Airline` for all 10 brands in 2025-01, and `Operating_Airline` equals `IATA_Code_Operating_Airline` for all 21 operators. `Operated_or_Branded_Code_Share_Partners` is the brand, suffixed `_CODESHARE` when a partner operates it (`DL_CODESHARE`). `Originally_Scheduled_Code_Share_Airline` is set on 41 rows only.
+- **Keys:** (date, marketing carrier, marketing flight number, origin, dest) is unique across all 599,013 rows. Marketing and operating flight numbers can differ: DL 3860 flown by 9E as 5538.
+- Consequence: joining the marketing table *onto* the reporting table would drop every flight by those seven operators. Decided instead: the marketing table feeds flight, route and airport pages, the reporting table airline pages only (DECISIONS.md 2026-09-26).
 
 ### Verification checklist (M1)
 
-- [ ] Current bulk download method (prezipped monthly files vs field-selection download). Community tools commonly reference a prezipped monthly file pattern on transtats.bts.gov; **confirm the exact URL on the live site before coding against it.**
-- [ ] File format, delimiter, encoding, header names
-- [ ] Column list and types for the chosen table
-- [ ] Meaning of time fields (local time, `hhmm` format, handling of `2400`)
-- [ ] How cancelled and diverted flights populate delay fields
-- [ ] When delay-cause columns are populated
-- [ ] Reporting vs marketing carrier: which one carries the flight number a traveler would search (for example, a regional flight sold under a mainline code). *Decided 2026-09-26: flight pages use the marketing carrier, airline stats the reporting carrier (DECISIONS.md). Still to confirm from the live source: that the marketing table has the marketing and operating carrier and flight number on each row.*
+- [x] Current bulk download method (prezipped monthly files vs field-selection download). Community tools commonly reference a prezipped monthly file pattern on transtats.bts.gov; **confirm the exact URL on the live site before coding against it.**
+- [x] File format, delimiter, encoding, header names
+- [x] Column list and types for the chosen table
+- [x] Meaning of time fields (local time, `hhmm` format, handling of `2400`)
+- [x] How cancelled and diverted flights populate delay fields
+- [x] When delay-cause columns are populated
+- [ ] Reporting vs marketing carrier: which one carries the flight number a traveler would search (for example, a regional flight sold under a mainline code). *Decided 2026-09-26: flight pages use the marketing carrier, airline stats the reporting carrier (DECISIONS.md). Confirmed 2026-09-26 that each marketing-table row carries both, but the table is a superset of the reporting table (see above).*
 - [ ] BTS unique carrier identifiers and how code reuse is handled (BTS notes that carrier codes and names can change or be reused, and provides unique IDs for that reason)
 - [ ] Lookup tables for airports and carriers, and where to download them
 - [ ] A published monthly on-time figure to reproduce for validation (M2)
 - [ ] Rate or usage guidance for automated downloads
 
-### Candidate field mapping (unverified)
+### Field mapping (verified 2026-09-26 against 2025-01)
 
 This is the hypothesis `verify-source` tests, mirroring
 `pipeline/models/schema.py`. A required column that turns out not to exist fails
@@ -109,9 +132,9 @@ it can be changed in one place.
 
 | Assumption | Where | Status |
 |---|---|---|
-| `sched_dep` is local hhmm; departure hour is `(hhmm // 100) % 24`, so `2400` becomes hour 0 | `BASE_VIEW` | **To verify** |
+| `sched_dep` is local hhmm; departure hour is `(hhmm // 100) % 24`, so `2400` becomes hour 0 | `BASE_VIEW` | **Verified** 2026-09-26: local zero-padded hhmm; scheduled times never reach `2400`, so the `% 24` never fires |
 | On-time rate counts only operated flights with a non-null `arr_del15`; that denominator is published as `ops_measurable` | `METRIC_EXPRESSIONS` | Assumption, by design |
-| Delay-cause shares are of *attributed* minutes, not all delay minutes | `_delay_causes` in `pipeline/export/pages.py` | Follows BTS behaviour; **to verify** |
+| Delay-cause shares are of *attributed* minutes, not all delay minutes | `_delay_causes` in `pipeline/export/pages.py` | **Verified** 2026-09-26: causes exist only on flights 15+ min late, and there they sum to `ArrDelayMinutes` |
 
 ### Original field mapping template
 

@@ -186,14 +186,14 @@ Check tasks off here as they're completed.
 - **Done when:** CI passes on an empty test suite and the layout matches CLAUDE.md.
 
 ### M1 · Source discovery and single-month ingest
-- [ ] Find and document the current BTS download method for on-time data (see DATA_NOTES.md checklist)
+- [x] Find and document the current BTS download method for on-time data (see DATA_NOTES.md checklist)
 - [x] Resolve the reporting vs marketing carrier question and log the decision (marketing carrier for flight identity, reporting carrier for airline stats; conditional on verifying the marketing table — see DECISIONS.md 2026-09-26)
 - [ ] Verify the marketing carrier table's download method and columns, and add it as a source
 - [x] Source adapter: download one month, save raw with checksum and timestamp, skip unchanged files
 - [x] Parse to Parquet with explicit column types
-- [ ] Record the verified schema in DATA_NOTES.md
+- [x] Record the verified schema in DATA_NOTES.md
 - **Done when:** one month loads reproducibly and row count matches the source.
-- *Blocked:* verification needs network access to transtats.bts.gov. The adapter, the verifier and the ingest gate are written and tested; run `make verify-source MONTH=YYYY-MM` to finish this milestone.
+- *2026-09-26:* the reporting table is verified and 2025-01 loads with a row count matching the source. Open: the marketing table turned out to be a superset of the reporting table (DATA_NOTES.md), so how it joins in needs deciding before it becomes a source.
 
 ### M2 · Multi-year load and validation
 - [ ] Load 36+ months

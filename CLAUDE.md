@@ -145,7 +145,8 @@ Screenshots need Chromium once: `cd site && npx playwright install chromium`.
 - **Operated flight:** not cancelled and not diverted.
 - **Cancellation rate:** cancelled flights ÷ scheduled flights.
 - **Trailing 12 months:** the 12 most recent months available in the data, not the 12 months before today.
-- **Flight identity:** marketing carrier + marketing flight number + origin + destination (the code and number on the ticket), with the operating carrier shown on the page. Airline-level stats use the reporting (operating) carrier. Decided 2026-09-26, pending verification of the marketing carrier table — see `docs/DECISIONS.md`.
+- **Flight identity:** marketing carrier + marketing flight number + origin + destination (the code and number on the ticket), with the operating carrier shown on the page.
+- **Which table:** flight, route and airport pages read the BTS *marketing carrier* table (every flight, including regional operators that do not report to BTS themselves). Airline pages read the *reporting carrier* table, BTS's official carrier record. The two are never joined or added together — see `docs/DECISIONS.md` 2026-09-26.
 
 If a definition needs to change, update it here and log it in `docs/DECISIONS.md`.
 
