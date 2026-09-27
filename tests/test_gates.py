@@ -94,6 +94,32 @@ def test_airline_publishes_for_reporting_carriers_at_any_volume():
     assert decide(page_type="airline", key="ZZ", ops_t12=99999).outcome is Outcome.DROP
 
 
+def test_airline_that_stopped_reporting_is_noindexed():
+    """HA's last reporting-table day is 2025-12-31 while the data runs to 2026-07."""
+    d = evaluate(
+        candidate(
+            page_type="airline",
+            key="HA",
+            is_reporting_carrier=True,
+            last_seen=date(2025, 12, 31),
+            data_period_end=date(2026, 7, 31),
+        ),
+        today=date(2026, 9, 1),
+    )
+    assert d.outcome is Outcome.NOINDEX
+    assert "has not reported since 2025-12-31" in " ".join(d.reasons)
+
+
+def test_airline_reporting_in_the_latest_month_is_current():
+    """Any day in the latest month counts: a carrier need not fly on the last day."""
+    d = decide(page_type="airline", key="AA", is_reporting_carrier=True, last_seen=date(2026, 1, 1))
+    assert d.outcome is Outcome.PUBLISH
+    d = decide(
+        page_type="airline", key="AA", is_reporting_carrier=True, last_seen=date(2025, 12, 31)
+    )
+    assert d.outcome is Outcome.NOINDEX
+
+
 def test_monthly_list_inherits_its_airport_page():
     published = decide(page_type="monthly_list", key="BOS/2026-01", parent_outcome=Outcome.PUBLISH)
     assert published.outcome is Outcome.PUBLISH

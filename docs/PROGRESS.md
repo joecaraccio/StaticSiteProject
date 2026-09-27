@@ -53,18 +53,28 @@ Update at the end of each working session.
 
 1. Make export scale: materialize the grouped views as tables in `build`, and
    read each page type's series and alternatives in one ordered query each rather
-   than once per page. Gate on volume *before* building a document.
+   than once per page. Gate on volume *before* building a document. Apply the
+   wave-1 selection there, and have the site link only to URLs in the manifest.
 2. The site doesn't render `operated_by` yet ("Operated by SkyWest as 3860").
    That's waiting on the search work in `site/` from the parallel session.
-3. Decide the airline gate for carriers that stopped reporting partway through
-   the trailing 12 months (HA).
+3. ~~Airline gate for carriers that stopped reporting~~: decided and done
+   (below).
 4. M2: BTS lookup tables (carrier and airport names), validation checks, and
    reproducing a published BTS on-time figure.
 
+**Decided (owner asked for a call)**
+
+- **Wave 1 is chosen by traffic, top down:** the 40 busiest airports, the 250
+  busiest routes between them, and the 2 busiest current flights on each, plus
+  every airline. About 800 pages on today's data, all well clear of their
+  gates. Out-of-wave pages are reported as `drop`, "outside launch wave 1".
+  Not implemented yet; it belongs in the export rework.
+- **An airline that stopped reporting is `noindex`, not dropped.** "Stopped" means
+  absent from the latest month. This is implemented in `_airline_volume`, with
+  tests. HA is the current case.
+
 **Open questions**
 
-- v1 aims at 500-1,000 pages, but there are ~128k flights with 10+ flights in
-  the trailing 12 months. The wave-1 selection rule needs deciding.
 - Disk: 17 GB free on C: (99% used). Each further year of both tables is about
   0.7 GB raw plus 0.15 GB Parquet.
 

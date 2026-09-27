@@ -143,6 +143,19 @@ def _airport_volume(c: PageCandidate, d: Decision, t: Thresholds) -> None:
 def _airline_volume(c: PageCandidate, d: Decision, t: Thresholds) -> None:
     if not c.is_reporting_carrier:
         d.apply(Outcome.DROP, "not a reporting carrier")
+        return
+    # A carrier absent from the latest month has stopped reporting (merged,
+    # ceased, or fell below BTS's threshold), and its trailing-12 figures cover
+    # only part of the window. Keep the page for people who land on it, but do
+    # not ask search engines to treat it as current. DECISIONS.md 2026-09-26.
+    if c.last_seen is not None and c.data_period_end is not None:
+        latest_month = c.data_period_end.replace(day=1)
+        if c.last_seen < latest_month:
+            d.apply(
+                Outcome.NOINDEX,
+                f"carrier has not reported since {c.last_seen.isoformat()} "
+                f"(data runs to {c.data_period_end.isoformat()})",
+            )
 
 
 def _monthly_list_volume(c: PageCandidate, d: Decision, t: Thresholds) -> None:

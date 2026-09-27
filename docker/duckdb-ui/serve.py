@@ -38,7 +38,9 @@ def main() -> int:
     months = [normalize.available_months(s) for s in bts_ontime.SOURCES]
     if all(months):
         views = build.build_views(con)
-        print(f"duckdb-ui: {len(views)} views over {len(months[0])} month(s) of Parquet", flush=True)
+        print(
+            f"duckdb-ui: {len(views)} views over {len(months[0])} month(s) of Parquet", flush=True
+        )
     else:
         print(
             "duckdb-ui: Parquet for both BTS tables is not there yet, so no views were "

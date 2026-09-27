@@ -12,6 +12,26 @@ Record meaningful choices here, newest first.
 
 ---
 
+### 2026-09-26 · Launch wave 1 is chosen by traffic, top down, about 800 pages
+- **Decision:** Wave 1 is every page that passes its gate *and* falls in this set, chosen from the trailing 12 months with ties broken by code:
+  1. **Airports:** the 40 busiest by departures.
+  2. **Routes:** the 250 busiest routes between two wave-1 airports.
+  3. **Flights:** on each wave-1 route, the 2 busiest flights that are publishable and seen in the latest 6 months.
+  4. **Airlines:** every published airline page (13 today).
+
+  On the 2023-08 .. 2026-07 data that is 40 + 250 + 500 + 13 ≈ 800 pages. The least busy route has 4,047 flights a year and the least busy flight 58, so nothing in the wave is near a threshold. Pages outside the wave are not written; the gate report records them as `drop` with the reason "outside launch wave 1", so the three-outcome contract holds and the report shows what is waiting. The site must link only to URLs in the manifest, so a route page's alternatives stop linking to flight pages that do not exist.
+- **Why:** PLAN.md wants the best 500-1,000 pages first, and there are ~128k flights with 10+ flights a year. Traffic is the best proxy for search demand that the data holds, and choosing top down (airports, then routes between them, then flights on those routes) makes the wave densely interlinked rather than 800 scattered pages. Two flights per route rather than more keeps the wave from being mostly near-identical flight pages on a few trunk routes, which is the thin-content pattern the gates exist to avoid.
+- **Alternatives considered:** Busiest 1,000 flights outright (clusters on a few shuttle routes, and near-duplicate pages); worst on-time flights first (more interesting, but a "least reliable" framing on launch day invites the wrong kind of attention and is not what most searches ask); all publishable pages at once (~128k pages, against PLAN's wave strategy, and the host's file limit is unknown).
+- **Revisit if:** Search Console shows wave 1 indexed (PLAN.md month-4 checkpoint), then widen each tier; or a tier is mostly `noindex` in practice.
+
+### 2026-09-26 · An airline that stopped reporting keeps its page, noindexed
+- **Decision:** A reporting carrier absent from the data's latest month gets its airline page as `noindex`, with the reason "carrier has not reported since <date>". It is not dropped.
+- **Why:** BTS carriers do stop reporting: 9E after 2024, and HA is absent from both tables after 2025-12-31. Such a page's trailing-12 figures cover only part of the window, so presenting it to search engines as current would mislead. But its numbers are real and its flights' pages already point at it, so a reader who arrives should still find it. This mirrors the flight rule (stale flights are `noindex`, not `drop`). "Absent from the latest month" rather than a day count, because a carrier files monthly; any flight in the latest month counts as current.
+- **Alternatives considered:** Keep publishing (the old behaviour: HA would look current on 5 of 12 months); drop the page (breaks links from its flight pages and discards real data); pro-rate or relabel the period (more machinery for a handful of carriers).
+- **Revisit if:** a carrier reports intermittently, month on month off. Then "absent from the latest month" would flap, and a longer look-back is needed.
+
+---
+
 ### 2026-09-26 · The marketing carrier table is the operations source; the reporting table feeds airline stats only
 - **Decision:** Two BTS tables are ingested side by side. The **marketing carrier** table is the source of the `operations` view, which every flight, route and airport page reads; its `carrier` and `flight_number` are the marketing brand and number (`Marketing_Airline_Network`, `Flight_Number_Marketing_Airline`), with the operating carrier and its flight number carried alongside. The **reporting carrier** table is the source of `operations_reporting`, which only airline pages read. Nothing joins the two.
 - **Why:** Verifying the marketing table (DATA_NOTES.md) showed it is a superset of the reporting table, not a relabelling of it. For 2025-01 it has 599,013 rows to the reporting table's 539,747; the difference is 59,259 flights (about 10%) by seven regional operators that do not report to BTS themselves (9E, PT, QX, YV, C5, G7, ZW), sold as Delta, American, United and Alaska. The earlier plan to join the marketing table onto the reporting one would have silently dropped all of them. Route and airport pages must count every flight, and a flight page must be findable by the number on the ticket, so the marketing table serves both. Airline stats stay on the reporting table because that is what BTS publishes as a carrier's on-time record and what M2 has to reproduce.
