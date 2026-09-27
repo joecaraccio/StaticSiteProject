@@ -1,0 +1,236 @@
+---
+/**
+ * Search results: every page matching /search?q=…, filterable by type.
+ *
+ * The host is static, so the query is read in the browser. Every row is rendered
+ * here at build time, hidden, and the script shows and orders the ones that match
+ * — so a row looks exactly like a row anywhere else on the site, and the matcher
+ * is the same one the homepage dropdown uses (`src/lib/search.ts`).
+ *
+ * Always noindex: a results page is a view of other pages, not content of its own.
+ */
+import Base from "../layouts/Base.astro";
+import SearchBox from "../components/SearchBox.astro";
+import ReliabilityChip from "../components/ReliabilityChip.astro";
+import { readManifest, searchEntries, formatPeriod, type PageType } from "../lib/pages";
+
+const manifest = readManifest();
+const entries = searchEntries(manifest);
+
+const TYPES: { type: PageType; label: string; unit: string }[] = [
+  { type: "route", label: "Routes", unit: "flights" },
+  { type: "airport", label: "Airports", unit: "departures" },
+  { type: "airline", label: "Airlines", unit: "flights" },
+  { type: "flight", label: "Flights", unit: "flights" },
+];
+const TYPE_NAME: Record<string, string> = {
+  route: "Route",
+  airport: "Airport",
+  airline: "Airline",
+  flight: "Flight",
+};
+const unitOf = (type: PageType) => TYPES.find((t) => t.type === type)?.unit ?? "flights";
+
+const Chevron = `<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+---
+
+<Base
+  title="Search — Usually Late"
+  description="Search every U.S. flight, route, airport and airline in the data."
+  noindex={true}
+  demoNotice={manifest?.demo_notice ?? null}
+>
+  <nav class="crumbs"><a href="/">Home</a> / <span>search</span></nav>
+  <h1 id="results-title">Search</h1>
+  {manifest && <p class="period">{formatPeriod(manifest.data_period)}</p>}
+
+  {
+    entries.length === 0 ? (
+      <p class="notice">Nothing exported yet, so there is nothing to search.</p>
+    ) : (
+      <>
+        <div class="card card-pad search-panel">
+          <SearchBox entries={entries} dropdown={false} />
+        </div>
+
+        <noscript>
+          <p class="notice">
+            Search needs JavaScript. Every page is also listed under{" "}
+            <a href="/routes">Routes</a>, <a href="/airports">Airports</a> and{" "}
+            <a href="/airlines">Airlines</a>.
+          </p>
+        </noscript>
+
+        <div id="results" hidden>
+          <div class="results-head">
+            <p id="results-count" class="results-count" aria-live="polite" />
+            <div id="type-filters" class="filters" role="group" aria-label="Show only">
+              <button type="button" data-type="" aria-pressed="true">
+                All <span class="n" />
+              </button>
+              {TYPES.map((t) => (
+                <button type="button" data-type={t.type} aria-pressed="false">
+                  {t.label} <span class="n" />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div class="card" id="results-card">
+            <ul class="rows" id="results-list">
+              {entries.map((e) => (
+                <li data-url={e.url} data-type={e.type} hidden>
+                  <a href={e.url}>
+                    <span>
+                      <span class="t">{e.title}</span>
+                      <span class="s">
+                        {TYPE_NAME[e.type]} · {e.ops.toLocaleString("en-US")} {unitOf(e.type)}
+                      </span>
+                    </span>
+                    <span class="right">
+                      <ReliabilityChip rate={e.rate} band={e.band} label={true} />
+                      <span class="chev" set:html={Chevron} />
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div id="no-results" class="notice" hidden>
+            <p class="first">
+              No pages match <strong id="no-results-q" />.
+            </p>
+            <p class="last">
+              Search by airport code (<code>ORD</code>), two airports for a route
+              (<code>BOS ORD</code>), an airline code (<code>DL</code>) or a flight number. Or
+              browse <a href="/routes">routes</a>, <a href="/airports">airports</a> and{" "}
+              <a href="/airlines">airlines</a>.
+            </p>
+          </div>
+        </div>
+      </>
+    )
+  }
+</Base>
+
+<script>
+  import { match, readIndex } from "../lib/search";
+
+  const input = document.getElementById("q") as HTMLInputElement | null;
+  const results = document.getElementById("results");
+  const list = document.getElementById("results-list");
+
+  if (input && results && list) {
+    const form = input.form!;
+    const index = readIndex();
+    const card = document.getElementById("results-card")!;
+    const count = document.getElementById("results-count")!;
+    const empty = document.getElementById("no-results")!;
+    const emptyQ = document.getElementById("no-results-q")!;
+    const filters = [...document.querySelectorAll<HTMLButtonElement>("#type-filters button")];
+    const rows = new Map(
+      [...list.querySelectorAll<HTMLLIElement>("li")].map((li) => [li.dataset.url!, li]),
+    );
+
+    const params = new URLSearchParams(window.location.search);
+    let type = params.get("type") ?? "";
+
+    const render = () => {
+      const query = input.value.trim();
+      const found = match(index, query);
+      const shown = type ? found.filter((r) => r[3] === type) : found;
+
+      // Counts per type always describe the whole result set, so a filter
+      // never hides where the other matches are.
+      for (const button of filters) {
+        const t = button.dataset.type;
+        const n = t ? found.filter((r) => r[3] === t).length : found.length;
+        button.querySelector(".n")!.textContent = String(n);
+        button.hidden = Boolean(t) && n === 0;
+        button.setAttribute("aria-pressed", String(t === type));
+      }
+
+      for (const li of rows.values()) li.hidden = true;
+      // Re-append in rank order, so the list reads best answer first.
+      for (const row of shown) {
+        const li = rows.get(row[1]);
+        if (li) { li.hidden = false; list.append(li); }
+      }
+
+      results.hidden = query === "";
+      card.hidden = shown.length === 0;
+      empty.hidden = found.length > 0;
+      emptyQ.textContent = `“${query}”`;
+      count.textContent =
+        found.length === 0
+          ? ""
+          : `${found.length.toLocaleString("en-US")} result${found.length === 1 ? "" : "s"} for “${query}”`;
+      document.title = query ? `${query} — Search — Usually Late` : "Search — Usually Late";
+
+      // Keep the URL shareable without adding a history entry per keystroke.
+      const next = new URLSearchParams();
+      if (query) next.set("q", query);
+      if (type) next.set("type", type);
+      const qs = next.toString();
+      history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+    };
+
+    for (const button of filters) {
+      button.addEventListener("click", () => {
+        type = button.dataset.type ?? "";
+        render();
+      });
+    }
+
+    // A filter that no longer has results falls back to All.
+    input.addEventListener("input", () => {
+      if (type && !match(index, input.value).some((r) => r[3] === type)) type = "";
+      render();
+    });
+    // Results update as you type, so submitting has nothing left to do.
+    form.addEventListener("submit", (event) => event.preventDefault());
+
+    render();
+    if (!input.value) input.focus();
+  }
+</script>
+
+<style>
+  .search-panel { margin: 18px 0 8px; }
+  .results-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    margin: 22px 0 12px;
+  }
+  .results-count { margin: 0; font-weight: 600; color: var(--text-primary); }
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; }
+  .filters button {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    border-radius: var(--radius-pill);
+    padding: 5px 12px;
+    cursor: pointer;
+  }
+  .filters button:hover { border-color: var(--primary); color: var(--primary); }
+  .filters button[aria-pressed="true"] {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+  }
+  .filters .n { opacity: 0.75; font-variant-numeric: tabular-nums; margin-left: 2px; }
+  .notice .first { margin-top: 0; }
+  .notice .last { margin-bottom: 0; }
+  @media (max-width: 560px) {
+    ul.rows a { align-items: flex-start; }
+    /* The chip is another component, so its label needs :global to be reached. */
+    ul.rows .right :global(.band-label) { display: none; }
+  }
+</style>

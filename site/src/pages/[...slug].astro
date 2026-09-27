@@ -76,6 +76,14 @@ const crumb =
       ? `${k.origin}–${k.dest}`
       : String(k.airport ?? k.carrier);
 
+// Middle breadcrumb: the section index this page sits under.
+const sectionLabel = {
+  flight: "Flights",
+  route: "Routes",
+  airport: "Airports",
+  airline: "Airlines",
+}[doc.page_type];
+
 const description =
   `${title}: ${formatPercent(stats.on_time_rate)} of flights arrived on time across ` +
   `${formatCount(stats.ops_scheduled)} scheduled flights, ${formatPeriod(doc.data_period)}.`;
@@ -88,7 +96,7 @@ const description =
   demoNotice={demoNotice}
 >
   <nav class="crumbs">
-    <a href="/">Home</a> / <a href={`/${doc.page_type}s`}>{doc.page_type}s</a> /{" "}
+    <a href="/">Home</a> / <a href={`/${doc.page_type}s`}>{sectionLabel}</a> /{" "}
     <span>{crumb}</span>
   </nav>
 

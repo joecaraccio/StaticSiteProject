@@ -2,6 +2,30 @@
 
 Update at the end of each working session.
 
+## 2026-09-26 — search results page
+
+**Done**
+
+- **`/search?q=…` results page** (`site/src/pages/search.astro`). The search box
+  now has a Search button and submits a plain GET there. Enter goes to `/search`
+  too, unless a dropdown option is highlighted; then it opens that page as before.
+  The results page lists every match, best answer first, with per-type filter
+  chips (`&type=route` etc.). Results update as you type and the URL stays
+  shareable. The page is always `noindex`.
+- **One matcher for both.** Matching and ranking moved to `site/src/lib/search.ts`,
+  and index building to `searchEntries()` in `pages.ts`. The homepage dropdown and
+  the results page share both, so they cannot rank differently. The index is
+  embedded once per page as a JSON `<script>`.
+- Results rows are rendered at build time with `ReliabilityChip` and shown or
+  hidden by the script, so they look like rows elsewhere. With JavaScript off, the
+  page points to the Routes / Airports / Airlines directories.
+
+**Open questions**
+
+- The results page renders a row for every exported page. That is fine at mockup
+  scale, but with real data (many flight pages) check the page size. If it grows
+  too large, build rows client-side from the index instead.
+
 ## 2026-09-26 — both BTS tables verified, 36 months loaded
 
 **Done**

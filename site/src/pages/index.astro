@@ -12,38 +12,13 @@ import Base from "../layouts/Base.astro";
 import SearchBox from "../components/SearchBox.astro";
 import HeroBackdrop from "../components/HeroBackdrop.astro";
 import ReliabilityChip from "../components/ReliabilityChip.astro";
-import { readManifest, readPage, pageTitle, type PageType } from "../lib/pages";
+import { readManifest, searchEntries, type PageType, type SearchEntry } from "../lib/pages";
 
 const manifest = readManifest();
-
-interface Entry {
-  url: string;
-  title: string;
-  type: PageType;
-  band: string | null;
-  rate: number | null;
-  ops: number;
-  haystack: string;
-}
-
-const entries: Entry[] = [];
-if (manifest) {
-  for (const item of manifest.pages) {
-    const doc = readPage(item);
-    entries.push({
-      url: item.url,
-      title: pageTitle(doc),
-      type: item.page_type,
-      band: doc.summary?.band ?? null,
-      rate: doc.headline_stats.on_time_rate,
-      ops: doc.headline_stats.ops_scheduled,
-      haystack: [pageTitle(doc), ...Object.values(doc.key)].join(" ").toLowerCase(),
-    });
-  }
-}
+const entries = searchEntries(manifest);
 
 const of = (type: PageType) => entries.filter((e) => e.type === type);
-const byRate = (list: Entry[]) => [...list].sort((a, b) => (b.rate ?? 0) - (a.rate ?? 0));
+const byRate = (list: SearchEntry[]) => [...list].sort((a, b) => (b.rate ?? 0) - (a.rate ?? 0));
 
 const routes = of("route");
 const bestRoutes = byRate(routes).slice(0, 6);

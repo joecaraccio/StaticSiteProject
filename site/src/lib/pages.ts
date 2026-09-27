@@ -149,6 +149,33 @@ export function pageTitle(doc: PageDocument): string {
   }
 }
 
+/** One page as the search box and the /search page see it. */
+export interface SearchEntry {
+  url: string;
+  title: string;
+  type: PageType;
+  band: string | null;
+  rate: number | null;
+  ops: number;
+  haystack: string;
+}
+
+/** Every exported page, in manifest order, with what search matches against. */
+export function searchEntries(manifest: Manifest | null): SearchEntry[] {
+  return (manifest?.pages ?? []).map((item) => {
+    const doc = readPage(item);
+    return {
+      url: item.url,
+      title: pageTitle(doc),
+      type: item.page_type,
+      band: doc.summary?.band ?? null,
+      rate: doc.headline_stats.on_time_rate,
+      ops: doc.headline_stats.ops_scheduled,
+      haystack: [pageTitle(doc), ...Object.values(doc.key)].join(" ").toLowerCase(),
+    };
+  });
+}
+
 export function formatPercent(value: number | null | undefined, digits = 1): string {
   if (value === null || value === undefined || Number.isNaN(value)) return "—";
   return `${(value * 100).toFixed(digits)}%`;

@@ -89,7 +89,8 @@ airport pages; the reporting table feeds airline pages only (DECISIONS.md
 - [x] When delay-cause columns are populated
 - [x] Reporting vs marketing carrier: which one carries the flight number a traveler would search (for example, a regional flight sold under a mainline code). *Decided 2026-09-26: flight pages use the marketing carrier, airline stats the reporting carrier (DECISIONS.md). Confirmed 2026-09-26 that each marketing-table row carries both, but the table is a superset of the reporting table (see above).*
 - [ ] BTS unique carrier identifiers and how code reuse is handled (BTS notes that carrier codes and names can change or be reused, and provides unique IDs for that reason)
-- [ ] Lookup tables for airports and carriers, and where to download them
+- [ ] Lookup tables for airports and carriers, and where to download them. *2026-09-26: `https://transtats.bts.gov/Download_Lookup.asp?Y11x72=Y_AIRPORT` (and the `www.` host) returns **404** with an HTML error page, so the commonly cited URL is not current. Airport names ("Logan") need this table; city and state do not (next point).*
+- [x] City and state per airport are **in the on-time CSV itself** (checked 2026-09-26 on the 2025-01 raw file): `OriginCityName` / `DestCityName` (`Boston, MA`), `OriginState` / `DestState` (`MA`), `OriginStateName` / `DestStateName` (`Massachusetts`), plus `…StateFips`, `…Wac`, `…CityMarketID`. Not yet mapped. Gotcha: DCA is `Washington, DC` with state `VA` / `Virginia`, so city and state can name different places.
 - [ ] A published monthly on-time figure to reproduce for validation (M2)
 - [ ] Rate or usage guidance for automated downloads
 
